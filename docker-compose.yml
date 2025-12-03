@@ -26,6 +26,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      no_cache: true
+    image: einsatzplanung-backend:latest
     container_name: einsatzplanung-backend
     environment:
       DB_HOST: db
@@ -40,9 +42,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
+    # KEINE Volume-Mounts für Portainer - Code wird beim Build kopiert
     networks:
       - einsatzplanung-network
     restart: unless-stopped
