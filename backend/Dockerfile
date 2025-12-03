@@ -8,11 +8,11 @@ COPY package*.json ./
 # Installiere Dependencies
 RUN npm install --production
 
-# Kopiere Anwendungscode (explizit alle notwendigen Dateien)
-COPY server.js ./
-COPY routes/ ./routes/
-COPY db/ ./db/
-COPY scripts/ ./scripts/
+# Kopiere Anwendungscode - verwende COPY . . um sicherzustellen dass alles kopiert wird
+COPY . .
+
+# Prüfe ob server.js vorhanden ist (für Debugging)
+RUN ls -la /app/ || echo "Files in /app:"
 
 # Exponiere Port
 EXPOSE 3000
