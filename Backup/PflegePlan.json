@@ -1,0 +1,32 @@
+{
+  "events": [],
+  "pool": [
+    {
+      "id": "7c0a1430-10ab-400a-9141-9442972889d8",
+      "title": "Freddy",
+      "zone": "Altstadt",
+      "types": [
+        "care"
+      ]
+    },
+    {
+      "id": "3bdfac44-6eab-4d47-81aa-09c7cba2a76f",
+      "title": "Test",
+      "zone": "Altstadt",
+      "types": [
+        "house"
+      ]
+    }
+  ],
+  "employees": [],
+  "tours": [
+    {
+      "id": "t1",
+      "name": "Tour 1 (Früh)"
+    },
+    {
+      "id": "t2",
+      "name": "Tour 2 (Spät)"
+    }
+  ]
+}

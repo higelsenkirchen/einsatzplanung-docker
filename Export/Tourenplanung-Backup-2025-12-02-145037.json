@@ -1,0 +1,747 @@
+{
+  "events": [],
+  "pool": [
+    {
+      "id": "miomfu9weye9mrqqkjm",
+      "title": "Auf der Heiden, Rolf",
+      "zone": "Schalke",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomg511rkl9mzpnc5o",
+      "title": "Barciaga, Karin",
+      "zone": "Bismarck",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomge5h981icbwfjjo",
+      "title": "Beckmann, Jörg",
+      "zone": "Erle",
+      "types": [
+        "care"
+      ]
+    },
+    {
+      "id": "miomgn6f5g9celu7otd",
+      "title": "Berkel, Hildegard",
+      "zone": "Buer",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomho299x0sw9av0rc",
+      "title": "Borutta, Manfred",
+      "zone": "Schalke",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomi4ibqk3jj0z0l59",
+      "title": "Bunse, Josef",
+      "zone": "Bulmke-Hüllen",
+      "types": [
+        "care",
+        "house",
+        "social"
+      ]
+    },
+    {
+      "id": "miomima736ea029l03s",
+      "title": "Callsen, Herward",
+      "zone": "Horst",
+      "types": [
+        "house",
+        "social"
+      ]
+    },
+    {
+      "id": "miomjitbyohvu35610k",
+      "title": "Cetinkaya, Osman",
+      "zone": "Buer",
+      "types": [
+        "care"
+      ]
+    },
+    {
+      "id": "miomk6ev26v1288284p",
+      "title": "Chlebowski, Alois",
+      "zone": "Horst",
+      "types": [
+        "care"
+      ]
+    },
+    {
+      "id": "miomkmw2vr9mkdcmqp",
+      "title": "Cholodowski, Heinrich",
+      "zone": "Scholven",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "mioml2hsovfzdb9skvd",
+      "title": "Digulla, Ursel",
+      "zone": "Ückendorf",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomlp0hbem70cw7d5f",
+      "title": "Döhr, Kirsten",
+      "zone": "Buer",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomm00pby35t9nqspo",
+      "title": "Dolinski, Helmut",
+      "zone": "Erle",
+      "types": [
+        "care"
+      ]
+    },
+    {
+      "id": "miommbve2dknpa0kvpt",
+      "title": "Dölle, Karin",
+      "zone": "Bismarck",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miommtkjpcefgww17h",
+      "title": "Dörnemann, Margarete",
+      "zone": "Feldmark",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomnc3rrdfmx0zp72",
+      "title": "Fischer, Renate",
+      "zone": "Resse",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomnu68g9mjtwqbqjf",
+      "title": "Gritzan, Rosemarie",
+      "zone": "Hassel",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomo2avkg13whjkd77",
+      "title": "Grys, Ilona",
+      "zone": "Buer",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomoe9czllp6hdvx8",
+      "title": "Haase, Gertrudia",
+      "zone": "Ückendorf",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomopfxwlxna6d4su",
+      "title": "Jetz, Gertrud",
+      "zone": "Heßler",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomp30tym2czswezko",
+      "title": "Kliem, Katharina",
+      "zone": "Schalke",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miompawtp9w9jqdijq",
+      "title": "Krause, Monika",
+      "zone": "Alt-/Neustadt",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miompks54ey8tbrictu",
+      "title": "Kuklinski, Paul-Josef",
+      "zone": "Resse",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miompuodvb2hcw5a82",
+      "title": "Kulawik, Monika",
+      "zone": "Schalke",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomq6qtvqa3j1sba5",
+      "title": "Laser, Ursula",
+      "zone": "Bismarck",
+      "types": [
+        "care"
+      ]
+    },
+    {
+      "id": "miomqcr5ft07sldvgoq",
+      "title": "Laska, Horst",
+      "zone": "Schalke",
+      "types": [
+        "care"
+      ]
+    },
+    {
+      "id": "miomqler2ae0bxx6fvt",
+      "title": "Moczarski, Gabriele",
+      "zone": "Bismarck",
+      "types": [
+        "care"
+      ]
+    },
+    {
+      "id": "miomqs9h19k7hacmne7",
+      "title": "Mohr, Nicole",
+      "zone": "Buer",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomqzd9dv6m5zssob",
+      "title": "Mutig, Jürgen",
+      "zone": "Buer",
+      "types": [
+        "care",
+        "house",
+        "social"
+      ]
+    },
+    {
+      "id": "miomr62jt6xii6sx9qe",
+      "title": "Nahs, Reinhard",
+      "zone": "Alt-/Neustadt",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomridk2ald9zelmcl",
+      "title": "Nordhaus, Signe",
+      "zone": "Heßler",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "mioms3r1nxh4ja7f1xa",
+      "title": "Ortwein, Henriette",
+      "zone": "Heßler",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomsej7tbkzgizj8j",
+      "title": "Posewan, Ingrid",
+      "zone": "Bulmke-Hüllen",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomsp32gg6hm8s4apk",
+      "title": "Rossmann, Ursula",
+      "zone": "Ückendorf",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomsymsfgjp2tdqbm9",
+      "title": "Rudolf, Gisela",
+      "zone": "Ückendorf",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomtb0zt245pe19xqk",
+      "title": "Scheller, Johannes-Josef",
+      "zone": "Bulmke-Hüllen",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomti9whcapisqub76",
+      "title": "Schimmele, Heinz",
+      "zone": "Buer",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomtq6b3fibveprscu",
+      "title": "Schulte, Karl-Heinz",
+      "zone": "Erle",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomtwinhnjqf7z2bea",
+      "title": "Stefan, Inge",
+      "zone": "Erle",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomu50bf88w71suw2s",
+      "title": "Taube, Elvira",
+      "zone": "Horst",
+      "types": [
+        "care"
+      ]
+    },
+    {
+      "id": "miomuln9x4jf5x1c7uk",
+      "title": "Tertocha, Mara",
+      "zone": "Horst",
+      "types": [
+        "care",
+        "social"
+      ]
+    },
+    {
+      "id": "miomuuwhmzm1kmocqf",
+      "title": "Tollmann, Helmut",
+      "zone": "Ückendorf",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomvbaezv24irodbd",
+      "title": "Trottenberg, Hildegard",
+      "zone": "Buer",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomvryp00cerxum10b2",
+      "title": "Tschiersch, Roswitha",
+      "zone": "Bulmke-Hüllen",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomw2f14phwbz1ihm",
+      "title": "Vogel, Karlheinz",
+      "zone": "Bulmke-Hüllen",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomwfxy7cjspsu16s",
+      "title": "Waab, Hildegard",
+      "zone": "Feldmark",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomwqxmpbcoh43u9u",
+      "title": "Wedekind, Dela",
+      "zone": "Ückendorf",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomx35pilshuu0cknq",
+      "title": "Weyher, Elisabeth",
+      "zone": "Erle",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomxe44mn6jormw9um",
+      "title": "Witzenti, Claudia",
+      "zone": "Bulmke-Hüllen",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomxven0dfv2ss6789",
+      "title": "Zenker, Susanne",
+      "zone": "Scholven",
+      "types": [
+        "care",
+        "house"
+      ]
+    },
+    {
+      "id": "miomy76m84q102towof",
+      "title": "Kipke, Hans-Joachim",
+      "zone": "Alt-/Neustadt",
+      "types": [
+        "care",
+        "house"
+      ]
+    }
+  ],
+  "employees": [
+    {
+      "id": "mioip8xvc71enfawpfk",
+      "name": "Selin Abay",
+      "weeklyHours": 15,
+      "wageGroup": "betreuungskraft",
+      "transport": "car",
+      "homeZone": "Bismarck"
+    },
+    {
+      "id": "mioipxkdxdm45a75pnj",
+      "name": "Manuela Arfaoui",
+      "weeklyHours": 12,
+      "wageGroup": "betreuungskraft",
+      "transport": "public",
+      "homeZone": "Scholven"
+    },
+    {
+      "id": "mioiqps97oytreyug1l",
+      "name": "Gabriela Brückler",
+      "weeklyHours": 20,
+      "wageGroup": "fachkraft",
+      "transport": "car",
+      "homeZone": "Feldmark"
+    },
+    {
+      "id": "mioiu2fpob3zo1382wb",
+      "name": "Nicole Burandt",
+      "weeklyHours": 10,
+      "wageGroup": "betreuungskraft",
+      "transport": "car",
+      "homeZone": "Schalke"
+    },
+    {
+      "id": "mioiunm8vb04ts31akf",
+      "name": "Rebecca Busan",
+      "weeklyHours": 20,
+      "wageGroup": "betreuungskraft",
+      "transport": "public",
+      "homeZone": "Feldmark"
+    },
+    {
+      "id": "mioivanf5un7dkhokmq",
+      "name": "Kirsten Eickhoff",
+      "weeklyHours": 20,
+      "wageGroup": "betreuungskraft",
+      "transport": "car",
+      "homeZone": "Schalke"
+    },
+    {
+      "id": "mioivt1ajka4kc5jik",
+      "name": "Natascha Feichtmaier",
+      "weeklyHours": 18,
+      "wageGroup": "betreuungskraft",
+      "transport": "car",
+      "homeZone": "Schalke"
+    },
+    {
+      "id": "mioiwfzexim605w47gt",
+      "name": "Anna Hogrefe",
+      "weeklyHours": 25,
+      "wageGroup": "betreuungskraft",
+      "transport": "car",
+      "homeZone": "Scholven"
+    },
+    {
+      "id": "miokrv5oxsn3pfae3wo",
+      "name": "Andrea Jakubowski",
+      "weeklyHours": 15,
+      "wageGroup": "betreuungskraft",
+      "transport": "car",
+      "homeZone": "Beckhausen"
+    },
+    {
+      "id": "mioks8zmmbcgqflh9np",
+      "name": "Anke Jasinski",
+      "weeklyHours": 10,
+      "wageGroup": "betreuungskraft",
+      "transport": "car",
+      "homeZone": "Scholven"
+    },
+    {
+      "id": "mioksmc86gue09e1ff",
+      "name": "Selma Karakus",
+      "weeklyHours": 20,
+      "wageGroup": "betreuungskraft",
+      "transport": "car",
+      "homeZone": "Außerhalb"
+    },
+    {
+      "id": "miokt9ieu8uoonh1jzl",
+      "name": "Michaela Klare",
+      "weeklyHours": 15,
+      "wageGroup": "betreuungskraft",
+      "transport": "car",
+      "homeZone": "Schalke"
+    },
+    {
+      "id": "mioktsh5iwb94nw0kl",
+      "name": "Bianca Knuth",
+      "weeklyHours": 12,
+      "wageGroup": "betreuungskraft",
+      "transport": "car",
+      "homeZone": "Erle"
+    },
+    {
+      "id": "mioku88aq3uddly3uh",
+      "name": "Anja Kranich",
+      "weeklyHours": 10,
+      "wageGroup": "betreuungskraft",
+      "transport": "car",
+      "homeZone": "Bismarck"
+    },
+    {
+      "id": "miokusg06ek7tz8bw84",
+      "name": "Heike Lankow",
+      "weeklyHours": 20,
+      "wageGroup": "betreuungskraft",
+      "transport": "public",
+      "homeZone": "Bismarck"
+    },
+    {
+      "id": "miokvb9rvbc8itrg3",
+      "name": "Celina Lehnen",
+      "weeklyHours": 15,
+      "wageGroup": "r_e",
+      "transport": "public",
+      "homeZone": "Horst"
+    },
+    {
+      "id": "miokw662apu44y6c8ov",
+      "name": "Manuela Meininghaus",
+      "weeklyHours": 18,
+      "wageGroup": "betreuungskraft",
+      "transport": "car",
+      "homeZone": "Rotthausen"
+    },
+    {
+      "id": "miokwmwtsc7vr5fnt4",
+      "name": "Dirk Nahs",
+      "weeklyHours": 15,
+      "wageGroup": "betreuungskraft",
+      "transport": "car",
+      "homeZone": "Feldmark"
+    },
+    {
+      "id": "miokx3dy60d8t306ix3",
+      "name": "Ramona Polyakovics",
+      "weeklyHours": 15,
+      "wageGroup": "betreuungskraft",
+      "transport": "public",
+      "homeZone": "Ückendorf"
+    },
+    {
+      "id": "miokxfxlbfqjdxzf9tb",
+      "name": "Marcel Pracht",
+      "weeklyHours": 25,
+      "wageGroup": "r_e",
+      "transport": "car",
+      "homeZone": "Außerhalb"
+    },
+    {
+      "id": "miokxw1flyeqqtooyzb",
+      "name": "Anja Rullmann",
+      "weeklyHours": 16,
+      "wageGroup": "betreuungskraft",
+      "transport": "car",
+      "homeZone": "Rotthausen"
+    },
+    {
+      "id": "miokye7e3y6gladm3r",
+      "name": "Michaela Schemann",
+      "weeklyHours": 6,
+      "wageGroup": "r_e",
+      "transport": "car",
+      "homeZone": "Buer"
+    },
+    {
+      "id": "miokyunz0did1sxjcdb",
+      "name": "Kathrin Schwindt",
+      "weeklyHours": 20,
+      "wageGroup": "betreuungskraft",
+      "transport": "car",
+      "homeZone": "Erle"
+    },
+    {
+      "id": "miokzgs198mow0p93si",
+      "name": "Mechthild Sickelmann",
+      "weeklyHours": 12,
+      "wageGroup": "betreuungskraft",
+      "transport": "car",
+      "homeZone": "Buer"
+    },
+    {
+      "id": "miokzud6hnd66ixc2x",
+      "name": "Nadine Siesing",
+      "weeklyHours": 25,
+      "wageGroup": "betreuungskraft",
+      "transport": "car",
+      "homeZone": "Schalke"
+    },
+    {
+      "id": "miol09nlwrhxo78uha",
+      "name": "Ines Stein",
+      "weeklyHours": 11,
+      "wageGroup": "betreuungskraft",
+      "transport": "car",
+      "homeZone": "Heßler"
+    },
+    {
+      "id": "miol0q44ba8byckxvhr",
+      "name": "Jasmin Stöneberg",
+      "weeklyHours": 25,
+      "wageGroup": "betreuungskraft",
+      "transport": "car",
+      "homeZone": "Schalke"
+    },
+    {
+      "id": "miol162pug2dfbxp28",
+      "name": "Gisela Strauß",
+      "weeklyHours": 30,
+      "wageGroup": "r_e",
+      "transport": "car",
+      "homeZone": "Erle"
+    },
+    {
+      "id": "miol1ktcalvxkg7xhti",
+      "name": "Daniela Wegner",
+      "weeklyHours": 15,
+      "wageGroup": "betreuungskraft",
+      "transport": "car",
+      "homeZone": "Buer"
+    },
+    {
+      "id": "miol206338jr9lghvm7",
+      "name": "Hannah Willam",
+      "weeklyHours": 12,
+      "wageGroup": "betreuungskraft",
+      "transport": "car",
+      "homeZone": "Resse"
+    }
+  ],
+  "tours": [
+    {
+      "id": "t1",
+      "name": "Tour 1",
+      "employeeId": "mioiqps97oytreyug1l"
+    },
+    {
+      "id": "tmiom6x0v3hdnvweh82o",
+      "name": "Tour 2",
+      "weeklyHoursLimit": null
+    }
+  ],
+  "wageSettings": {
+    "wageGroups": [
+      {
+        "id": "r_e",
+        "name": "RüE",
+        "hourlyRate": 19.77
+      },
+      {
+        "id": "betreuungskraft",
+        "name": "Betreuungskraft",
+        "hourlyRate": 18.4
+      },
+      {
+        "id": "hw_kraft",
+        "name": "HW-Kraft",
+        "hourlyRate": 16
+      }
+    ],
+    "surcharges": {
+      "sunday": 26,
+      "holiday": 100,
+      "night": 20
+    },
+    "revenueRates": {
+      "care": 45,
+      "house": 35,
+      "social": 40
+    },
+    "avgSpeed": 30,
+    "kmRate": 0.3,
+    "publicTransportMonthly": 30,
+    "employerFactor": 1.5,
+    "targetMargin": 50
+  },
+  "favorites": []
+}

@@ -1,0 +1,243 @@
+{
+  "events": [
+    {
+      "id": "mig2agjrnag0hfdiv0a",
+      "title": "Dieter",
+      "start": "2024-01-01T10:30:00+01:00",
+      "end": "2024-01-01T11:30:00+01:00",
+      "extendedProps": {
+        "zone": "Alt-/Neustadt",
+        "types": [
+          "house"
+        ],
+        "tour": "t1"
+      }
+    },
+    {
+      "id": "mig2fe19zd8r9c8d7m8",
+      "title": "Test",
+      "start": "2024-01-01T09:10:00+01:00",
+      "end": "2024-01-01T10:10:00+01:00",
+      "extendedProps": {
+        "zone": "Alt-/Neustadt",
+        "types": [
+          "care"
+        ],
+        "tour": "t1"
+      }
+    },
+    {
+      "id": "mig2wfzo8r945892ata",
+      "title": "Test",
+      "start": "2024-01-02T09:00:00+01:00",
+      "end": "2024-01-02T10:00:00+01:00",
+      "extendedProps": {
+        "zone": "Alt-/Neustadt",
+        "types": [
+          "social",
+          "other"
+        ],
+        "tour": "t1"
+      }
+    },
+    {
+      "id": "mig5hugub0hswajlaz7",
+      "title": "Klaus",
+      "start": "2024-01-01T12:25:00+01:00",
+      "end": "2024-01-01T13:25:00+01:00",
+      "extendedProps": {
+        "zone": "Alt-/Neustadt",
+        "types": [
+          "care",
+          "house"
+        ],
+        "tour": "t1",
+        "rhythm": "biweekly"
+      }
+    },
+    {
+      "id": "mig5i6oi35crjhfed48",
+      "title": "Klaus",
+      "start": "2024-01-16T00:35:00.000Z",
+      "end": "2024-01-16T01:35:00.000Z",
+      "extendedProps": {
+        "zone": "Alt-/Neustadt",
+        "types": [
+          "care",
+          "house"
+        ],
+        "tour": "t1",
+        "rhythm": "biweekly",
+        "biweeklyParentId": "mig5hugub0hswajlaz7",
+        "isBiweeklySecond": true
+      }
+    },
+    {
+      "id": "mig5iaoan6j4a4mepem",
+      "title": "Jens",
+      "start": "2024-01-16T00:35:00.000Z",
+      "end": "2024-01-16T01:35:00.000Z",
+      "extendedProps": {
+        "zone": "Alt-/Neustadt",
+        "types": [
+          "care",
+          "house"
+        ],
+        "tour": "t1",
+        "rhythm": "biweekly",
+        "biweeklyParentId": "mig2wf1wijos6kajfd",
+        "isBiweeklySecond": true
+      }
+    },
+    {
+      "id": "mig5itmxwnz4kcpbr4d",
+      "title": "Jens",
+      "start": "2024-01-01T06:55:00+01:00",
+      "end": "2024-01-01T07:55:00+01:00",
+      "extendedProps": {
+        "zone": "Alt-/Neustadt",
+        "types": [
+          "care",
+          "house"
+        ],
+        "tour": "t1"
+      }
+    },
+    {
+      "id": "mig5kubq4sd31uf9705",
+      "title": "dwa",
+      "start": "2024-01-04T09:30:00+01:00",
+      "end": "2024-01-04T12:05:00+01:00",
+      "extendedProps": {
+        "zone": "Alt-/Neustadt",
+        "tour": "t1",
+        "types": [
+          "care"
+        ],
+        "rhythm": "weekly"
+      }
+    },
+    {
+      "id": "mig5ky015tiadzq870r",
+      "title": "dwa",
+      "start": "2024-01-04T12:25:00+01:00",
+      "end": "2024-01-04T14:45:00+01:00",
+      "extendedProps": {
+        "zone": "Alt-/Neustadt",
+        "tour": "t1",
+        "types": [
+          "care"
+        ],
+        "rhythm": "weekly"
+      }
+    }
+  ],
+  "pool": [],
+  "employees": [
+    {
+      "id": "mioip8xvc71enfawpfk",
+      "name": "Selin Abay",
+      "weeklyHours": 15,
+      "wageGroup": "hilfskraft",
+      "transport": "car",
+      "homeZone": "Bismarck"
+    },
+    {
+      "id": "mioipxkdxdm45a75pnj",
+      "name": "Manuela Arfaoui",
+      "weeklyHours": 12,
+      "wageGroup": "hilfskraft",
+      "transport": "public",
+      "homeZone": "Scholven"
+    },
+    {
+      "id": "mioiqps97oytreyug1l",
+      "name": "Gabriela Brückler",
+      "weeklyHours": 20,
+      "wageGroup": "fachkraft",
+      "transport": "car",
+      "homeZone": "Feldmark"
+    },
+    {
+      "id": "mioiu2fpob3zo1382wb",
+      "name": "Nicole Burandt",
+      "weeklyHours": 10,
+      "wageGroup": "betreuungskraft",
+      "transport": "car",
+      "homeZone": "Schalke"
+    },
+    {
+      "id": "mioiunm8vb04ts31akf",
+      "name": "Rebecca Busan",
+      "weeklyHours": 20,
+      "wageGroup": "betreuungskraft",
+      "transport": "public",
+      "homeZone": "Feldmark"
+    },
+    {
+      "id": "mioivanf5un7dkhokmq",
+      "name": "Kirsten Eickhoff",
+      "weeklyHours": 20,
+      "wageGroup": "betreuungskraft",
+      "transport": "car",
+      "homeZone": "Schalke"
+    },
+    {
+      "id": "mioivt1ajka4kc5jik",
+      "name": "Natascha Feichtmaier",
+      "weeklyHours": 18,
+      "wageGroup": "betreuungskraft",
+      "transport": "car",
+      "homeZone": "Schalke"
+    },
+    {
+      "id": "mioiwfzexim605w47gt",
+      "name": "Anna Hogrefe",
+      "weeklyHours": 25,
+      "wageGroup": "betreuungskraft",
+      "transport": "car",
+      "homeZone": "Scholven"
+    }
+  ],
+  "tours": [
+    {
+      "id": "t1",
+      "name": "Tour 1"
+    }
+  ],
+  "wageSettings": {
+    "wageGroups": [
+      {
+        "id": "r_e",
+        "name": "RüE",
+        "hourlyRate": 19.77
+      },
+      {
+        "id": "betreuungskraft",
+        "name": "Betreuungskraft",
+        "hourlyRate": 18.4
+      },
+      {
+        "id": "hw_kraft",
+        "name": "HW-Kraft",
+        "hourlyRate": 16
+      }
+    ],
+    "surcharges": {
+      "sunday": 26,
+      "holiday": 100,
+      "night": 20
+    },
+    "revenueRates": {
+      "care": 45,
+      "house": 35,
+      "social": 40
+    },
+    "avgSpeed": 30,
+    "kmRate": 0.3,
+    "publicTransportMonthly": 30,
+    "employerFactor": 1.5,
+    "targetMargin": 50
+  },
+  "favorites": []
+}
