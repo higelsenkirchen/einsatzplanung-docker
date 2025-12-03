@@ -1,0 +1,34 @@
+# Node.js
+node_modules/
+npm-debug.log
+package-lock.json
+
+# Docker
+*.tar
+*.zip
+
+# Umgebungsvariablen
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backup/Export Dateien
+Backup/
+Export/
+*.sync.json
+
+# Logs
+*.log
+
+# Temporäre Dateien
+*.tmp
+*.temp
