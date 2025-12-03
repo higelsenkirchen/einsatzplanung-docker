@@ -8,18 +8,17 @@ COPY package*.json ./
 # Installiere Dependencies
 RUN npm install --production
 
-# Kopiere ALLE Dateien (außer die in .dockerignore)
-COPY . .
+# Kopiere Dateien Schritt für Schritt mit expliziten Pfaden
+COPY server.js /app/server.js
+COPY routes /app/routes
+COPY db /app/db
+COPY scripts /app/scripts
 
-# Debug: Zeige alle Dateien im Container
-RUN echo "=== Files in /app ===" && \
-    ls -la /app/ && \
-    echo "=== Checking server.js ===" && \
-    test -f /app/server.js && echo "✅ server.js found" || echo "❌ server.js NOT FOUND" && \
-    echo "=== Checking routes ===" && \
-    ls -la /app/routes/ || echo "❌ routes directory NOT FOUND" && \
-    echo "=== Checking db ===" && \
-    ls -la /app/db/ || echo "❌ db directory NOT FOUND"
+# Verifiziere dass alle Dateien vorhanden sind
+RUN test -f /app/server.js || (echo "ERROR: server.js not found!" && exit 1) && \
+    test -d /app/routes || (echo "ERROR: routes directory not found!" && exit 1) && \
+    test -d /app/db || (echo "ERROR: db directory not found!" && exit 1) && \
+    echo "✅ All files copied successfully"
 
 # Exponiere Port
 EXPOSE 3000
