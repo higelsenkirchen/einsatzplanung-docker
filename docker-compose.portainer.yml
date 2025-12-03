@@ -24,7 +24,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-      no_cache: false
+      no_cache: true
+      pull: true
     image: einsatzplanung-backend:latest
     container_name: einsatzplanung-backend
     environment:
