@@ -34,6 +34,9 @@ async function initializeDatabase() {
         if (error.code === '42P07') {
             // Schema already exists
             console.log('ℹ️  Datenbankschema bereits vorhanden');
+        } else if (error.code === '42710') {
+            // Trigger or other object already exists
+            console.log('ℹ️  Datenbankschema bereits vorhanden (Trigger existieren bereits)');
         } else {
             console.error('❌ Fehler beim Initialisieren des Schemas:', error);
             throw error;
