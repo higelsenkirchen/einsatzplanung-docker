@@ -917,14 +917,60 @@
         }
 
         /* Biweekly events side by side */
-        .week-event-row.biweekly-left {
+        .week-event-row.biweekly-left,
+        .week-event-row.overlap-left {
             width: calc(50% - 3px) !important;
             left: 2px !important;
             right: auto !important;
         }
 
-        .week-event-row.biweekly-right {
+        .week-event-row.biweekly-right,
+        .week-event-row.overlap-right {
             width: calc(50% - 3px) !important;
+            left: auto !important;
+            right: 2px !important;
+        }
+        
+        /* Support for 3 overlapping events */
+        .week-event-row.overlap-middle {
+            width: calc(33.333% - 4px) !important;
+            left: calc(33.333% + 1px) !important;
+            right: auto !important;
+        }
+        
+        .week-event-row.overlap-left.three-events {
+            width: calc(33.333% - 4px) !important;
+            left: 2px !important;
+            right: auto !important;
+        }
+        
+        .week-event-row.overlap-right.three-events {
+            width: calc(33.333% - 4px) !important;
+            left: auto !important;
+            right: 2px !important;
+        }
+        
+        /* Support for 4 overlapping events */
+        .week-event-row.overlap-middle-left {
+            width: calc(25% - 4px) !important;
+            left: calc(25% + 1px) !important;
+            right: auto !important;
+        }
+        
+        .week-event-row.overlap-middle-right {
+            width: calc(25% - 4px) !important;
+            left: calc(50% + 1px) !important;
+            right: auto !important;
+        }
+        
+        .week-event-row.overlap-left.four-events {
+            width: calc(25% - 4px) !important;
+            left: 2px !important;
+            right: auto !important;
+        }
+        
+        .week-event-row.overlap-right.four-events {
+            width: calc(25% - 4px) !important;
             left: auto !important;
             right: 2px !important;
         }
@@ -959,7 +1005,7 @@
         /* Toast Notifications */
         .toast-container {
             position: fixed;
-            bottom: 24px;
+            top: 24px;
             right: 24px;
             z-index: 10000;
             display: flex;
@@ -1000,13 +1046,13 @@
         }
 
         @keyframes toastSlideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         @keyframes toastSlideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(-100%); opacity: 0; }
         }
 
         /* Context Menu */
@@ -3737,8 +3783,8 @@ Weber, Peter;Erle;social</code>
                 list.style.backgroundSize = '100% ' + lineHeightCompare + 'px';
                 list.onclick = (e) => handleColumnClick(e, selectedDayIndex, tour.id);
                 
-                // Find biweekly pairs for side-by-side display
-                const biweeklyPairs = findBiweeklyPairs(tourEvents);
+                // Find overlapping events for side-by-side display
+                const overlappingPositions = findOverlappingEvents(tourEvents);
                 
                 // Sortiere Events: zuerst Travel-Events, dann normale Events
                 // Damit Travel-Events zuerst gerendert werden und unter normalen Events liegen (niedrigerer z-index)
@@ -3755,8 +3801,8 @@ Weber, Peter;Erle;social</code>
                 });
                 
                 sortedEvents.forEach(evt => {
-                    const biweeklyPosition = biweeklyPairs.get(evt.id);
-                    list.appendChild(createWeekEventRow(evt, false, biweeklyPosition));
+                    const overlapPosition = overlappingPositions.get(evt.id);
+                    list.appendChild(createWeekEventRow(evt, false, overlapPosition));
                 });
 
                 tourCard.appendChild(list);
@@ -4046,8 +4092,8 @@ Weber, Peter;Erle;social</code>
                 list.style.backgroundSize = '100% ' + lineHeight + 'px';
                 list.onclick = (e) => handleColumnClick(e, dayIndex);
                 
-                // Find biweekly pairs for side-by-side display
-                const biweeklyPairs = findBiweeklyPairs(dayEvents);
+                // Find overlapping events for side-by-side display
+                const overlappingPositions = findOverlappingEvents(dayEvents);
                 
                 // Sortiere Events: zuerst Travel-Events, dann normale Events
                 // Damit Travel-Events zuerst gerendert werden und unter normalen Events liegen (niedrigerer z-index)
@@ -4065,8 +4111,8 @@ Weber, Peter;Erle;social</code>
                 
                 sortedDayEvents.forEach(evt => {
                     const conflicts = getEventConflicts(evt, allRealEvents);
-                    const biweeklyPosition = biweeklyPairs.get(evt.id);
-                    list.appendChild(createWeekEventRow(evt, conflicts.length > 0, biweeklyPosition));
+                    const overlapPosition = overlappingPositions.get(evt.id);
+                    list.appendChild(createWeekEventRow(evt, conflicts.length > 0, overlapPosition));
                 });
 
                 dayCard.appendChild(list);
@@ -4074,31 +4120,78 @@ Weber, Peter;Erle;social</code>
             }
         }
 
-        // Find biweekly events that overlap and should be displayed side by side
-        function findBiweeklyPairs(events) {
+        // Find all overlapping events and assign positions for side-by-side display
+        function findOverlappingEvents(events) {
             const positions = new Map();
-            const biweeklyEvents = filterRealEvents(events.filter(e => e.extendedProps?.rhythm === 'biweekly'));
+            const realEvents = filterRealEvents(events);
             
-            for(let i = 0; i < biweeklyEvents.length; i++) {
-                const evt1 = biweeklyEvents[i];
-                const start1 = parseTimeToMinutes(evt1.start);
-                const end1 = parseTimeToMinutes(evt1.end);
+            // Gruppiere Events nach Überlappungen
+            const groups = [];
+            const processed = new Set();
+            
+            for(let i = 0; i < realEvents.length; i++) {
+                if(processed.has(realEvents[i].id)) continue;
                 
-                for(let j = i + 1; j < biweeklyEvents.length; j++) {
-                    const evt2 = biweeklyEvents[j];
-                    const start2 = parseTimeToMinutes(evt2.start);
-                    const end2 = parseTimeToMinutes(evt2.end);
+                const group = [realEvents[i]];
+                processed.add(realEvents[i].id);
+                
+                const start1 = parseTimeToMinutes(realEvents[i].start);
+                const end1 = parseTimeToMinutes(realEvents[i].end);
+                
+                // Finde alle Events, die mit diesem Event überlappen
+                for(let j = i + 1; j < realEvents.length; j++) {
+                    if(processed.has(realEvents[j].id)) continue;
                     
-                    // Check if times overlap
+                    const start2 = parseTimeToMinutes(realEvents[j].start);
+                    const end2 = parseTimeToMinutes(realEvents[j].end);
+                    
+                    // Prüfe ob Events überlappen
                     if(start1 < end2 && end1 > start2) {
-                        // They overlap - position side by side
-                        if(!positions.has(evt1.id)) positions.set(evt1.id, 'left');
-                        if(!positions.has(evt2.id)) positions.set(evt2.id, 'right');
+                        group.push(realEvents[j]);
+                        processed.add(realEvents[j].id);
                     }
+                }
+                
+                // Nur Gruppen mit mehr als einem Event speichern
+                if(group.length > 1) {
+                    groups.push(group);
                 }
             }
             
+            // Weise Positionen zu
+            groups.forEach(group => {
+                const numEvents = group.length;
+                
+                // Sortiere nach Startzeit für konsistente Positionierung
+                group.sort((a, b) => {
+                    const startA = parseTimeToMinutes(a.start);
+                    const startB = parseTimeToMinutes(b.start);
+                    return startA - startB;
+                });
+                
+                // Weise Positionen zu basierend auf Anzahl der überlappenden Events
+                group.forEach((evt, index) => {
+                    if(numEvents === 2) {
+                        // Zwei Events: left und right
+                        positions.set(evt.id, index === 0 ? 'left' : 'right');
+                    } else if(numEvents === 3) {
+                        // Drei Events: left, middle, right
+                        positions.set(evt.id, index === 0 ? 'left' : index === 1 ? 'middle' : 'right');
+                    } else {
+                        // Mehr als 3 Events: verteile gleichmäßig
+                        const positionNames = ['left', 'middle-left', 'middle-right', 'right'];
+                        const posIndex = Math.min(index, positionNames.length - 1);
+                        positions.set(evt.id, positionNames[posIndex]);
+                    }
+                });
+            });
+            
             return positions;
+        }
+        
+        // Find biweekly events that overlap and should be displayed side by side (deprecated, use findOverlappingEvents)
+        function findBiweeklyPairs(events) {
+            return findOverlappingEvents(events);
         }
 
         function handleColumnClick(e, dayIndex, tourId = null) {
@@ -4125,7 +4218,7 @@ Weber, Peter;Erle;social</code>
             openEventModal(null, opts);
         }
 
-        function createWeekEventRow(evt, hasConflict = false, biweeklyPosition = null) {
+        function createWeekEventRow(evt, hasConflict = false, overlapPosition = null) {
             const pxPerMin = getPixelsPerMinute();
             const row = document.createElement('div');
             row.className = 'week-event-row';
@@ -4133,8 +4226,25 @@ Weber, Peter;Erle;social</code>
             if(evt.extendedProps?.isTravel) row.classList.add('is-travel');
             if(evt.extendedProps?.rhythm === 'biweekly') row.classList.add('is-biweekly');
             if(hasConflict) row.classList.add('has-conflict');
-            if(biweeklyPosition === 'left') row.classList.add('biweekly-left');
-            if(biweeklyPosition === 'right') row.classList.add('biweekly-right');
+            
+            // Unterstütze alle Überlappungspositionen
+            if(overlapPosition) {
+                if(overlapPosition === 'left') {
+                    row.classList.add('overlap-left');
+                } else if(overlapPosition === 'right') {
+                    row.classList.add('overlap-right');
+                } else if(overlapPosition === 'middle') {
+                    row.classList.add('overlap-middle');
+                } else if(overlapPosition === 'middle-left') {
+                    row.classList.add('overlap-middle-left');
+                } else if(overlapPosition === 'middle-right') {
+                    row.classList.add('overlap-middle-right');
+                }
+                // Rückwärtskompatibilität für biweekly
+                if(overlapPosition === 'left') row.classList.add('biweekly-left');
+                if(overlapPosition === 'right') row.classList.add('biweekly-right');
+            }
+            
             if(selectedEvents.has(evt.id)) row.classList.add('selected');
             
             // Positioning logic: offset by TIMELINE_START_HOUR, scaled by zoom
