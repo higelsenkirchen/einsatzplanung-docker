@@ -83,6 +83,172 @@ router.delete('/variants/:id', async (req, res) => {
     }
 });
 
+// POST /api/variants/:id/duplicate - Dupliziert eine Variante mit allen Daten
+router.post('/variants/:id/duplicate', async (req, res) => {
+    const client = await pool.connect();
+    
+    try {
+        const { id } = req.params;
+        const { name } = req.body;
+        
+        if (!name || name.trim() === '') {
+            return res.status(400).json({ error: 'Variantenname ist erforderlich' });
+        }
+        
+        await client.query('BEGIN');
+        
+        // Prüfe ob Quell-Variante existiert
+        const sourceVariantCheck = await client.query('SELECT id, name FROM variants WHERE id = $1', [id]);
+        if (sourceVariantCheck.rows.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ error: 'Quell-Variante nicht gefunden' });
+        }
+        
+        // Lade alle Daten der Quell-Variante
+        const sourceVariantId = parseInt(id);
+        
+        // Events laden
+        const eventsResult = await client.query(
+            'SELECT id, title, start, "end", day_index, extended_props FROM events WHERE variant_id = $1 ORDER BY day_index, start',
+            [sourceVariantId]
+        );
+        const events = eventsResult.rows.map(row => ({
+            id: row.id,
+            title: row.title,
+            start: row.start,
+            end: row.end,
+            dayIndex: row.day_index,
+            extendedProps: row.extended_props
+        }));
+
+        // Pool laden
+        const poolResult = await client.query('SELECT id, title, zone, types FROM pool WHERE variant_id = $1', [sourceVariantId]);
+        const poolData = poolResult.rows.map(row => ({
+            id: row.id,
+            title: row.title,
+            zone: row.zone,
+            types: row.types
+        }));
+
+        // Employees laden
+        const employeesResult = await client.query('SELECT id, name, weekly_hours, wage_group, transport, home_zone FROM employees WHERE variant_id = $1', [sourceVariantId]);
+        const employees = employeesResult.rows.map(row => ({
+            id: row.id,
+            name: row.name,
+            weeklyHours: row.weekly_hours,
+            wageGroup: row.wage_group,
+            transport: row.transport,
+            homeZone: row.home_zone
+        }));
+
+        // Tours laden
+        const toursResult = await client.query('SELECT id, name, employee_id, weekly_hours_limit FROM tours WHERE variant_id = $1', [sourceVariantId]);
+        const tours = toursResult.rows.map(row => ({
+            id: row.id,
+            name: row.name,
+            employeeId: row.employee_id || null,
+            weeklyHoursLimit: row.weekly_hours_limit || null
+        }));
+
+        // Wage Settings laden
+        const wageSettingsResult = await client.query('SELECT settings FROM wage_settings WHERE variant_id = $1 ORDER BY id DESC LIMIT 1', [sourceVariantId]);
+        const wageSettings = wageSettingsResult.rows.length > 0 
+            ? wageSettingsResult.rows[0].settings 
+            : {
+                wageGroups: [],
+                surcharges: {},
+                revenueRates: {},
+                avgSpeed: 30,
+                kmRate: 0.3,
+                publicTransportMonthly: 30,
+                employerFactor: 1.5,
+                targetMargin: 50
+            };
+
+        // Favorites laden
+        const favoritesResult = await client.query('SELECT favorites FROM favorites WHERE variant_id = $1 ORDER BY id DESC LIMIT 1', [sourceVariantId]);
+        const favorites = favoritesResult.rows.length > 0 
+            ? favoritesResult.rows[0].favorites 
+            : [];
+
+        // Erstelle neue Variante
+        const newVariantResult = await client.query(
+            'INSERT INTO variants (name) VALUES ($1) RETURNING id, name, created_at, updated_at',
+            [name.trim()]
+        );
+        const newVariantId = newVariantResult.rows[0].id;
+
+        // Kopiere Events
+        if (events && Array.isArray(events)) {
+            for (const event of events) {
+                await client.query(
+                    'INSERT INTO events (id, variant_id, title, start, "end", day_index, extended_props) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+                    [event.id, newVariantId, event.title, event.start, event.end, event.dayIndex, JSON.stringify(event.extendedProps || {})]
+                );
+            }
+        }
+
+        // Kopiere Pool
+        if (poolData && Array.isArray(poolData)) {
+            for (const item of poolData) {
+                await client.query(
+                    'INSERT INTO pool (id, variant_id, title, zone, types) VALUES ($1, $2, $3, $4, $5)',
+                    [item.id, newVariantId, item.title, item.zone || null, JSON.stringify(item.types || [])]
+                );
+            }
+        }
+
+        // Kopiere Employees
+        if (employees && Array.isArray(employees)) {
+            for (const employee of employees) {
+                await client.query(
+                    'INSERT INTO employees (id, variant_id, name, weekly_hours, wage_group, transport, home_zone) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+                    [employee.id, newVariantId, employee.name, employee.weeklyHours || null, employee.wageGroup || null, employee.transport || null, employee.homeZone || null]
+                );
+            }
+        }
+
+        // Kopiere Tours
+        if (tours && Array.isArray(tours)) {
+            for (const tour of tours) {
+                await client.query(
+                    'INSERT INTO tours (id, variant_id, name, employee_id, weekly_hours_limit) VALUES ($1, $2, $3, $4, $5)',
+                    [tour.id, newVariantId, tour.name, tour.employeeId || null, tour.weeklyHoursLimit || null]
+                );
+            }
+        }
+
+        // Kopiere Wage Settings
+        if (wageSettings) {
+            await client.query(
+                'INSERT INTO wage_settings (variant_id, settings) VALUES ($1, $2)',
+                [newVariantId, JSON.stringify(wageSettings)]
+            );
+        }
+
+        // Kopiere Favorites
+        if (favorites !== undefined) {
+            await client.query(
+                'INSERT INTO favorites (variant_id, favorites) VALUES ($1, $2)',
+                [newVariantId, JSON.stringify(Array.isArray(favorites) ? favorites : [])]
+            );
+        }
+
+        await client.query('COMMIT');
+        res.status(201).json(newVariantResult.rows[0]);
+    } catch (error) {
+        await client.query('ROLLBACK');
+        if (error.code === '23505') {
+            res.status(409).json({ error: 'Eine Variante mit diesem Namen existiert bereits' });
+        } else {
+            console.error('Fehler beim Duplizieren der Variante:', error);
+            res.status(500).json({ error: 'Fehler beim Duplizieren der Variante', details: error.message });
+        }
+    } finally {
+        client.release();
+    }
+});
+
 // GET /api/data - Lädt alle App-Daten für eine Variante
 router.get('/data', async (req, res) => {
     try {

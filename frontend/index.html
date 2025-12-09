@@ -1660,7 +1660,8 @@
             <div style="display:flex; align-items:center; gap:10px;">
                 <div style="display:flex; align-items:center; gap:8px; padding-right:12px; border-right:1px solid var(--border);">
                     <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted); white-space:nowrap;">Variante:</label>
-                    <select id="variantSelect" onchange="switchVariant(this.value)" style="width:150px; margin:0; padding:8px 12px; cursor:pointer; font-weight:600;"></select>
+                    <select id="variantSelect" onchange="switchVariant(this.value)" oncontextmenu="event.preventDefault(); showVariantContextMenu(event, currentVariantId);" style="width:150px; margin:0; padding:8px 12px; cursor:pointer; font-weight:600;"></select>
+                    <button class="btn btn-secondary icon-btn" onclick="handleDuplicateVariant(currentVariantId)" title="Variante duplizieren" style="width:32px; height:32px; padding:0; font-size:0.9rem;">📋</button>
                     <button class="btn btn-primary icon-btn" onclick="openVariantModal()" title="Neue Variante" style="width:32px; height:32px; padding:0; font-size:0.9rem;">+</button>
                 </div>
                 <div class="view-switcher">
@@ -6761,6 +6762,127 @@ Weber, Peter;Erle;social</code>
                 console.error('Fehler beim Erstellen der Variante:', e);
                 showToast(e.message || 'Fehler beim Erstellen der Variante', 'error');
             }
+        }
+        
+        async function duplicateVariant(sourceVariantId, newName) {
+            if (!sourceVariantId) {
+                showToast('Keine Variante zum Duplizieren ausgewählt', 'error');
+                return;
+            }
+            
+            if (!newName || newName.trim() === '') {
+                showToast('Variantenname ist erforderlich', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/variants/${sourceVariantId}/duplicate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name: newName.trim() })
+                });
+                
+                if(!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Fehler beim Duplizieren');
+                }
+                
+                const newVariant = await response.json();
+                variants.push(newVariant);
+                updateVariantSelect();
+                
+                // Wechsle zur neuen Variante
+                currentVariantId = newVariant.id;
+                document.getElementById('variantSelect').value = newVariant.id;
+                
+                // Lade Daten der neuen Variante
+                await loadFromAPI();
+                refreshUI();
+                updatePatientList();
+                
+                showToast('Variante erfolgreich dupliziert', 'success');
+            } catch(e) {
+                console.error('Fehler beim Duplizieren der Variante:', e);
+                showToast(e.message || 'Fehler beim Duplizieren der Variante', 'error');
+            }
+        }
+        
+        function handleDuplicateVariant(sourceVariantId) {
+            if (!sourceVariantId) {
+                showToast('Keine Variante zum Duplizieren ausgewählt', 'error');
+                return;
+            }
+            
+            const sourceVariant = variants.find(v => v.id === sourceVariantId);
+            const sourceName = sourceVariant ? sourceVariant.name : 'Variante';
+            const defaultName = `${sourceName} (Kopie)`;
+            
+            const newName = prompt('Name der neuen Variante:', defaultName);
+            if (!newName || newName.trim() === '') return;
+            
+            duplicateVariant(sourceVariantId, newName.trim());
+        }
+        
+        function showVariantContextMenu(event, variantId) {
+            if (!variantId) return;
+            
+            // Entferne vorhandenes Menü falls vorhanden
+            const existingMenu = document.getElementById('variantContextMenu');
+            if (existingMenu) {
+                existingMenu.remove();
+            }
+            
+            // Erstelle Kontextmenü
+            const menu = document.createElement('div');
+            menu.id = 'variantContextMenu';
+            menu.style.cssText = `
+                position: fixed;
+                left: ${event.clientX}px;
+                top: ${event.clientY}px;
+                background: var(--bg-card);
+                border: 1px solid var(--border);
+                border-radius: var(--radius-md);
+                box-shadow: var(--shadow-lg);
+                z-index: 10000;
+                min-width: 180px;
+                padding: 4px;
+            `;
+            
+            const duplicateOption = document.createElement('div');
+            duplicateOption.textContent = '📋 Duplizieren';
+            duplicateOption.style.cssText = `
+                padding: 8px 12px;
+                cursor: pointer;
+                border-radius: var(--radius-sm);
+                font-size: 0.875rem;
+            `;
+            duplicateOption.onmouseenter = () => {
+                duplicateOption.style.background = 'var(--border-light)';
+            };
+            duplicateOption.onmouseleave = () => {
+                duplicateOption.style.background = 'transparent';
+            };
+            duplicateOption.onclick = () => {
+                menu.remove();
+                handleDuplicateVariant(variantId);
+            };
+            
+            menu.appendChild(duplicateOption);
+            document.body.appendChild(menu);
+            
+            // Schließe Menü beim Klick außerhalb
+            const closeMenu = (e) => {
+                if (!menu.contains(e.target)) {
+                    menu.remove();
+                    document.removeEventListener('click', closeMenu);
+                }
+            };
+            
+            setTimeout(() => {
+                document.addEventListener('click', closeMenu);
+            }, 100);
         }
         
         function addTour(){
