@@ -22,8 +22,9 @@ app.get('/', (req, res) => {
         version: '1.0.0',
         endpoints: {
             health: '/api/health',
-            data: '/api/data',
-            backup: '/api/backup',
+            variants: '/api/variants',
+            data: '/api/data?variant_id=ID',
+            backup: '/api/backup?variant_id=ID',
             restore: '/api/backup/restore'
         }
     });

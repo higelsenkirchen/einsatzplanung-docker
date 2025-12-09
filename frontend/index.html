@@ -1658,6 +1658,11 @@
     <main class="main-content" id="mainArea">
         <div class="top-bar">
             <div style="display:flex; align-items:center; gap:10px;">
+                <div style="display:flex; align-items:center; gap:8px; padding-right:12px; border-right:1px solid var(--border);">
+                    <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted); white-space:nowrap;">Variante:</label>
+                    <select id="variantSelect" onchange="switchVariant(this.value)" style="width:150px; margin:0; padding:8px 12px; cursor:pointer; font-weight:600;"></select>
+                    <button class="btn btn-primary icon-btn" onclick="openVariantModal()" title="Neue Variante" style="width:32px; height:32px; padding:0; font-size:0.9rem;">+</button>
+                </div>
                 <div class="view-switcher">
                     <button class="view-btn active" id="btnViewWeek" onclick="switchView('week')">📅 Woche</button>
                     <button class="view-btn" id="btnViewCompare" onclick="switchView('compare')">🔀 Vergleich</button>
@@ -2614,6 +2619,8 @@ Weber, Peter;Erle;social</code>
         let currentView = 'week'; // 'week', 'compare', 'overall', 'dashboard', or 'admin'
         let currentAdminTab = 'tours'; // 'tours', 'employees', 'wages', 'customers', 'templates', 'copyday'
         let currentCompareDayIndex = 0; // 0=Montag, 1=Dienstag, etc.
+        let currentVariantId = null; // Aktuelle Varianten-ID
+        let variants = []; // Liste aller Varianten
         let appData = { 
             events: [], 
             pool: [], 
@@ -2766,21 +2773,35 @@ Weber, Peter;Erle;social</code>
             populatePoolZoneFilter();
             renderZoneLegend();
             
-            // Load data from API
+            // Lade Varianten und setze Standard-Variante
             try {
-                await loadFromAPI();
+                await loadVariants();
+                if (variants.length > 0 && !currentVariantId) {
+                    currentVariantId = variants[0].id;
+                }
+                updateVariantSelect();
             } catch(e) {
-                console.error('Fehler beim Laden der Daten:', e);
-                showToast('Fehler beim Laden der Daten vom Server', 'error');
-                // Fallback: use empty data structure
-                appData = {
-                    events: [],
-                    pool: [],
-                    employees: [],
-                    tours: [{id:'t1', name:'Tour 1'}, {id:'t2', name:'Tour 2'}],
-                    wageSettings: JSON.parse(JSON.stringify(DEFAULT_WAGE_SETTINGS)),
-                    favorites: []
-                };
+                console.error('Fehler beim Laden der Varianten:', e);
+                showToast('Fehler beim Laden der Varianten', 'error');
+            }
+            
+            // Load data from API
+            if (currentVariantId) {
+                try {
+                    await loadFromAPI();
+                } catch(e) {
+                    console.error('Fehler beim Laden der Daten:', e);
+                    showToast('Fehler beim Laden der Daten vom Server', 'error');
+                    // Fallback: use empty data structure
+                    appData = {
+                        events: [],
+                        pool: [],
+                        employees: [],
+                        tours: [{id:'t1', name:'Tour 1'}, {id:'t2', name:'Tour 2'}],
+                        wageSettings: JSON.parse(JSON.stringify(DEFAULT_WAGE_SETTINGS)),
+                        favorites: []
+                    };
+                }
             }
             
             await loadTemplatesFromStorage();
@@ -4516,8 +4537,13 @@ Weber, Peter;Erle;social</code>
         }
         
         async function executeSave() {
+            if (!currentVariantId) {
+                console.warn('Keine Variante ausgewählt, kann nicht speichern');
+                return;
+            }
+            
             try {
-                const response = await fetch(`${API_BASE_URL}/api/data`, {
+                const response = await fetch(`${API_BASE_URL}/api/data?variant_id=${currentVariantId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -5518,9 +5544,14 @@ Weber, Peter;Erle;social</code>
 
         // --- BACKUP EXPORT/IMPORT ---
         async function exportAllData() {
+            if (!currentVariantId) {
+                showToast('Keine Variante ausgewählt', 'error');
+                return;
+            }
+            
             try {
                 // Hole Backup vom Server
-                const response = await fetch(`${API_BASE_URL}/api/backup`);
+                const response = await fetch(`${API_BASE_URL}/api/backup?variant_id=${currentVariantId}`);
                 if(!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
@@ -5599,6 +5630,12 @@ Weber, Peter;Erle;social</code>
                 return;
             }
             
+            if (!currentVariantId) {
+                showToast('Keine Variante ausgewählt', 'error');
+                closeModal('backupImportConfirmModal');
+                return;
+            }
+            
             try {
                 // Ersetze alle Daten
                 appData = {
@@ -5621,7 +5658,10 @@ Weber, Peter;Erle;social</code>
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ data: appData })
+                    body: JSON.stringify({ 
+                        data: appData,
+                        variant_id: currentVariantId
+                    })
                 });
                 
                 if(!response.ok) {
@@ -6602,8 +6642,13 @@ Weber, Peter;Erle;social</code>
         }
         
         async function loadFromAPI(){
+            if (!currentVariantId) {
+                console.warn('Keine Variante ausgewählt');
+                return;
+            }
+            
             try {
-                const response = await fetch(`${API_BASE_URL}/api/data`);
+                const response = await fetch(`${API_BASE_URL}/api/data?variant_id=${currentVariantId}`);
                 if(!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
@@ -6622,6 +6667,99 @@ Weber, Peter;Erle;social</code>
             } catch(e) {
                 console.error('Fehler beim Laden vom Server:', e);
                 throw e;
+            }
+        }
+        
+        async function loadVariants() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/variants`);
+                if(!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                variants = await response.json();
+                console.log('Varianten geladen:', variants);
+            } catch(e) {
+                console.error('Fehler beim Laden der Varianten:', e);
+                throw e;
+            }
+        }
+        
+        function updateVariantSelect() {
+            const select = document.getElementById('variantSelect');
+            if (!select) return;
+            
+            select.innerHTML = '';
+            variants.forEach(variant => {
+                const option = document.createElement('option');
+                option.value = variant.id;
+                option.textContent = variant.name;
+                if (variant.id === currentVariantId) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+        }
+        
+        async function switchVariant(variantId) {
+            if (!variantId || variantId === currentVariantId) return;
+            
+            // Speichere aktuelle Daten vor dem Wechsel
+            if (currentVariantId) {
+                await executeSave();
+            }
+            
+            currentVariantId = parseInt(variantId);
+            
+            // Lade neue Daten
+            try {
+                await loadFromAPI();
+                refreshUI();
+                updatePatientList();
+                showToast('Variante gewechselt', 'success');
+            } catch(e) {
+                console.error('Fehler beim Laden der Variante:', e);
+                showToast('Fehler beim Laden der Variante', 'error');
+            }
+        }
+        
+        async function openVariantModal() {
+            const name = prompt('Name der neuen Variante:');
+            if (!name || name.trim() === '') return;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/variants`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name: name.trim() })
+                });
+                
+                if(!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Fehler beim Erstellen');
+                }
+                
+                const newVariant = await response.json();
+                variants.push(newVariant);
+                updateVariantSelect();
+                currentVariantId = newVariant.id;
+                document.getElementById('variantSelect').value = newVariant.id;
+                
+                // Lade leere Daten für neue Variante
+                appData = {
+                    events: [],
+                    pool: [],
+                    employees: [],
+                    tours: [{id:'t1', name:'Tour 1'}, {id:'t2', name:'Tour 2'}],
+                    wageSettings: JSON.parse(JSON.stringify(DEFAULT_WAGE_SETTINGS)),
+                    favorites: []
+                };
+                refreshUI();
+                showToast('Variante erstellt', 'success');
+            } catch(e) {
+                console.error('Fehler beim Erstellen der Variante:', e);
+                showToast(e.message || 'Fehler beim Erstellen der Variante', 'error');
             }
         }
         
