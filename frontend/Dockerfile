@@ -1,5 +1,8 @@
 FROM nginx:alpine
 
+# Installiere wget für Health-Check
+RUN apk add --no-cache wget
+
 # Kopiere HTML-Datei
 COPY index.html /usr/share/nginx/html/
 
