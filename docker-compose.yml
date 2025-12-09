@@ -59,7 +59,7 @@ services:
       dockerfile: Dockerfile
     container_name: einsatzplanung-frontend
     ports:
-      - "${FRONTEND_PORT:-80}:80"
+      - "${FRONTEND_PORT:-8081}:80"
     depends_on:
       - backend
     networks:
