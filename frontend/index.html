@@ -4427,7 +4427,6 @@ Weber, Peter;Erle;social</code>
                     }
                 }
             );
-            }
         }
         
         // --- ZONE LEGEND ---
@@ -8975,62 +8974,7 @@ Weber, Peter;Erle;social</code>
             }
         }
 
-        function refreshUI() {
-            const ts=document.getElementById('tourSelect'); 
-            const ets=document.getElementById('eventTourSelect'); 
-            if(!ts || !ets) return;
-            ts.innerHTML=''; 
-            ets.innerHTML='';
-            if(!appData.tours || appData.tours.length === 0) {
-                appData.tours = [{id:'t1', name:'Tour 1'}, {id:'t2', name:'Tour 2'}];
-            }
-            appData.tours.forEach(t=>{
-                const o=document.createElement('option');
-                o.value = t.id;
-                o.textContent = t.name || '';
-                ts.appendChild(o);
-                const o2=document.createElement('option');
-                o2.value = t.id;
-                o2.textContent = t.name || '';
-                ets.appendChild(o2);
-            });
-            updateTourEmployeeDisplay(); // Zeige zugewiesenen Mitarbeiter an
-            renderPool(); refreshView();
-            renderList('employeeList', appData.employees || [], 
-                id => {
-                    appData.employees = appData.employees.filter(e => e.id !== id);
-                    queueSave();
-                    refreshUI();
-                },
-                (id, newName) => {
-                    const emp = appData.employees.find(e => e.id === id);
-                    if(emp) {
-                        emp.name = newName;
-                        queueSave();
-                        refreshUI();
-                    }
-                }
-            );
-            renderList('tourList', appData.tours || [], 
-                id => {
-                    if(appData.tours.length <= 1) {
-                        showAlertModal('Fehler', 'Mindestens eine Tour muss vorhanden sein.', 'error');
-                        return;
-                    }
-                    appData.tours = appData.tours.filter(t => t.id !== id);
-                    queueSave();
-                    refreshUI();
-                },
-                (id, newName) => {
-                    const tour = appData.tours.find(t => t.id === id);
-                    if(tour) {
-                        tour.name = newName;
-                        queueSave();
-                        refreshUI();
-                    }
-                }
-            );
-        }
+        // refreshUI wurde bereits oben definiert
         function renderList(id, l, cb, updateCb){
             const el = document.getElementById(id); 
             if(!el) return;
