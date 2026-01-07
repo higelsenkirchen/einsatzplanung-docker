@@ -4,7 +4,7 @@ const https = require('https');
 
 // Rate-Limiting für Nominatim (1 Request/Sekunde)
 let lastRequestTime = 0;
-const MIN_REQUEST_INTERVAL = 1000; // 1 Sekunde
+const MIN_REQUEST_INTERVAL = 1100; // 1.1 Sekunden (etwas mehr als 1 Sekunde für Sicherheit)
 
 // Warteschlange für Requests
 const requestQueue = [];
@@ -31,8 +31,26 @@ router.post('/geocode', async (req, res) => {
         // Rate-Limiting: Warte falls nötig
         await waitForRateLimit();
         
-        // Nominatim API aufrufen
-        const coordinates = await geocodeWithNominatim(query);
+        // Nominatim API aufrufen (mit Retry bei Fehler)
+        let coordinates = null;
+        let retries = 0;
+        const maxRetries = 2;
+        
+        while (retries <= maxRetries && !coordinates) {
+            try {
+                coordinates = await geocodeWithNominatim(query);
+                if (coordinates) break;
+            } catch (error) {
+                retries++;
+                if (retries <= maxRetries) {
+                    console.log(`Geocoding Retry ${retries}/${maxRetries} für: ${query}`);
+                    // Warte länger bei Retry
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                } else {
+                    console.error(`Geocoding fehlgeschlagen nach ${maxRetries} Versuchen:`, error.message);
+                }
+            }
+        }
         
         if (coordinates) {
             res.json({
@@ -246,6 +264,10 @@ function waitForRateLimit() {
             resolve();
         } else {
             const waitTime = MIN_REQUEST_INTERVAL - timeSinceLastRequest;
+            // Log nur wenn Wartezeit > 100ms
+            if (waitTime > 100) {
+                console.log(`Rate-Limiting: Warte ${waitTime}ms...`);
+            }
             setTimeout(() => {
                 lastRequestTime = Date.now();
                 resolve();
