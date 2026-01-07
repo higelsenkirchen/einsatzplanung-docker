@@ -7,10 +7,9 @@ try {
     console.warn('Puppeteer nicht verfügbar - PDF-Export wird als HTML zurückgegeben');
 }
 const { pool } = require('../db/connection');
-const { authenticateToken, checkVariantPermission, createAuditLog } = require('../middleware/auth');
 
 // GET /api/export/pdf - PDF-Export für Wochenplan
-router.get('/pdf', authenticateToken, checkVariantPermission, async (req, res) => {
+router.get('/pdf', async (req, res) => {
     let browser = null;
     try {
         const variantId = req.query.variant_id;
@@ -53,7 +52,6 @@ router.get('/pdf', authenticateToken, checkVariantPermission, async (req, res) =
         // Prüfe ob Puppeteer verfügbar ist
         if (!puppeteer) {
             // Fallback: HTML zurückgeben (kann im Browser als PDF gedruckt werden)
-            await createAuditLog(req.user.id, variantId, 'export', 'html', null, { variantName }, req.ip);
             res.setHeader('Content-Type', 'text/html; charset=utf-8');
             res.setHeader('Content-Disposition', `inline; filename="tourenplan-${variantName}-${Date.now()}.html"`);
             return res.send(html);
@@ -78,16 +76,12 @@ router.get('/pdf', authenticateToken, checkVariantPermission, async (req, res) =
             await browser.close();
             browser = null;
 
-            // Audit Log
-            await createAuditLog(req.user.id, variantId, 'export', 'pdf', null, { variantName }, req.ip);
-
             res.setHeader('Content-Type', 'application/pdf');
             res.setHeader('Content-Disposition', `attachment; filename="tourenplan-${variantName}-${Date.now()}.pdf"`);
             res.send(pdf);
         } catch (puppeteerError) {
             console.error('Puppeteer Fehler, Fallback zu HTML:', puppeteerError);
             // Fallback zu HTML
-            await createAuditLog(req.user.id, variantId, 'export', 'html', null, { variantName, error: 'puppeteer_failed' }, req.ip);
             res.setHeader('Content-Type', 'text/html; charset=utf-8');
             res.setHeader('Content-Disposition', `inline; filename="tourenplan-${variantName}-${Date.now()}.html"`);
             res.send(html);

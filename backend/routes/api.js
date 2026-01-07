@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../db/connection');
-const { optionalAuth, requireEditPermission } = require('../middleware/auth');
 
 // GET /api/variants - Lädt alle Varianten
 router.get('/variants', async (req, res) => {
@@ -39,7 +38,7 @@ router.post('/variants', async (req, res) => {
 });
 
 // PUT /api/variants/:id - Aktualisiert Variante
-router.put('/variants/:id', optionalAuth, async (req, res) => {
+router.put('/variants/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { name } = req.body;
@@ -68,7 +67,7 @@ router.put('/variants/:id', optionalAuth, async (req, res) => {
 });
 
 // DELETE /api/variants/:id - Löscht Variante
-router.delete('/variants/:id', optionalAuth, async (req, res) => {
+router.delete('/variants/:id', async (req, res) => {
     const client = await pool.connect();
     try {
         const { id } = req.params;

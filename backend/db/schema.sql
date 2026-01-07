@@ -88,41 +88,6 @@ CREATE TABLE IF NOT EXISTS backups (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Users (Benutzerverwaltung)
-CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
-    username VARCHAR(255) NOT NULL UNIQUE,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
-    role VARCHAR(50) NOT NULL DEFAULT 'viewer', -- 'admin', 'planner', 'viewer'
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    last_login TIMESTAMP,
-    is_active BOOLEAN DEFAULT true
-);
-
--- Variant Permissions (Berechtigungen pro Variante)
-CREATE TABLE IF NOT EXISTS variant_permissions (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    variant_id INTEGER NOT NULL REFERENCES variants(id) ON DELETE CASCADE,
-    permission_level VARCHAR(50) NOT NULL DEFAULT 'view', -- 'view', 'edit', 'admin'
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(user_id, variant_id)
-);
-
--- Audit Logs (Änderungsprotokoll)
-CREATE TABLE IF NOT EXISTS audit_logs (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id),
-    variant_id INTEGER REFERENCES variants(id),
-    action VARCHAR(100) NOT NULL, -- 'create', 'update', 'delete', 'view', 'login'
-    entity_type VARCHAR(50) NOT NULL, -- 'event', 'tour', 'employee', 'user', etc.
-    entity_id VARCHAR(255),
-    changes JSONB,
-    ip_address VARCHAR(45),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
 
 -- Indizes für bessere Performance
 CREATE INDEX IF NOT EXISTS idx_variants_name ON variants(name);
@@ -138,13 +103,6 @@ CREATE INDEX IF NOT EXISTS idx_tours_employee_id ON tours(employee_id);
 CREATE INDEX IF NOT EXISTS idx_wage_settings_variant_id ON wage_settings(variant_id);
 CREATE INDEX IF NOT EXISTS idx_favorites_variant_id ON favorites(variant_id);
 CREATE INDEX IF NOT EXISTS idx_backups_created_at ON backups(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
-CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
-CREATE INDEX IF NOT EXISTS idx_variant_permissions_user ON variant_permissions(user_id);
-CREATE INDEX IF NOT EXISTS idx_variant_permissions_variant ON variant_permissions(variant_id);
-CREATE INDEX IF NOT EXISTS idx_audit_logs_user ON audit_logs(user_id);
-CREATE INDEX IF NOT EXISTS idx_audit_logs_variant ON audit_logs(variant_id);
-CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs(created_at DESC);
 
 -- Trigger für updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -174,9 +132,6 @@ CREATE TRIGGER update_favorites_updated_at BEFORE UPDATE ON favorites
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_variants_updated_at BEFORE UPDATE ON variants
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Standard-Variante erstellen (falls noch keine existiert)

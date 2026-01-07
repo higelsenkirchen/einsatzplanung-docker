@@ -1754,12 +1754,6 @@
                 padding: 12px;
             }
             
-            /* Auth Section */
-            #authSection {
-                width: 100%;
-                justify-content: center;
-                margin: 10px 0;
-            }
         }
 
         @media (max-width: 480px) {
@@ -2025,8 +2019,6 @@
             </div>
 
             <div style="flex-grow:1;"></div>
-            
-            <div id="authSection" style="display:flex; align-items:center; gap:8px; margin-right:10px;"></div>
 
             <div style="display:flex; gap:8px; align-items:center;">
                 <div class="view-switcher" style="margin-right:8px;">
@@ -2329,39 +2321,6 @@
     </div>
 
     <!-- Login Modal -->
-    <div id="loginModal" class="modal-overlay">
-        <div class="modal-content" style="max-width:400px;">
-            <button class="modal-close-btn" onclick="closeModal('loginModal')" title="Schließen">×</button>
-            <h3 style="margin-top:0;">🔐 Anmeldung</h3>
-            <form id="loginForm" onsubmit="handleLogin(event)">
-                <div style="margin-bottom:15px;">
-                    <label style="display:block; margin-bottom:5px; font-weight:600; color:var(--text-main);">Benutzername oder E-Mail:</label>
-                    <input type="text" id="loginUsername" required style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg-card); color:var(--text-main);">
-                </div>
-                <div style="margin-bottom:20px;">
-                    <label style="display:block; margin-bottom:5px; font-weight:600; color:var(--text-main);">Passwort:</label>
-                    <input type="password" id="loginPassword" required style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg-card); color:var(--text-main);">
-                </div>
-                <button type="submit" class="btn btn-primary" style="width:100%;">Anmelden</button>
-            </form>
-            <div id="loginError" style="margin-top:15px; color:var(--danger); display:none; padding:10px; background:rgba(239, 68, 68, 0.1); border-radius:var(--radius-md);"></div>
-            <div id="setupSection" style="margin-top:20px; padding-top:20px; border-top:1px solid var(--border); display:none;">
-                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:10px;">Erster Start? Erstelle einen Admin-Benutzer:</p>
-                <form id="setupForm" onsubmit="handleSetup(event)">
-                    <div style="margin-bottom:10px;">
-                        <input type="text" id="setupUsername" placeholder="Benutzername" required style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg-card); color:var(--text-main);">
-                    </div>
-                    <div style="margin-bottom:10px;">
-                        <input type="email" id="setupEmail" placeholder="E-Mail" required style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg-card); color:var(--text-main);">
-                    </div>
-                    <div style="margin-bottom:10px;">
-                        <input type="password" id="setupPassword" placeholder="Passwort (min. 6 Zeichen)" required minlength="6" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg-card); color:var(--text-main);">
-                    </div>
-                    <button type="submit" class="btn btn-secondary" style="width:100%;">Admin erstellen</button>
-                </form>
-            </div>
-        </div>
-    </div>
 
     <!-- Optimization Modal -->
     <div id="optimizationModal" class="modal-overlay">
@@ -2870,52 +2829,12 @@ Weber, Peter;Erle;social</code>
         // API Configuration
         const API_BASE_URL = window.location.origin;
         
-        // Authentication
-        let currentUser = null;
-        let authToken = null;
-        
-        // Token aus localStorage laden
-        function loadAuthToken() {
-            authToken = localStorage.getItem('authToken');
-            const userStr = localStorage.getItem('currentUser');
-            if (userStr) {
-                try {
-                    currentUser = JSON.parse(userStr);
-                } catch (e) {
-                    console.error('Fehler beim Laden des Benutzers:', e);
-                    clearAuthToken();
-                }
-            }
-        }
-        
-        // Token speichern
-        function saveAuthToken(token, user) {
-            authToken = token;
-            currentUser = user;
-            localStorage.setItem('authToken', token);
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            updateAuthUI();
-        }
-        
-        // Token löschen
-        function clearAuthToken() {
-            authToken = null;
-            currentUser = null;
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('currentUser');
-            updateAuthUI();
-        }
-        
-        // API-Call mit Token
+        // API-Call Funktion (vereinfacht ohne Auth)
         async function apiCall(url, options = {}) {
             const headers = {
                 'Content-Type': 'application/json',
                 ...options.headers
             };
-            
-            if (authToken) {
-                headers['Authorization'] = `Bearer ${authToken}`;
-            }
             
             if (currentVariantId) {
                 headers['X-Variant-ID'] = currentVariantId.toString();
@@ -2926,127 +2845,7 @@ Weber, Peter;Erle;social</code>
                 headers
             });
             
-            if (response.status === 401) {
-                clearAuthToken();
-                openModal('loginModal');
-                throw new Error('Nicht autorisiert');
-            }
-            
             return response;
-        }
-        
-        // Login-Handler
-        async function handleLogin(event) {
-            event.preventDefault();
-            const username = document.getElementById('loginUsername').value;
-            const password = document.getElementById('loginPassword').value;
-            const errorDiv = document.getElementById('loginError');
-            
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    errorDiv.textContent = data.error || 'Anmeldung fehlgeschlagen';
-                    errorDiv.style.display = 'block';
-                    return;
-                }
-                
-                saveAuthToken(data.token, data.user);
-                closeModal('loginModal');
-                showToast('Erfolgreich angemeldet', 'success');
-                
-                // Daten neu laden
-                if (currentVariantId) {
-                    await loadFromAPI();
-                }
-            } catch (error) {
-                errorDiv.textContent = 'Verbindungsfehler: ' + error.message;
-                errorDiv.style.display = 'block';
-            }
-        }
-        
-        // Setup-Handler (erster Admin)
-        async function handleSetup(event) {
-            event.preventDefault();
-            const username = document.getElementById('setupUsername').value;
-            const email = document.getElementById('setupEmail').value;
-            const password = document.getElementById('setupPassword').value;
-            const errorDiv = document.getElementById('loginError');
-            
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/auth/setup`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, email, password })
-                });
-                
-                const data = await response.json();
-                
-                if (!response.ok) {
-                    errorDiv.textContent = data.error || 'Setup fehlgeschlagen';
-                    errorDiv.style.display = 'block';
-                    return;
-                }
-                
-                saveAuthToken(data.token, data.user);
-                closeModal('loginModal');
-                showToast('Admin-Benutzer erfolgreich erstellt', 'success');
-                
-                if (currentVariantId) {
-                    await loadFromAPI();
-                }
-            } catch (error) {
-                errorDiv.textContent = 'Verbindungsfehler: ' + error.message;
-                errorDiv.style.display = 'block';
-            }
-        }
-        
-        // Logout
-        function handleLogout() {
-            clearAuthToken();
-            showToast('Abgemeldet', 'info');
-            openModal('loginModal');
-        }
-        
-        // Prüfe ob Setup nötig ist
-        async function checkSetupNeeded() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/auth/users`);
-                if (response.status === 401 || response.status === 403) {
-                    // Keine Benutzer vorhanden - Setup anzeigen
-                    const setupSection = document.getElementById('setupSection');
-                    if (setupSection) {
-                        setupSection.style.display = 'block';
-                    }
-                }
-            } catch (error) {
-                // Fehler ignorieren
-            }
-        }
-        
-        // UI aktualisieren basierend auf Auth-Status
-        function updateAuthUI() {
-            const authSection = document.getElementById('authSection');
-            if (!authSection) return;
-            
-            if (currentUser) {
-                authSection.innerHTML = `
-                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                        <span style="font-size:0.85rem; color:var(--text-muted);">👤 ${currentUser.username} <span style="color:var(--text-light);">(${currentUser.role})</span></span>
-                        <button class="btn btn-secondary btn-sm" onclick="handleLogout()" style="padding:6px 12px; font-size:0.8rem;">Abmelden</button>
-                    </div>
-                `;
-            } else {
-                authSection.innerHTML = `
-                    <button class="btn btn-primary btn-sm" onclick="openModal('loginModal')" style="padding:6px 12px; font-size:0.8rem;">Anmelden</button>
-                `;
-            }
         }
         
         function openDatabase() {
@@ -3462,36 +3261,10 @@ Weber, Peter;Erle;social</code>
             populatePoolZoneFilter();
             renderZoneLegend();
             
-            // Auth initialisieren
-            loadAuthToken();
-            updateAuthUI();
-            await checkSetupNeeded();
             
             // Mobile Menu Button
             addMobileMenuButton();
             window.addEventListener('resize', addMobileMenuButton);
-            
-            // Prüfe ob eingeloggt
-            if (!authToken) {
-                // Automatisch Login-Modal öffnen nach kurzer Verzögerung
-                setTimeout(() => {
-                    if (!authToken) {
-                        openModal('loginModal');
-                    }
-                }, 500);
-            } else {
-                // Token validieren
-                try {
-                    const response = await apiCall('/api/auth/me');
-                    if (!response.ok) {
-                        clearAuthToken();
-                        openModal('loginModal');
-                    }
-                } catch (e) {
-                    clearAuthToken();
-                    openModal('loginModal');
-                }
-            }
             
             // Lade Varianten und setze Standard-Variante
             try {

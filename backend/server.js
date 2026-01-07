@@ -2,7 +2,6 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const apiRoutes = require('./routes/api');
-const authRoutes = require('./routes/auth');
 const exportRoutes = require('./routes/export');
 const optimizationRoutes = require('./routes/optimization');
 const { initializeDatabase } = require('./db/connection');
@@ -17,7 +16,6 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // API Routes
 app.use('/api', apiRoutes);
-app.use('/api/auth', authRoutes);
 app.use('/api/export', exportRoutes);
 app.use('/api/optimize', optimizationRoutes);
 
@@ -32,13 +30,6 @@ app.get('/', (req, res) => {
             data: '/api/data?variant_id=ID',
             backup: '/api/backup?variant_id=ID',
             restore: '/api/backup/restore',
-            auth: {
-                setup: '/api/auth/setup',
-                login: '/api/auth/login',
-                register: '/api/auth/register',
-                me: '/api/auth/me',
-                users: '/api/auth/users'
-            },
             export: {
                 pdf: '/api/export/pdf?variant_id=ID'
             },
