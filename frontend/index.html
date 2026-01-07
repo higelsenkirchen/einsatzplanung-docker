@@ -3665,6 +3665,7 @@ Weber, Peter;Erle;social</code>
         let currentCompareDayIndex = 0; // 0=Montag, 1=Dienstag, etc.
         let currentVariantId = null; // Aktuelle Varianten-ID
         let variants = []; // Liste aller Varianten
+        let contextMenuEvent = null; // Globale Variable für Context-Menu Event
         let appData = { 
             events: [], 
             pool: [], 
@@ -4591,10 +4592,7 @@ Weber, Peter;Erle;social</code>
             if (typeof showToast === 'function') showToast('Rückgängig gemacht', 'success');
         }
         
-        // contextMenuEvent sollte global sein
-        if (typeof contextMenuEvent === 'undefined') {
-            window.contextMenuEvent = null;
-        }
+        // contextMenuEvent ist bereits oben als globale Variable deklariert
         
         // --- CONTEXT-MENU-FUNKTIONEN ---
         function contextMenuEdit() {
@@ -8824,7 +8822,7 @@ Weber, Peter;Erle;social</code>
         });
 
         // --- CONTEXT MENU ---
-        let contextMenuEvent = null;
+        // contextMenuEvent ist bereits oben als globale Variable deklariert
         
         function showContextMenu(e, evt) {
             e.preventDefault();
