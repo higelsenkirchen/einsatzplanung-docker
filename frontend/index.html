@@ -5431,6 +5431,11 @@ Weber, Peter;Erle;social</code>
                 );
         }
         
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:5433',message:'Checkpoint bei deleteAllEvents',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'G'})}).catch(()=>{});
+        console.log('[DEBUG] Checkpoint bei deleteAllEvents');
+        // #endregion
+        
         function deleteAllEvents() {
             const eventCount = appData.events.filter(e => !e.extendedProps?.isTravel).length;
             const travelCount = appData.events.filter(e => e.extendedProps?.isTravel).length;
@@ -5593,6 +5598,11 @@ Weber, Peter;Erle;social</code>
 
         // --- NAVIGATION DROPDOWN ---
         // toggleNavGroup, closeNavGroups, switchView wurden bereits oben definiert
+        
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:5594',message:'Checkpoint kurz vor refreshView',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'G'})}).catch(()=>{});
+        console.log('[DEBUG] Checkpoint kurz vor refreshView');
+        // #endregion
 
         // Close dropdowns when clicking outside
         document.addEventListener('click', (e) => {
