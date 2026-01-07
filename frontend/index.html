@@ -6116,7 +6116,6 @@ Weber, Peter;Erle;social</code>
         }
 
         function renderWeekBoard(container, events) {
-            console.log('renderWeekBoard aufgerufen', { container, events, TIMELINE_HOURS, TIMELINE_START_HOUR, TIMELINE_END_HOUR });
             const dayNames = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
             const pxPerMin = getPixelsPerMinute();
             const hourHeight = 60 * pxPerMin;
@@ -8325,9 +8324,136 @@ Weber, Peter;Erle;social</code>
             window.print();
         }
 
-        // exportCSV wurde bereits oben definiert
-
-        // exportToPDF, openOptimizationModal wurden bereits oben definiert
+        // --- EXPORT FUNKTIONEN ---
+        function exportCSV() {
+            const dayNames = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
+            const realEvents = appData.events.filter(e => !e.extendedProps?.isTravel);
+            
+            let csv = 'Kunde;Tag;Start;Ende;Tour;Zone;Leistungen;Rhythmus\n';
+            
+            realEvents.forEach(evt => {
+                const tour = appData.tours.find(t => t.id === evt.extendedProps?.tour);
+                const types = (evt.extendedProps?.types || []).join(', ');
+                const rhythm = evt.extendedProps?.rhythm === 'biweekly' ? '2-wöchentlich' : '1-wöchentlich';
+                
+                csv += `"${evt.title}";"${dayNames[evt.dayIndex]}";"${evt.start}";"${evt.end}";"${tour?.name || ''}";"${evt.extendedProps?.zone || ''}";"${types}";"${rhythm}"\n`;
+            });
+            
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'tourenplanung.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function importCSV() {
+            openModal('csvImportModal');
+        }
+        
+        function exportToPDF() {
+            // Nutze die Druckfunktion als PDF-Export (Browser kann als PDF speichern)
+            showToast('Druckdialog wird geöffnet - wählen Sie "Als PDF speichern"', 'info');
+            printView();
+        }
+        
+        // --- DATEI FUNKTIONEN ---
+        async function openFile() {
+            try {
+                if(!window.showOpenFilePicker) {
+                    showToast('File System Access API wird von diesem Browser nicht unterstützt', 'error');
+                    return;
+                }
+                [fileHandle] = await showOpenFilePicker();
+                const f = await fileHandle.getFile();
+                const content = await f.text();
+                const parsed = JSON.parse(content);
+                appData = parsed;
+                ensureAppDataDefaults();
+                migrateZoneNames();
+                refreshUI();
+                updatePatientList();
+                queueSave();
+                showToast('Datei geladen und gespeichert', 'success');
+            } catch(e) {
+                if(e.name !== 'AbortError') {
+                    console.error('Fehler beim Öffnen:', e);
+                    showToast('Fehler beim Öffnen der Datei', 'error');
+                }
+            }
+        }
+        
+        async function saveToFileManual() {
+            if(!fileHandle) {
+                if(!window.showSaveFilePicker) {
+                    showToast('File System Access API wird von diesem Browser nicht unterstützt', 'error');
+                    return;
+                }
+                try {
+                    fileHandle = await showSaveFilePicker({suggestedName:'Plan.json'});
+                } catch(e) {
+                    if(e.name !== 'AbortError') {
+                        console.error('Datei-Auswahl fehlgeschlagen:', e);
+                    }
+                    return;
+                }
+            }
+            queueSave();
+        }
+        
+        // --- BACKUP FUNKTIONEN ---
+        let pendingBackupImport = null;
+        
+        function exportAllData() {
+            const backup = {
+                version: '2.2.0',
+                exportDate: new Date().toISOString(),
+                events: appData.events || [],
+                pool: appData.pool || [],
+                employees: appData.employees || [],
+                tours: appData.tours || [],
+                wageSettings: appData.wageSettings || {},
+                favorites: appData.favorites || []
+            };
+            
+            const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `tourenplanung-backup-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Backup exportiert', 'success');
+        }
+        
+        function importAllData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if(!file) return;
+                
+                try {
+                    const text = await file.text();
+                    const data = JSON.parse(text);
+                    
+                    // Validierung
+                    if(!data.events && !data.pool && !data.tours) {
+                        showToast('Ungültiges Backup-Format', 'error');
+                        return;
+                    }
+                    
+                    pendingBackupImport = data;
+                    openModal('backupImportConfirmModal');
+                } catch(err) {
+                    console.error('Fehler beim Lesen des Backups:', err);
+                    showToast('Fehler beim Lesen des Backups', 'error');
+                }
+            };
+            input.click();
+        }
         
         async function executeOptimization() {
             const dayIndex = parseInt(document.getElementById('optimizeDaySelect').value);
@@ -8434,8 +8560,6 @@ Weber, Peter;Erle;social</code>
                 showToast('Fehler beim Anwenden der Optimierung', 'error');
             }
         }
-        
-        // exportAllData, importAllData wurden bereits oben definiert
         
         async function confirmBackupImport() {
             if(!pendingBackupImport) {
