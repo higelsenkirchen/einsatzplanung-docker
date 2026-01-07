@@ -10850,6 +10850,11 @@ Weber, Peter;Erle;social</code>
         // Speichere die Event-Listener für jedes Modal
         const modalHandlers = {};
         
+        // Hilfsfunktion zum Öffnen des Optimierungs-Modals
+        function openOptimizationModal() {
+            openModal('optimizationModal');
+        }
+        
         function openModal(id){
             const modal = document.getElementById(id);
             if(modal) {
