@@ -34,28 +34,64 @@ async function initializeDatabase() {
         const statements = schema
             .split(';')
             .map(s => s.trim())
-            .filter(s => s.length > 0 && !s.startsWith('--'));
+            .filter(s => {
+                // Filtere leere Statements und Kommentare
+                const cleaned = s.replace(/--.*$/gm, '').trim();
+                return cleaned.length > 0 && 
+                       !cleaned.match(/^\s*$/);
+            });
         
         const client = await pool.connect();
         
         try {
-            for (const statement of statements) {
+            let successCount = 0;
+            let skipCount = 0;
+            let errorCount = 0;
+            
+            for (let i = 0; i < statements.length; i++) {
+                const statement = statements[i];
+                
+                // Überspringe leere oder nur-Kommentar Statements
+                if (!statement || statement.length < 10) {
+                    continue;
+                }
+                
                 try {
                     await client.query(statement);
+                    successCount++;
+                    
+                    // Log wichtige Tabellen-Erstellungen
+                    if (statement.toUpperCase().includes('CREATE TABLE')) {
+                        const tableMatch = statement.match(/CREATE TABLE.*?(\w+)/i);
+                        if (tableMatch) {
+                            console.log(`✅ Tabelle erstellt: ${tableMatch[1]}`);
+                        }
+                    }
                 } catch (stmtError) {
                     // Ignoriere Fehler für bereits existierende Objekte
                     if (stmtError.code === '42P07' || // Table already exists
                         stmtError.code === '42710' || // Object already exists
                         stmtError.code === '42P16' || // Index already exists
-                        stmtError.code === '42723') { // Function already exists
-                        // Objekt existiert bereits, das ist OK
-                        continue;
+                        stmtError.code === '42723' || // Function already exists
+                        stmtError.code === '42P17') { // Constraint already exists
+                        skipCount++;
+                        // Log nur bei wichtigen Objekten
+                        if (statement.toUpperCase().includes('CREATE TABLE')) {
+                            const tableMatch = statement.match(/CREATE TABLE.*?(\w+)/i;
+                            if (tableMatch) {
+                                console.log(`ℹ️  Tabelle existiert bereits: ${tableMatch[1]}`);
+                            }
+                        }
+                    } else {
+                        // Log andere Fehler, aber wirf sie nicht
+                        errorCount++;
+                        console.error(`⚠️  Fehler bei Statement ${i + 1}:`, stmtError.code, stmtError.message);
+                        console.error(`   Statement: ${statement.substring(0, 100)}...`);
                     }
-                    // Andere Fehler weiterwerfen
-                    throw stmtError;
                 }
             }
-            console.log('✅ Datenbankschema initialisiert');
+            
+            console.log(`✅ Schema-Initialisierung abgeschlossen: ${successCount} erfolgreich, ${skipCount} übersprungen, ${errorCount} Fehler`);
         } finally {
             client.release();
         }
