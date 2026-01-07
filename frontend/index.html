@@ -4427,6 +4427,7 @@ Weber, Peter;Erle;social</code>
                     }
                 }
             );
+            }
         }
         
         // --- ZONE LEGEND ---
@@ -8705,30 +8706,7 @@ Weber, Peter;Erle;social</code>
         }, 60000); // Every 60 seconds
 
         // Zeige zugewiesenen Mitarbeiter für ausgewählte Tour an
-        function updateTourEmployeeDisplay() {
-            const display = document.getElementById('tourEmployeeDisplay');
-            const tourSelect = document.getElementById('tourSelect');
-            if(!display || !tourSelect) return;
-            
-            const selectedTourId = tourSelect.value;
-            if(!selectedTourId) {
-                display.style.display = 'none';
-                return;
-            }
-            
-            const tour = appData.tours.find(t => t.id === selectedTourId);
-            if(tour && tour.employeeId) {
-                const employee = appData.employees.find(e => e.id === tour.employeeId);
-                if(employee) {
-                    display.textContent = `👤 ${employee.name}`;
-                    display.style.display = 'inline-block';
-                    return;
-                }
-            }
-            
-            // Kein Mitarbeiter zugewiesen
-            display.style.display = 'none';
-        }
+        // updateTourEmployeeDisplay wurde bereits oben definiert
 
         // Filter-Funktionen für Gesamtansicht
         function toggleFilterGroup(group) {
