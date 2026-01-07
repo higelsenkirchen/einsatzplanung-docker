@@ -6727,6 +6727,14 @@ Weber, Peter;Erle;social</code>
                             });
                         }
                         
+                        // Entferne Pool-Item aus Pool wenn Event aus Pool erstellt wurde (nur beim ersten Speichern)
+                        const modal = document.getElementById('eventModal');
+                        if (modal && modal.dataset.fromPoolId && !e.extendedProps.poolId) {
+                            // Nur entfernen wenn poolId noch nicht gesetzt war (neues Event)
+                            appData.pool = appData.pool.filter(p => p.id !== modal.dataset.fromPoolId);
+                            renderPool();
+                        }
+                        
                         showToast('Einsatz aktualisiert', 'success');
                     } else {
                         const m=document.getElementById('eventModal');
@@ -6781,8 +6789,11 @@ Weber, Peter;Erle;social</code>
                             appData.events.push(repeatEvent);
                         });
                         
-                        // Pool-Item bleibt im Pool (kann mehrfach geplant werden)
-                        // Kein Entfernen aus dem Pool mehr - ermöglicht mehrfache Planung
+                        // Entferne Pool-Item aus Pool wenn Event aus Pool erstellt wurde
+                        if(m.dataset.fromPoolId) {
+                            appData.pool = appData.pool.filter(p => p.id !== m.dataset.fromPoolId);
+                            renderPool();
+                        }
                     }
                     // Clear repeat checkboxes
                     document.querySelectorAll('.repeat-cb').forEach(cb => cb.checked = false);
