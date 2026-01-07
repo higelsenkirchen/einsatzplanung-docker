@@ -601,7 +601,8 @@
         }
         
         .admin-tab-btn.active {
-            color: var(--primary) !important;
+            color: rgba(255, 255, 255, 1) !important;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%) !important;
             border-bottom-color: var(--primary) !important;
         }
         
@@ -8822,23 +8823,60 @@ Weber, Peter;Erle;social</code>
         }
         
         async function applyOptimization(dayIndex, assignmentsJson) {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8825',message:'applyOptimization entry',data:{dayIndex,assignmentsJsonType:typeof assignmentsJson,assignmentsJsonLength:assignmentsJson?.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+            // #endregion
             try {
                 const assignments = typeof assignmentsJson === 'string' ? JSON.parse(assignmentsJson) : assignmentsJson;
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8827',message:'assignments parsed',data:{assignmentsCount:assignments?.length,firstAssignment:assignments?.[0],allEventIds:assignments?.map(a=>a.eventId)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+                // #endregion
                 
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8829',message:'before applying assignments',data:{totalEvents:appData.events?.length,eventsForDay:appData.events?.filter(e=>e.dayIndex===dayIndex)?.length,dayIndexType:typeof dayIndex},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+                // #endregion
+                
+                let foundCount = 0;
+                let notFoundEventIds = [];
                 // Wende Optimierung an
                 assignments.forEach(assignment => {
                     const event = appData.events.find(e => e.id === assignment.eventId && e.dayIndex === dayIndex);
                     if (event) {
+                        // #region agent log
+                        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8834',message:'updating event',data:{eventId:assignment.eventId,tourId:assignment.tourId,oldTour:event.extendedProps?.tour},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+                        // #endregion
                         event.extendedProps = event.extendedProps || {};
                         event.extendedProps.tour = assignment.tourId;
+                        foundCount++;
+                    } else {
+                        notFoundEventIds.push(assignment.eventId);
                     }
                 });
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8836',message:'assignments applied',data:{foundCount,notFoundCount:notFoundEventIds.length,notFoundEventIds},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+                // #endregion
 
-                await saveToAPI();
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8838',message:'before saveToAPI',data:{eventsWithTour:appData.events?.filter(e=>e.extendedProps?.tour)?.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+                // #endregion
+                const saveResult = await saveToAPI();
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8838',message:'after saveToAPI',data:{saveResult},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+                // #endregion
+                
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8839',message:'before refreshView',data:{currentView},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+                // #endregion
                 refreshView();
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8839',message:'after refreshView',timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+                // #endregion
                 closeModal('optimizationModal');
                 showToast('Optimierung angewendet', 'success');
             } catch (error) {
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8842',message:'error in applyOptimization',data:{errorMessage:error.message,errorStack:error.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+                // #endregion
                 console.error('Fehler beim Anwenden der Optimierung:', error);
                 showToast('Fehler beim Anwenden der Optimierung', 'error');
             }
