@@ -986,7 +986,8 @@
             grid-template-columns: 50px repeat(7, 1fr);
             gap: 8px;
             overflow-y: auto;
-            height: 100%;
+            flex: 1;
+            min-height: 0;
             padding-bottom: 10px;
             position: relative;
         }
@@ -6155,6 +6156,7 @@ Weber, Peter;Erle;social</code>
         }
 
         function renderWeekBoard(container, events) {
+            console.log('renderWeekBoard aufgerufen', { container, events, TIMELINE_HOURS, TIMELINE_START_HOUR, TIMELINE_END_HOUR });
             const dayNames = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
             const pxPerMin = getPixelsPerMinute();
             const hourHeight = 60 * pxPerMin;
