@@ -2447,10 +2447,30 @@
                 <div id="poolImportPreviewContent"></div>
             </div>
             
+            <div style="margin-bottom:20px; padding:12px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm);">
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                    <input type="checkbox" id="poolImportAutoGeocode" style="width:18px; height:18px; cursor:pointer;">
+                    <div>
+                        <div style="font-weight:600; font-size:0.9rem; margin-bottom:4px;">📍 Koordinaten automatisch ermitteln</div>
+                        <div style="font-size:0.85rem; color:var(--text-muted);">Für alle Kunden mit Adresse werden Koordinaten ermittelt (kann bei vielen Einträgen länger dauern, max. 1/Sekunde)</div>
+                    </div>
+                </label>
+            </div>
+            
+            <div id="poolImportGeocodeProgress" style="display:none; margin-bottom:20px; padding:12px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm);">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                    <div style="flex:1; height:8px; background:var(--border-light); border-radius:4px; overflow:hidden;">
+                        <div id="poolImportGeocodeProgressBar" style="height:100%; background:var(--primary); width:0%; transition:width 0.3s;"></div>
+                    </div>
+                    <span id="poolImportGeocodeProgressText" style="font-size:0.85rem; color:var(--text-muted); white-space:nowrap;">0/0</span>
+                </div>
+                <div id="poolImportGeocodeStatus" style="font-size:0.85rem; color:var(--text-muted);">Bereite Geocoding vor...</div>
+            </div>
+            
             <div style="display:flex; gap:10px; justify-content:flex-end;">
                 <button class="btn btn-secondary" onclick="closeModal('poolImportModal')">Abbrechen</button>
                 <button class="btn btn-secondary" onclick="previewPoolImport()">Vorschau</button>
-                <button class="btn btn-primary" onclick="handlePoolImportPaste()">📥 Importieren</button>
+                <button class="btn btn-primary" id="poolImportExecuteBtn" onclick="handlePoolImportPaste()">📥 Importieren</button>
             </div>
         </div>
     </div>
@@ -6105,6 +6125,15 @@ Weber, Peter;Erle;social</code>
             document.getElementById('poolImportTextarea').value = '';
             document.getElementById('poolImportFileInput').value = '';
             document.getElementById('poolImportPreview').style.display = 'none';
+            document.getElementById('poolImportGeocodeProgress').style.display = 'none';
+            document.getElementById('poolImportAutoGeocode').checked = false;
+            
+            // Reset Button
+            const executeBtn = document.getElementById('poolImportExecuteBtn');
+            if (executeBtn) {
+                executeBtn.disabled = false;
+                executeBtn.textContent = '📥 Importieren';
+            }
             
             // Prüfe ob SheetJS verfügbar ist
             const warningDiv = document.getElementById('sheetjsWarning');
@@ -6254,16 +6283,25 @@ Weber, Peter;Erle;social</code>
             }
         }
         
-        function importPoolItems(items) {
+        async function importPoolItems(items) {
             if(!items || items.length === 0) {
                 showToast('Keine Daten zum Importieren', 'warning');
                 return;
             }
             
+            const autoGeocode = document.getElementById('poolImportAutoGeocode')?.checked || false;
+            const progressDiv = document.getElementById('poolImportGeocodeProgress');
+            const progressBar = document.getElementById('poolImportGeocodeProgressBar');
+            const progressText = document.getElementById('poolImportGeocodeProgressText');
+            const statusText = document.getElementById('poolImportGeocodeStatus');
+            const executeBtn = document.getElementById('poolImportExecuteBtn');
+            
             let imported = 0;
             let skipped = 0;
             const warnings = [];
+            const poolItems = [];
             
+            // Erstelle Pool-Items (ohne Koordinaten)
             items.forEach(item => {
                 if(!item.name || !item.postalCode) {
                     skipped++;
@@ -6287,7 +6325,73 @@ Weber, Peter;Erle;social</code>
                     types: ['other']
                 };
                 
-                appData.pool.push(poolItem);
+                poolItems.push(poolItem);
+            });
+            
+            // Zeige Fortschrittsanzeige wenn Geocoding aktiviert
+            if (autoGeocode && poolItems.length > 0) {
+                const itemsWithAddress = poolItems.filter(p => p.address);
+                if (itemsWithAddress.length > 0) {
+                    progressDiv.style.display = 'block';
+                    executeBtn.disabled = true;
+                    executeBtn.textContent = '⏳ Importiere...';
+                    
+                    // Batch-Geocoding durchführen
+                    let geocoded = 0;
+                    let geocodeFailed = 0;
+                    
+                    for (let i = 0; i < itemsWithAddress.length; i++) {
+                        const item = itemsWithAddress[i];
+                        
+                        // Update Progress
+                        const progress = Math.round(((i + 1) / itemsWithAddress.length) * 100);
+                        progressBar.style.width = `${progress}%`;
+                        progressText.textContent = `${i + 1}/${itemsWithAddress.length}`;
+                        statusText.textContent = `Ermittle Koordinaten für ${item.title}...`;
+                        
+                        try {
+                            // Rate-Limiting: 1 Request pro Sekunde
+                            if (i > 0) {
+                                await new Promise(resolve => setTimeout(resolve, 1000));
+                            }
+                            
+                            const response = await fetch('/api/geocoding/geocode', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ 
+                                    address: item.address, 
+                                    postalCode: item.postalCode, 
+                                    city: 'Gelsenkirchen' 
+                                })
+                            });
+                            
+                            const data = await response.json();
+                            
+                            if (data.success) {
+                                if (!item.extendedProps) item.extendedProps = {};
+                                item.extendedProps.coordinates = {
+                                    lat: data.latitude,
+                                    lng: data.longitude
+                                };
+                                geocoded++;
+                            } else {
+                                geocodeFailed++;
+                                warnings.push(`${item.title}: Geocoding fehlgeschlagen`);
+                            }
+                        } catch (error) {
+                            console.error(`Geocoding-Fehler für ${item.title}:`, error);
+                            geocodeFailed++;
+                            warnings.push(`${item.title}: Geocoding-Fehler`);
+                        }
+                    }
+                    
+                    statusText.textContent = `Geocoding abgeschlossen: ${geocoded} erfolgreich, ${geocodeFailed} fehlgeschlagen`;
+                }
+            }
+            
+            // Füge alle Pool-Items hinzu
+            poolItems.forEach(item => {
+                appData.pool.push(item);
                 imported++;
             });
             
@@ -6300,8 +6404,26 @@ Weber, Peter;Erle;social</code>
                 renderCustomerList();
             }
             
+            // Verstecke Fortschrittsanzeige
+            if (progressDiv) {
+                setTimeout(() => {
+                    progressDiv.style.display = 'none';
+                }, 2000);
+            }
+            
+            if (executeBtn) {
+                executeBtn.disabled = false;
+                executeBtn.textContent = '✅ Importieren';
+            }
+            
             // Zeige Ergebnis
             let message = `${imported} Kunden erfolgreich importiert`;
+            if (autoGeocode) {
+                const geocodedCount = poolItems.filter(p => p.extendedProps?.coordinates).length;
+                if (geocodedCount > 0) {
+                    message += `, ${geocodedCount} mit Koordinaten`;
+                }
+            }
             if(skipped > 0) {
                 message += `, ${skipped} übersprungen`;
             }
@@ -6320,7 +6442,7 @@ Weber, Peter;Erle;social</code>
             
             const reader = new FileReader();
             
-            reader.onload = (e) => {
+            reader.onload = async (e) => {
                 try {
                     let data;
                     const fileName = file.name.toLowerCase();
@@ -6329,7 +6451,7 @@ Weber, Peter;Erle;social</code>
                         // CSV-Datei als Text lesen
                         data = e.target.result;
                         const items = parseImportData(data, false);
-                        importPoolItems(items);
+                        await importPoolItems(items);
                     } else if(fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
                         // Excel-Datei mit SheetJS parsen
                         if(typeof XLSX === 'undefined') {
@@ -6337,13 +6459,20 @@ Weber, Peter;Erle;social</code>
                         }
                         data = e.target.result;
                         const items = parseImportData(data, true);
-                        importPoolItems(items);
+                        await importPoolItems(items);
                     } else {
                         throw new Error('Nicht unterstütztes Dateiformat. Bitte verwenden Sie .xlsx, .xls oder .csv');
                     }
                 } catch(error) {
                     console.error('Import-Fehler:', error);
                     showToast('Fehler beim Import: ' + error.message, 'error');
+                    
+                    // Reset Button falls Fehler
+                    const executeBtn = document.getElementById('poolImportExecuteBtn');
+                    if (executeBtn) {
+                        executeBtn.disabled = false;
+                        executeBtn.textContent = '📥 Importieren';
+                    }
                 }
             };
             
@@ -6355,7 +6484,7 @@ Weber, Peter;Erle;social</code>
             }
         }
         
-        function handlePoolImportPaste() {
+        async function handlePoolImportPaste() {
             const textarea = document.getElementById('poolImportTextarea');
             const text = textarea.value.trim();
             
@@ -6366,10 +6495,17 @@ Weber, Peter;Erle;social</code>
             
             try {
                 const items = parseImportData(text, false);
-                importPoolItems(items);
+                await importPoolItems(items);
             } catch(error) {
                 console.error('Import-Fehler:', error);
                 showToast('Fehler beim Import: ' + error.message, 'error');
+                
+                // Reset Button falls Fehler
+                const executeBtn = document.getElementById('poolImportExecuteBtn');
+                if (executeBtn) {
+                    executeBtn.disabled = false;
+                    executeBtn.textContent = '📥 Importieren';
+                }
             }
         }
         function clearAllTooltips() {
