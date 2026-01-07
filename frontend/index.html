@@ -3139,6 +3139,10 @@ Weber, Peter;Erle;social</code>
     </script>
     
     <script>
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:3142',message:'SCRIPT START - Hoisting Test',data:{refreshViewType:typeof refreshView,switchViewType:typeof switchView},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A'})}).catch(()=>{});
+        console.log('[DEBUG] SCRIPT START - refreshView hoisted?:', typeof refreshView === 'function', 'switchView hoisted?:', typeof switchView === 'function');
+        // #endregion
         const CITY_ZONES = ["Alt-/Neustadt", "Beckhausen", "Bismarck", "Buer", "Bulmke-Hüllen", "Erle", "Feldmark", "Hassel", "Heßler", "Horst", "Resser Mark", "Resse", "Rotthausen", "Schalke", "Scholven", "Ückendorf", "Außerhalb"];
         
         // Postleitzahlen für Gelsenkirchen Stadtteile
@@ -3934,6 +3938,7 @@ Weber, Peter;Erle;social</code>
             await loadFilterPresetsFromStorage();
             
             // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:3937',message:'Vor refreshUI in DOMContentLoaded',data:{refreshViewType:typeof refreshView,switchViewType:typeof switchView},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'E'})}).catch(()=>{});
             console.log('[DEBUG] Vor refreshUI, switchView verfügbar:', typeof switchView === 'function', 'refreshView verfügbar:', typeof refreshView === 'function');
             // #endregion
             
@@ -5612,8 +5617,13 @@ Weber, Peter;Erle;social</code>
         });
 
         // --- STANDARD LOGIC ---
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:5614',message:'VOR refreshView Definition',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A-B'})}).catch(()=>{});
+        console.log('[DEBUG] VOR refreshView Definition');
+        // #endregion
         function refreshView() {
             // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:5618',message:'refreshView aufgerufen',data:{currentView,hasAppData:!!appData,eventsCount:appData?.events?.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'E'})}).catch(()=>{});
             console.log('[DEBUG] refreshView aufgerufen', { currentView, hasAppData: !!appData, eventsCount: appData?.events?.length });
             // #endregion
             const container = document.getElementById('weekView');
@@ -11049,6 +11059,9 @@ Weber, Peter;Erle;social</code>
         }
         
         // #region agent log
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:11052',message:'Script-Ende erreicht',data:{refreshViewType:typeof refreshView,switchViewType:typeof switchView},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A-E'})}).catch(()=>{});
+        // #endregion
         console.log('[DEBUG] Script-Ende erreicht, refreshView verfügbar:', typeof refreshView === 'function');
         // #endregion
         
