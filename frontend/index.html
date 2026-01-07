@@ -620,6 +620,10 @@
             transition: box-shadow 0.3s ease;
             flex-wrap: wrap;
             gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            margin-bottom: 16px;
         }
         
         .top-bar:hover {
@@ -3162,7 +3166,7 @@ Weber, Peter;Erle;social</code>
         // ============================================
         
         let currentView = 'week'; // 'week', 'compare', 'overall', 'dashboard', or 'admin'
-        let currentAdminTab = 'tours'; // 'tours', 'employees', 'wages', 'customers', 'templates', 'copyday'
+        let currentAdminTab = 'tours'; // 'tours', 'employees', 'wages', 'customers', 'events', 'templates', 'copyday'
         let currentCompareDayIndex = 0; // 0=Montag, 1=Dienstag, etc.
         let currentVariantId = null; // Aktuelle Varianten-ID
         let variants = []; // Liste aller Varianten
@@ -4011,26 +4015,128 @@ Weber, Peter;Erle;social</code>
         }
         
         function deleteAllCustomers() {
-            const customerCount = appData.pool.length;
+            // Zähle Pool-Kunden und verplante Kunden
+            const poolCount = appData.pool.length;
+            const plannedCustomers = new Set();
+            appData.events.forEach(evt => {
+                if (!evt.extendedProps?.isTravel && evt.title) {
+                    plannedCustomers.add(evt.title);
+                }
+            });
+            const plannedCount = plannedCustomers.size;
+            const totalCount = poolCount + plannedCount;
             
-            if (customerCount === 0) {
+            if (totalCount === 0) {
                 showToast('Keine Kunden zum Löschen vorhanden', 'info');
                 return;
             }
             
+            // Erstelle Modal für Auswahl
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.style.display = 'flex';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width:500px;">
+                    <h3 style="margin-top:0;">🗑️ Kunden löschen</h3>
+                    <p style="color:var(--text-muted); margin-bottom:20px;">
+                        Welche Kunden möchten Sie löschen?
+                    </p>
+                    <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
+                        <label style="display:flex; align-items:center; gap:12px; padding:12px; border:2px solid var(--border); border-radius:var(--radius-md); cursor:pointer; transition:all 0.2s;" 
+                               onmouseover="this.style.borderColor='var(--primary)'" 
+                               onmouseout="this.style.borderColor='var(--border)'"
+                               onclick="document.getElementById('deletePoolOnly').checked=true;">
+                            <input type="radio" id="deletePoolOnly" name="deleteType" value="pool" checked style="cursor:pointer;">
+                            <div style="flex:1;">
+                                <div style="font-weight:600; margin-bottom:4px;">Nur Pool-Kunden (${poolCount})</div>
+                                <div style="font-size:0.85rem; color:var(--text-muted);">Löscht nur Kunden aus dem Pool. Verplante Einsätze bleiben erhalten.</div>
+                            </div>
+                        </label>
+                        <label style="display:flex; align-items:center; gap:12px; padding:12px; border:2px solid var(--border); border-radius:var(--radius-md); cursor:pointer; transition:all 0.2s;" 
+                               onmouseover="this.style.borderColor='var(--danger)'" 
+                               onmouseout="this.style.borderColor='var(--border)'"
+                               onclick="document.getElementById('deleteAll').checked=true;">
+                            <input type="radio" id="deleteAll" name="deleteType" value="all" style="cursor:pointer;">
+                            <div style="flex:1;">
+                                <div style="font-weight:600; margin-bottom:4px; color:var(--danger);">Alle Kunden (${totalCount})</div>
+                                <div style="font-size:0.85rem; color:var(--text-muted);">Löscht alle Kunden aus dem Pool (${poolCount}) und alle verplanten Einsätze (${plannedCount}).</div>
+                            </div>
+                        </label>
+                    </div>
+                    <div style="display:flex; gap:10px; justify-content:flex-end;">
+                        <button class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">Abbrechen</button>
+                        <button class="btn btn-danger" onclick="confirmDeleteCustomers()">Löschen</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            // Globale Funktion für Bestätigung
+            window.confirmDeleteCustomers = function() {
+                const deleteType = document.querySelector('input[name="deleteType"]:checked').value;
+                modal.remove();
+                
+                const count = deleteType === 'pool' ? poolCount : totalCount;
+                const typeText = deleteType === 'pool' ? 'Pool-Kunden' : 'Kunden';
+                
+                const userInput = prompt(
+                    `⚠️ WARNUNG: Möchten Sie wirklich ${count} ${typeText} löschen?\n\n` +
+                    `Diese Aktion kann nicht rückgängig gemacht werden!\n\n` +
+                    `Geben Sie "LÖSCHEN" ein, um zu bestätigen:`
+                );
+                
+                if (userInput !== 'LÖSCHEN') {
+                    showToast('Löschung abgebrochen', 'info');
+                    return;
+                }
+                
+                if (deleteType === 'pool') {
+                    // Nur Pool-Kunden löschen
+                    appData.pool = [];
+                } else {
+                    // Alle Kunden löschen (Pool + verplante Einsätze)
+                    appData.pool = [];
+                    appData.events = appData.events.filter(e => e.extendedProps?.isTravel === true);
+                }
+                
+                // Speichere Änderungen
+                queueSave();
+                renderPool();
+                
+                // Aktualisiere Kundenliste
+                if (currentView === 'admin' && currentAdminTab === 'customers') {
+                    renderCustomerList();
+                }
+                
+                // Aktualisiere Ansicht
+                refreshView();
+                
+                showToast(`${count} ${typeText} wurden gelöscht`, 'success');
+            };
+        }
+        
+        function deleteAllEvents() {
+            const eventCount = appData.events.filter(e => !e.extendedProps?.isTravel).length;
+            const travelCount = appData.events.filter(e => e.extendedProps?.isTravel).length;
+            
+            if (eventCount === 0) {
+                showToast('Keine Einsätze zum Löschen vorhanden', 'info');
+                return;
+            }
+            
             const confirmed = confirm(
-                `⚠️ WARNUNG: Möchten Sie wirklich ALLE ${customerCount} Kunden löschen?\n\n` +
+                `⚠️ WARNUNG: Möchten Sie wirklich ALLE ${eventCount} Einsätze löschen?\n\n` +
+                `${travelCount > 0 ? `Hinweis: ${travelCount} Fahrtzeiten werden nicht gelöscht.\n\n` : ''}` +
                 `Diese Aktion kann nicht rückgängig gemacht werden!\n\n` +
-                `Bitte geben Sie "LÖSCHEN" ein, um zu bestätigen:`
+                `Geben Sie "LÖSCHEN" ein, um zu bestätigen:`
             );
             
             if (!confirmed) {
                 return;
             }
             
-            // Zusätzliche Sicherheitsabfrage
             const userInput = prompt(
-                `Geben Sie "LÖSCHEN" ein, um alle ${customerCount} Kunden zu löschen:`
+                `Geben Sie "LÖSCHEN" ein, um alle ${eventCount} Einsätze zu löschen:`
             );
             
             if (userInput !== 'LÖSCHEN') {
@@ -4038,19 +4144,55 @@ Weber, Peter;Erle;social</code>
                 return;
             }
             
-            // Entferne alle Kunden aus Pool
-            appData.pool = [];
+            // Entferne alle Einsätze (behalte Fahrtzeiten)
+            appData.events = appData.events.filter(e => e.extendedProps?.isTravel === true);
             
             // Speichere Änderungen
             queueSave();
-            renderPool();
             
-            // Aktualisiere Kundenliste
-            if (currentView === 'admin' && currentAdminTab === 'customers') {
-                renderCustomerList();
-            }
+            // Aktualisiere Ansicht
+            refreshView();
             
-            showToast(`Alle ${customerCount} Kunden wurden gelöscht`, 'success');
+            showToast(`Alle ${eventCount} Einsätze wurden gelöscht`, 'success');
+        }
+        
+        function renderAdminEvents(container) {
+            const eventCount = appData.events.filter(e => !e.extendedProps?.isTravel).length;
+            const travelCount = appData.events.filter(e => e.extendedProps?.isTravel).length;
+            
+            container.innerHTML = `
+                <h3 style="margin:0 0 8px 0; font-size:1.2rem; color:var(--text-main);">📅 Einsätze verwalten</h3>
+                <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:20px;">
+                    Verwalten Sie alle geplanten Einsätze der aktuellen Variante.
+                </p>
+                
+                <div style="background:var(--bg-card); padding:20px; border-radius:var(--radius-lg); border:1px solid var(--border); margin-bottom:24px;">
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:16px;">
+                        <div>
+                            <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:4px;">Einsätze</div>
+                            <div style="font-size:2rem; font-weight:700; color:var(--primary);">${eventCount}</div>
+                        </div>
+                        <div>
+                            <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:4px;">Fahrtzeiten</div>
+                            <div style="font-size:2rem; font-weight:700; color:var(--text-secondary);">${travelCount}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="padding:16px; background:var(--warning-light); border:1px solid var(--warning); border-radius:var(--radius-md); margin-bottom:24px;">
+                    <div style="font-weight:600; color:var(--warning); margin-bottom:8px;">⚠️ Warnung</div>
+                    <div style="font-size:0.85rem; color:var(--text-muted);">
+                        Das Löschen aller Einsätze kann nicht rückgängig gemacht werden. 
+                        Fahrtzeiten werden automatisch beibehalten.
+                    </div>
+                </div>
+                
+                <div style="display:flex; gap:10px; justify-content:flex-end;">
+                    <button class="btn btn-danger" onclick="deleteAllEvents()" style="white-space:nowrap;">
+                        🗑️ Alle Einsätze löschen
+                    </button>
+                </div>
+            `;
         }
 
         function handleDropToPool() {
@@ -4116,6 +4258,18 @@ Weber, Peter;Erle;social</code>
             }
             
             refreshView();
+            
+            // Stelle sicher, dass main-content Overflow korrekt ist
+            const mainContent = document.querySelector('.main-content');
+            if(mainContent) {
+                if(view === 'overall') {
+                    mainContent.style.overflowX = 'auto';
+                    mainContent.style.overflowY = 'hidden';
+                } else {
+                    mainContent.style.overflowX = 'visible';
+                    mainContent.style.overflowY = 'auto';
+                }
+            }
         }
         
         function setZoom(level) {
@@ -4521,6 +4675,15 @@ Weber, Peter;Erle;social</code>
             if(parent) {
                 parent.style.overflowX = 'auto';
                 parent.style.minWidth = '0'; // Wichtig für flex children
+                // Stelle sicher, dass der Parent-Container auch scrollbar ist
+                parent.style.position = 'relative';
+            }
+            
+            // Stelle sicher, dass main-content beim horizontalen Scrollen korrekt funktioniert
+            const mainContent = document.querySelector('.main-content');
+            if(mainContent && currentView === 'overall') {
+                mainContent.style.overflowX = 'auto';
+                mainContent.style.overflowY = 'hidden';
             }
             container.innerHTML = '';
 
@@ -6200,6 +6363,7 @@ Weber, Peter;Erle;social</code>
                 { id: 'employees', label: '👥 Team' },
                 { id: 'wages', label: '💰 Löhne' },
                 { id: 'customers', label: '👤 Kunden' },
+                { id: 'events', label: '📅 Einsätze' },
                 { id: 'templates', label: '📁 Vorlagen' },
                 { id: 'copyday', label: '📋 Tag kopieren' }
             ];
@@ -6279,6 +6443,9 @@ Weber, Peter;Erle;social</code>
                     break;
                 case 'customers':
                     renderAdminCustomers(content);
+                    break;
+                case 'events':
+                    renderAdminEvents(content);
                     break;
                 case 'templates':
                     renderAdminTemplates(content);
