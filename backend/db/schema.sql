@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS pool (
     address VARCHAR(255) DEFAULT NULL,
     postal_code VARCHAR(10) DEFAULT NULL,
     types JSONB NOT NULL DEFAULT '[]',
+    extended_props JSONB DEFAULT '{}',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id, variant_id)
@@ -99,6 +100,7 @@ CREATE INDEX IF NOT EXISTS idx_events_day_index ON events(day_index);
 CREATE INDEX IF NOT EXISTS idx_events_extended_props ON events USING GIN(extended_props);
 CREATE INDEX IF NOT EXISTS idx_pool_variant_id ON pool(variant_id);
 CREATE INDEX IF NOT EXISTS idx_pool_zone ON pool(zone);
+CREATE INDEX IF NOT EXISTS idx_pool_extended_props ON pool USING GIN(extended_props);
 -- idx_pool_postal_code wird in Migration erstellt, nachdem Spalte hinzugefügt wurde
 CREATE INDEX IF NOT EXISTS idx_employees_variant_id ON employees(variant_id);
 CREATE INDEX IF NOT EXISTS idx_employees_home_zone ON employees(home_zone);

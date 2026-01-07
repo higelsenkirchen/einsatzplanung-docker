@@ -152,6 +152,9 @@ async function initializeDatabase() {
         
         // Migration: address und postal_code zu pool hinzufügen
         await migratePoolAddresses();
+        
+        // Migration: extended_props zu pool hinzufügen
+        await migratePoolExtendedProps();
     } catch (error) {
         console.error('❌ Fehler beim Initialisieren des Schemas:', error);
         console.error('Error code:', error.code);
@@ -377,6 +380,42 @@ async function migratePoolAddresses() {
     } catch (error) {
         // Fehler nicht werfen, da Migration optional ist
         console.log('ℹ️  Migration pool addresses übersprungen:', error.message);
+    } finally {
+        client.release();
+    }
+}
+
+// Migration: Fügt extended_props Spalte zu pool hinzu
+async function migratePoolExtendedProps() {
+    const client = await pool.connect();
+    
+    try {
+        // Prüfe ob Spalte bereits existiert
+        const columnCheck = await client.query(`
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name = 'pool' AND column_name = 'extended_props'
+        `);
+        
+        if (columnCheck.rows.length === 0) {
+            await client.query(`
+                ALTER TABLE pool 
+                ADD COLUMN extended_props JSONB DEFAULT '{}'
+            `);
+            
+            // Füge Index hinzu
+            await client.query(`
+                CREATE INDEX IF NOT EXISTS idx_pool_extended_props 
+                ON pool USING GIN(extended_props)
+            `);
+            
+            console.log('✅ Migration: extended_props zu pool hinzugefügt');
+        } else {
+            console.log('ℹ️  Spalte extended_props existiert bereits');
+        }
+    } catch (error) {
+        // Fehler nicht werfen, da Migration optional ist
+        console.log('ℹ️  Migration pool extended_props übersprungen:', error.message);
     } finally {
         client.release();
     }
