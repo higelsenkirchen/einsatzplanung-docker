@@ -8023,26 +8023,57 @@ Weber, Peter;Erle;social</code>
                 padding: 4px;
             `;
             
-            const duplicateOption = document.createElement('div');
-            duplicateOption.textContent = '📋 Duplizieren';
-            duplicateOption.style.cssText = `
-                padding: 8px 12px;
-                cursor: pointer;
-                border-radius: var(--radius-sm);
-                font-size: 0.875rem;
-            `;
-            duplicateOption.onmouseenter = () => {
-                duplicateOption.style.background = 'var(--border-light)';
-            };
-            duplicateOption.onmouseleave = () => {
-                duplicateOption.style.background = 'transparent';
-            };
-            duplicateOption.onclick = () => {
-                menu.remove();
-                handleDuplicateVariant(variantId);
+            // Hilfsfunktion zum Erstellen von Menüoptionen
+            const createMenuItem = (text, onClick, isDanger = false) => {
+                const item = document.createElement('div');
+                item.textContent = text;
+                item.style.cssText = `
+                    padding: 8px 12px;
+                    cursor: pointer;
+                    border-radius: var(--radius-sm);
+                    font-size: 0.875rem;
+                    ${isDanger ? 'color: var(--danger);' : ''}
+                `;
+                item.onmouseenter = () => {
+                    item.style.background = isDanger ? 'rgba(239, 68, 68, 0.1)' : 'var(--border-light)';
+                };
+                item.onmouseleave = () => {
+                    item.style.background = 'transparent';
+                };
+                item.onclick = () => {
+                    menu.remove();
+                    onClick();
+                };
+                return item;
             };
             
+            // Umbenennen-Option
+            const renameOption = createMenuItem('✏️ Umbenennen', () => {
+                handleRenameVariant(variantId);
+            });
+            menu.appendChild(renameOption);
+            
+            // Duplizieren-Option
+            const duplicateOption = createMenuItem('📋 Duplizieren', () => {
+                handleDuplicateVariant(variantId);
+            });
             menu.appendChild(duplicateOption);
+            
+            // Trennlinie
+            const separator = document.createElement('div');
+            separator.style.cssText = `
+                height: 1px;
+                background: var(--border);
+                margin: 4px 0;
+            `;
+            menu.appendChild(separator);
+            
+            // Löschen-Option
+            const deleteOption = createMenuItem('🗑️ Löschen', () => {
+                handleDeleteVariant(variantId);
+            }, true);
+            menu.appendChild(deleteOption);
+            
             document.body.appendChild(menu);
             
             // Schließe Menü beim Klick außerhalb
@@ -8056,6 +8087,123 @@ Weber, Peter;Erle;social</code>
             setTimeout(() => {
                 document.addEventListener('click', closeMenu);
             }, 100);
+        }
+        
+        async function handleRenameVariant(variantId) {
+            if (!variantId) {
+                showToast('Keine Variante zum Umbenennen ausgewählt', 'error');
+                return;
+            }
+            
+            const variant = variants.find(v => v.id === variantId);
+            if (!variant) {
+                showToast('Variante nicht gefunden', 'error');
+                return;
+            }
+            
+            const newName = prompt('Neuer Name der Variante:', variant.name);
+            if (!newName || newName.trim() === '' || newName.trim() === variant.name) {
+                return;
+            }
+            
+            try {
+                const response = await apiCall(`/api/variants/${variantId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ name: newName.trim() })
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Fehler beim Umbenennen');
+                }
+                
+                const updatedVariant = await response.json();
+                
+                // Aktualisiere Variantenliste
+                const index = variants.findIndex(v => v.id === variantId);
+                if (index !== -1) {
+                    variants[index] = updatedVariant;
+                }
+                
+                // Aktualisiere UI
+                updateVariantSelect();
+                
+                showToast(`Variante umbenannt zu "${updatedVariant.name}"`, 'success');
+            } catch (error) {
+                console.error('Fehler beim Umbenennen der Variante:', error);
+                showToast('Fehler beim Umbenennen: ' + error.message, 'error');
+            }
+        }
+        
+        async function handleDeleteVariant(variantId) {
+            if (!variantId) {
+                showToast('Keine Variante zum Löschen ausgewählt', 'error');
+                return;
+            }
+            
+            const variant = variants.find(v => v.id === variantId);
+            if (!variant) {
+                showToast('Variante nicht gefunden', 'error');
+                return;
+            }
+            
+            // Warnung wenn es die letzte Variante ist
+            if (variants.length === 1) {
+                showToast('Die letzte Variante kann nicht gelöscht werden', 'error');
+                return;
+            }
+            
+            // Bestätigung
+            const confirmed = confirm(
+                `⚠️ WARNUNG: Möchten Sie die Variante "${variant.name}" wirklich löschen?\n\n` +
+                `Alle zugehörigen Daten (Termine, Kunden, Mitarbeiter, Touren) werden ebenfalls gelöscht!\n\n` +
+                `Diese Aktion kann nicht rückgängig gemacht werden!`
+            );
+            
+            if (!confirmed) {
+                return;
+            }
+            
+            try {
+                const response = await apiCall(`/api/variants/${variantId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Fehler beim Löschen');
+                }
+                
+                // Entferne Variante aus Liste
+                variants = variants.filter(v => v.id !== variantId);
+                
+                // Wenn die gelöschte Variante die aktuelle war, wechsle zur ersten verfügbaren
+                if (currentVariantId === variantId) {
+                    if (variants.length > 0) {
+                        currentVariantId = variants[0].id;
+                        await switchVariant(currentVariantId);
+                    } else {
+                        currentVariantId = null;
+                        appData = {
+                            events: [],
+                            pool: [],
+                            employees: [],
+                            tours: [{id:'t1', name:'Tour 1'}, {id:'t2', name:'Tour 2'}],
+                            wageSettings: JSON.parse(JSON.stringify(DEFAULT_WAGE_SETTINGS)),
+                            favorites: []
+                        };
+                        refreshUI();
+                    }
+                }
+                
+                // Aktualisiere UI
+                updateVariantSelect();
+                
+                showToast(`Variante "${variant.name}" wurde gelöscht`, 'success');
+            } catch (error) {
+                console.error('Fehler beim Löschen der Variante:', error);
+                showToast('Fehler beim Löschen: ' + error.message, 'error');
+            }
         }
         
         function addTour(){
