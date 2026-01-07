@@ -8760,6 +8760,10 @@ Weber, Peter;Erle;social</code>
                 const result = await response.json();
 
                 if (result.success) {
+                    // Speichere Assignments in globaler Variable für späteren Zugriff
+                    window.currentOptimizationAssignments = result.optimizedAssignments.assignments;
+                    window.currentOptimizationDayIndex = dayIndex;
+                    
                     // Berechne Statistiken für Anzeige
                     const totalEvents = result.statistics.totalEvents;
                     const assignedEvents = result.statistics.assignedEvents;
@@ -8806,7 +8810,7 @@ Weber, Peter;Erle;social</code>
                             `).join('')}
                         </div>
                         <div style="margin-top:15px; padding-top:15px; border-top:1px solid var(--border);">
-                            <button class="btn btn-primary" onclick="applyOptimization(${dayIndex}, '${JSON.stringify(result.optimizedAssignments.assignments).replace(/'/g, "\\'")}')" style="width:100%;">
+                            <button class="btn btn-primary" onclick="applyOptimization(window.currentOptimizationDayIndex, window.currentOptimizationAssignments)" style="width:100%;">
                                 ✓ Optimierung anwenden
                             </button>
                         </div>
@@ -8823,11 +8827,21 @@ Weber, Peter;Erle;social</code>
         }
         
         async function applyOptimization(dayIndex, assignmentsJson) {
+            // Konvertiere dayIndex zu Number falls nötig
+            dayIndex = typeof dayIndex === 'string' ? parseInt(dayIndex, 10) : dayIndex;
+            console.log('[DEBUG] applyOptimization called', {dayIndex, dayIndexType: typeof dayIndex, assignmentsJsonType: typeof assignmentsJson, assignmentsJsonLength: assignmentsJson?.length, assignmentsJson});
             // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8825',message:'applyOptimization entry',data:{dayIndex,assignmentsJsonType:typeof assignmentsJson,assignmentsJsonLength:assignmentsJson?.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8825',message:'applyOptimization entry',data:{dayIndex,dayIndexType:typeof dayIndex,assignmentsJsonType:typeof assignmentsJson,assignmentsJsonLength:assignmentsJson?.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
             // #endregion
             try {
+                if (!assignmentsJson) {
+                    throw new Error('Keine Assignments übergeben');
+                }
                 const assignments = typeof assignmentsJson === 'string' ? JSON.parse(assignmentsJson) : assignmentsJson;
+                if (!Array.isArray(assignments)) {
+                    throw new Error('Assignments müssen ein Array sein');
+                }
+                console.log('[DEBUG] assignments parsed', {assignmentsCount: assignments?.length, firstAssignment: assignments?.[0], allEventIds: assignments?.map(a => a.eventId)});
                 // #region agent log
                 fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8827',message:'assignments parsed',data:{assignmentsCount:assignments?.length,firstAssignment:assignments?.[0],allEventIds:assignments?.map(a=>a.eventId)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
                 // #endregion
@@ -8840,7 +8854,16 @@ Weber, Peter;Erle;social</code>
                 let notFoundEventIds = [];
                 // Wende Optimierung an
                 assignments.forEach(assignment => {
-                    const event = appData.events.find(e => e.id === assignment.eventId && e.dayIndex === dayIndex);
+                    if (!assignment || !assignment.eventId || !assignment.tourId) {
+                        console.warn('[DEBUG] Invalid assignment', assignment);
+                        return;
+                    }
+                    // Prüfe sowohl mit Number als auch String dayIndex
+                    const event = appData.events.find(e => {
+                        const eventDayMatch = e.dayIndex === dayIndex || e.dayIndex === String(dayIndex) || String(e.dayIndex) === String(dayIndex);
+                        const eventIdMatch = e.id === assignment.eventId;
+                        return eventDayMatch && eventIdMatch;
+                    });
                     if (event) {
                         // #region agent log
                         fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8834',message:'updating event',data:{eventId:assignment.eventId,tourId:assignment.tourId,oldTour:event.extendedProps?.tour},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
@@ -8848,18 +8871,22 @@ Weber, Peter;Erle;social</code>
                         event.extendedProps = event.extendedProps || {};
                         event.extendedProps.tour = assignment.tourId;
                         foundCount++;
+                        console.log('[DEBUG] Event updated', {eventId: assignment.eventId, tourId: assignment.tourId});
                     } else {
                         notFoundEventIds.push(assignment.eventId);
+                        console.warn('[DEBUG] Event not found', {eventId: assignment.eventId, dayIndex, allEventIds: appData.events?.map(e => ({id: e.id, dayIndex: e.dayIndex}))});
                     }
                 });
                 // #region agent log
                 fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8836',message:'assignments applied',data:{foundCount,notFoundCount:notFoundEventIds.length,notFoundEventIds},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
                 // #endregion
+                console.log('[DEBUG] assignments applied', {foundCount, notFoundCount: notFoundEventIds.length, notFoundEventIds});
 
                 // #region agent log
                 fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8838',message:'before saveToAPI',data:{eventsWithTour:appData.events?.filter(e=>e.extendedProps?.tour)?.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
                 // #endregion
                 const saveResult = await saveToAPI();
+                console.log('[DEBUG] saveToAPI result', {saveResult});
                 // #region agent log
                 fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8838',message:'after saveToAPI',data:{saveResult},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
                 // #endregion
