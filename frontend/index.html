@@ -5588,7 +5588,13 @@ Weber, Peter;Erle;social</code>
 
         // --- STANDARD LOGIC ---
         function refreshView() {
+            // #region agent log
+            console.log('[DEBUG] refreshView aufgerufen', { currentView, hasAppData: !!appData, eventsCount: appData?.events?.length });
+            // #endregion
             const container = document.getElementById('weekView');
+            // #region agent log
+            console.log('[DEBUG] weekView container:', { found: !!container, id: container?.id });
+            // #endregion
             if(!container) return;
             
             container.innerHTML = ''; // Clear container
@@ -5604,8 +5610,14 @@ Weber, Peter;Erle;social</code>
             }
 
             if(currentView === 'week') {
+                // #region agent log
+                console.log('[DEBUG] currentView ist week, rendere WeekBoard');
+                // #endregion
                 const tourSelect = document.getElementById('tourSelect');
                 const selectedTour = tourSelect ? tourSelect.value : null;
+                // #region agent log
+                console.log('[DEBUG] Tour-Auswahl:', { selectedTour, hasTourSelect: !!tourSelect });
+                // #endregion
 
                 // Filter events by tour (no date filtering - static week)
                 const eventsForTour = (appData.events || []).filter(evt => {
@@ -5613,6 +5625,9 @@ Weber, Peter;Erle;social</code>
                     if(selectedTour && (!evt.extendedProps || evt.extendedProps.tour !== selectedTour)) return false;
                     return true;
                 });
+                // #region agent log
+                console.log('[DEBUG] Gefilterte Events:', { count: eventsForTour.length, events: eventsForTour.slice(0, 3) });
+                // #endregion
 
                 // Auto-calculate travel times (with tour ID for commute calculation)
                 const withTravel = injectTravelTimes(eventsForTour, selectedTour);
@@ -6124,10 +6139,20 @@ Weber, Peter;Erle;social</code>
         }
 
         function renderWeekBoard(container, events) {
+            // #region agent log
+            console.log('[DEBUG] renderWeekBoard aufgerufen', { 
+                hasContainer: !!container, 
+                eventsCount: events?.length,
+                TIMELINE_HOURS: typeof TIMELINE_HOURS !== 'undefined' ? TIMELINE_HOURS : 'UNDEFINED'
+            });
+            // #endregion
             const dayNames = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
             const pxPerMin = getPixelsPerMinute();
             const hourHeight = 60 * pxPerMin;
             const totalHeight = TIMELINE_HOURS * hourHeight;
+            // #region agent log
+            console.log('[DEBUG] renderWeekBoard Variablen:', { pxPerMin, hourHeight, totalHeight });
+            // #endregion
             
             // Get selected tour for filtering
             const tourSelect = document.getElementById('tourSelect');
