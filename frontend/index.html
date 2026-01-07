@@ -6727,12 +6727,14 @@ Weber, Peter;Erle;social</code>
                             });
                         }
                         
-                        // Entferne Pool-Item aus Pool wenn Event aus Pool erstellt wurde (nur beim ersten Speichern)
-                        const modal = document.getElementById('eventModal');
-                        if (modal && modal.dataset.fromPoolId && !e.extendedProps.poolId) {
-                            // Nur entfernen wenn poolId noch nicht gesetzt war (neues Event)
-                            appData.pool = appData.pool.filter(p => p.id !== modal.dataset.fromPoolId);
-                            renderPool();
+                        // Entferne Pool-Item aus Pool wenn Event aus Pool erstellt wurde
+                        if (modal && modal.dataset.fromPoolId) {
+                            // Prüfe ob Pool-Item noch existiert (könnte bereits entfernt worden sein)
+                            const poolItemExists = appData.pool.some(p => p.id === modal.dataset.fromPoolId);
+                            if (poolItemExists) {
+                                appData.pool = appData.pool.filter(p => p.id !== modal.dataset.fromPoolId);
+                                renderPool();
+                            }
                         }
                         
                         showToast('Einsatz aktualisiert', 'success');
