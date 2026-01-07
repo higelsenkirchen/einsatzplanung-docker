@@ -9889,12 +9889,17 @@ Weber, Peter;Erle;social</code>
                         tour.weeklyHoursLimit = hoursLimit;
                         tour.preferredTypes = preferredTypes;
                         
+                        tour.name = tourName;
+                        tour.weeklyHoursLimit = hoursLimit;
+                        tour.preferredTypes = preferredTypes;
+                        
                         queueSave();
                         renderAdminTabContent('tours');
                         showToast('Tour aktualisiert', 'success');
                     });
                 });
             });
+        }
         }
         function addEmployee(){
             const n = document.getElementById('newEmpName');
