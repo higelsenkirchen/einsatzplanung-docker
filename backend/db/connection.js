@@ -155,6 +155,9 @@ async function initializeDatabase() {
         
         // Migration: extended_props zu pool hinzufügen
         await migratePoolExtendedProps();
+        
+        // Migration: address, postal_code und extended_props zu employees hinzufügen
+        await migrateEmployeeAddresses();
     } catch (error) {
         console.error('❌ Fehler beim Initialisieren des Schemas:', error);
         console.error('Error code:', error.code);
@@ -416,6 +419,72 @@ async function migratePoolExtendedProps() {
     } catch (error) {
         // Fehler nicht werfen, da Migration optional ist
         console.log('ℹ️  Migration pool extended_props übersprungen:', error.message);
+    } finally {
+        client.release();
+    }
+}
+
+// Migration: Fügt address, postal_code und extended_props Spalten zu employees hinzu
+async function migrateEmployeeAddresses() {
+    const client = await pool.connect();
+    
+    try {
+        // Prüfe ob Spalten bereits existieren
+        const addressCheck = await client.query(`
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name = 'employees' AND column_name = 'address'
+        `);
+        
+        const postalCodeCheck = await client.query(`
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name = 'employees' AND column_name = 'postal_code'
+        `);
+        
+        const extendedPropsCheck = await client.query(`
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name = 'employees' AND column_name = 'extended_props'
+        `);
+        
+        if (addressCheck.rows.length === 0) {
+            await client.query(`
+                ALTER TABLE employees 
+                ADD COLUMN address VARCHAR(255) DEFAULT NULL
+            `);
+            console.log('✅ Migration: address zu employees hinzugefügt');
+        }
+        
+        if (postalCodeCheck.rows.length === 0) {
+            await client.query(`
+                ALTER TABLE employees 
+                ADD COLUMN postal_code VARCHAR(10) DEFAULT NULL
+            `);
+            console.log('✅ Migration: postal_code zu employees hinzugefügt');
+        }
+        
+        if (extendedPropsCheck.rows.length === 0) {
+            await client.query(`
+                ALTER TABLE employees 
+                ADD COLUMN extended_props JSONB DEFAULT '{}'
+            `);
+            
+            // Füge Index hinzu
+            await client.query(`
+                CREATE INDEX IF NOT EXISTS idx_employees_extended_props 
+                ON employees USING GIN(extended_props)
+            `);
+            
+            console.log('✅ Migration: extended_props zu employees hinzugefügt');
+        }
+        
+        if (addressCheck.rows.length > 0 && postalCodeCheck.rows.length > 0 && extendedPropsCheck.rows.length > 0) {
+            console.log('ℹ️  Spalten address, postal_code und extended_props existieren bereits');
+        }
+    } catch (error) {
+        // Fehler nicht werfen, da Migration optional ist
+        console.log('ℹ️  Migration employee addresses übersprungen:', error.message);
     } finally {
         client.release();
     }
