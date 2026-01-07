@@ -4167,6 +4167,20 @@ Weber, Peter;Erle;social</code>
             }
         };
 
+        function populateZones() { 
+            ['poolZone','eventZone'].forEach(id=>{ 
+                const s=document.getElementById(id); 
+                if(!s) return;
+                s.innerHTML=''; 
+                CITY_ZONES.forEach(z=>{
+                    const o=document.createElement('option');
+                    o.value = z;
+                    o.text = getZoneWithPostalCode(z);
+                    s.add(o);
+                });
+            }); 
+        }
+        
         function populatePoolZoneFilter() {
             const filter = document.getElementById('poolZoneFilter');
             if(!filter) return;
@@ -6209,18 +6223,6 @@ Weber, Peter;Erle;social</code>
             const d = new Date(date);
             if(isNaN(d.getTime())) return '00:00:00';
             return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
-        }
-        function populateZones() { 
-            ['poolZone','eventZone'].forEach(id=>{ 
-                const s=document.getElementById(id); 
-                s.innerHTML=''; 
-                CITY_ZONES.forEach(z=>{
-                    const o=document.createElement('option');
-                    o.value = z;
-                    o.text = getZoneWithPostalCode(z);
-                    s.add(o);
-                });
-            }); 
         }
         
         function createPoolItem(){ 
