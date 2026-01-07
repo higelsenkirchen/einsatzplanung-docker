@@ -5126,6 +5126,186 @@ Weber, Peter;Erle;social</code>
             openModal('manualCoordinatesModal');
         }
         
+        async function geocodePoolAddress() {
+            const addressInput = document.getElementById('poolAddress');
+            const postalCodeInput = document.getElementById('poolPostalCode');
+            const btn = document.getElementById('geocodeBtn');
+            const display = document.getElementById('poolCoordinatesDisplay');
+            const text = document.getElementById('poolCoordinatesText');
+            const modal = document.getElementById('poolModal');
+            
+            if (!addressInput && !postalCodeInput) {
+                showToast('Bitte Adresse oder Postleitzahl eingeben', 'warning');
+                return;
+            }
+            
+            const address = addressInput ? addressInput.value.trim() : '';
+            const postalCode = postalCodeInput ? postalCodeInput.value.trim() : '';
+            
+            if (!address && !postalCode) {
+                showToast('Bitte Adresse oder Postleitzahl eingeben', 'warning');
+                return;
+            }
+            
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = '⏳ Ermittle...';
+            }
+            
+            try {
+                const response = await fetch('/api/geocoding/geocode', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        address: address, 
+                        postalCode: postalCode, 
+                        city: 'Gelsenkirchen' 
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const coordinates = {
+                        lat: data.latitude,
+                        lng: data.longitude
+                    };
+                    
+                    // Speichere temporär im Modal
+                    if (modal) {
+                        modal.dataset.tempCoordinates = JSON.stringify(coordinates);
+                    }
+                    
+                    // Zeige Koordinaten
+                    if (display) display.style.display = 'block';
+                    if (text) {
+                        text.textContent = `${data.latitude.toFixed(6)}, ${data.longitude.toFixed(6)}`;
+                    }
+                    
+                    showToast('Koordinaten erfolgreich ermittelt', 'success');
+                } else {
+                    showToast('Koordinaten konnten nicht ermittelt werden: ' + (data.error || 'Unbekannter Fehler'), 'error');
+                }
+            } catch (error) {
+                console.error('Geocoding-Fehler:', error);
+                showToast('Fehler beim Ermitteln der Koordinaten', 'error');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = '🔍 Koordinaten ermitteln';
+                }
+            }
+        }
+        
+        function saveManualCoordinates() {
+            const latInput = document.getElementById('manualLat');
+            const lngInput = document.getElementById('manualLng');
+            const modal = document.getElementById('poolModal');
+            
+            if (!latInput || !lngInput) return;
+            
+            const lat = parseFloat(latInput.value);
+            const lng = parseFloat(lngInput.value);
+            
+            if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+                showToast('Ungültige Koordinaten', 'error');
+                return;
+            }
+            
+            const coordinates = { lat, lng };
+            
+            // Speichere temporär im Modal
+            if (modal) {
+                modal.dataset.tempCoordinates = JSON.stringify(coordinates);
+            }
+            
+            // Zeige Koordinaten
+            const display = document.getElementById('poolCoordinatesDisplay');
+            const text = document.getElementById('poolCoordinatesText');
+            if (display) display.style.display = 'block';
+            if (text) {
+                text.textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            }
+            
+            closeModal('manualCoordinatesModal');
+            showToast('Koordinaten gespeichert', 'success');
+        }
+        
+        function createPoolItem() {
+            const nameInput = document.getElementById('poolName');
+            const zoneSelect = document.getElementById('poolZone');
+            const addressInput = document.getElementById('poolAddress');
+            const postalCodeInput = document.getElementById('poolPostalCode');
+            const modal = document.getElementById('poolModal');
+            
+            if (!nameInput) return;
+            
+            const name = nameInput.value.trim();
+            if (!name) {
+                showToast('Bitte geben Sie einen Namen ein', 'warning');
+                return;
+            }
+            
+            const zone = zoneSelect ? zoneSelect.value : 'Alt-/Neustadt';
+            const address = addressInput ? addressInput.value.trim() : '';
+            const postalCode = postalCodeInput ? postalCodeInput.value.trim() : '';
+            
+            // Lade temporäre Koordinaten falls vorhanden
+            let coordinates = null;
+            if (modal && modal.dataset.tempCoordinates) {
+                try {
+                    coordinates = JSON.parse(modal.dataset.tempCoordinates);
+                } catch (e) {
+                    // Ignoriere Fehler
+                }
+            }
+            
+            // Sammle ausgewählte Leistungstypen
+            const types = [];
+            document.querySelectorAll('.pool-cb:checked').forEach(cb => {
+                types.push(cb.value);
+            });
+            
+            if (types.length === 0) {
+                showToast('Bitte wählen Sie mindestens einen Leistungstyp aus', 'warning');
+                return;
+            }
+            
+            // Erstelle Pool-Item
+            if (!appData.pool) appData.pool = [];
+            
+            const poolItem = {
+                id: generateId(),
+                title: name,
+                zone: zone,
+                types: types,
+                address: address || null,
+                postalCode: postalCode || null,
+                extendedProps: {}
+            };
+            
+            if (coordinates) {
+                poolItem.extendedProps.coordinates = coordinates;
+            }
+            
+            appData.pool.push(poolItem);
+            
+            // Reset form
+            nameInput.value = '';
+            if (addressInput) addressInput.value = '';
+            if (postalCodeInput) postalCodeInput.value = '';
+            if (zoneSelect) zoneSelect.value = '';
+            document.querySelectorAll('.pool-cb').forEach(cb => cb.checked = false);
+            if (modal) delete modal.dataset.tempCoordinates;
+            const coordinatesDisplay = document.getElementById('poolCoordinatesDisplay');
+            if (coordinatesDisplay) coordinatesDisplay.style.display = 'none';
+            
+            queueSave();
+            renderPool();
+            closeModal('poolModal');
+            showToast('Kunde angelegt', 'success');
+        }
+        
         async function loadFromAPI(){
             if (!currentVariantId) {
                 console.warn('Keine Variante ausgewählt');
