@@ -11047,6 +11047,37 @@ Weber, Peter;Erle;social</code>
                 dayIndex: 0 // Default Montag
             });
         }
+        
+        // #region agent log
+        console.log('[DEBUG] Script-Ende erreicht, refreshView verfügbar:', typeof refreshView === 'function');
+        // #endregion
+        
+        // Initialisiere View am Ende des Scripts (wenn DOM bereits geladen)
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            // #region agent log
+            console.log('[DEBUG] DOM bereits geladen, initialisiere View direkt');
+            // #endregion
+            setTimeout(() => {
+                if (typeof switchView === 'function' && typeof refreshView === 'function') {
+                    // #region agent log
+                    console.log('[DEBUG] Rufe switchView auf');
+                    // #endregion
+                    switchView(currentView || 'week');
+                }
+            }, 50);
+        } else {
+            // Falls DOM noch nicht geladen, warte darauf
+            document.addEventListener('DOMContentLoaded', () => {
+                // #region agent log
+                console.log('[DEBUG] DOMContentLoaded am Script-Ende');
+                // #endregion
+                setTimeout(() => {
+                    if (typeof switchView === 'function' && typeof refreshView === 'function') {
+                        switchView(currentView || 'week');
+                    }
+                }, 50);
+            });
+        }
     </script>
 </body>
 </html>
