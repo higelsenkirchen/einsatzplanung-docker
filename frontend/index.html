@@ -4249,7 +4249,99 @@ Weber, Peter;Erle;social</code>
             });
         }
         
-        // ensureAppDataDefaults, migrateZoneNames, cleanupInvalidEvents, loadFromAPI wurden bereits oben definiert
+        function ensureAppDataDefaults() {
+            if(!appData.pool) appData.pool = [];
+            if(!appData.events) appData.events = [];
+            if(!appData.tours || appData.tours.length === 0) appData.tours = [{id:'t1', name:'Tour 1'}, {id:'t2', name:'Tour 2'}];
+            if(!appData.employees) appData.employees = [];
+            if(!appData.wageSettings) appData.wageSettings = JSON.parse(JSON.stringify(DEFAULT_WAGE_SETTINGS));
+            if(!appData.favorites) appData.favorites = [];
+            return appData;
+        }
+        
+        function migrateZoneNames() {
+            let changed = false;
+            
+            // Migrate events
+            if(appData.events) {
+                appData.events.forEach(evt => {
+                    if(evt.extendedProps?.zone === 'Altstadt' || evt.extendedProps?.zone === 'Neustadt') {
+                        evt.extendedProps.zone = 'Alt-/Neustadt';
+                        changed = true;
+                    }
+                });
+            }
+            
+            // Migrate pool
+            if(appData.pool) {
+                appData.pool.forEach(item => {
+                    if(item.zone === 'Altstadt' || item.zone === 'Neustadt') {
+                        item.zone = 'Alt-/Neustadt';
+                        changed = true;
+                    }
+                });
+            }
+            
+            // Migrate employees homeZone
+            if(appData.employees) {
+                appData.employees.forEach(emp => {
+                    if(emp.homeZone === 'Altstadt' || emp.homeZone === 'Neustadt') {
+                        emp.homeZone = 'Alt-/Neustadt';
+                        changed = true;
+                    }
+                });
+            }
+            
+            if(changed) {
+                queueSave();
+                console.log('Zonen migriert: Altstadt/Neustadt → Alt-/Neustadt');
+            }
+        }
+        
+        function cleanupInvalidEvents() {
+            if(!appData.events) return;
+            
+            const initialCount = appData.events.length;
+            // Entferne Einsätze ohne dayIndex oder mit ungültigem dayIndex
+            appData.events = appData.events.filter(evt => {
+                // Behalte nur Einsätze mit gültigem dayIndex (0-6)
+                return evt && 
+                       evt.dayIndex !== undefined && 
+                       evt.dayIndex >= 0 && 
+                       evt.dayIndex <= 6;
+            });
+            
+            const removedCount = initialCount - appData.events.length;
+            if(removedCount > 0) {
+                console.log(`${removedCount} veraltete Einsätze ohne gültigen dayIndex wurden entfernt`);
+                queueSave();
+            }
+        }
+        
+        function updateTourEmployeeDisplay() {
+            const display = document.getElementById('tourEmployeeDisplay');
+            const tourSelect = document.getElementById('tourSelect');
+            if(!display || !tourSelect) return;
+            
+            const selectedTourId = tourSelect.value;
+            if(!selectedTourId) {
+                display.style.display = 'none';
+                return;
+            }
+            
+            const tour = appData.tours.find(t => t.id === selectedTourId);
+            if(tour && tour.employeeId) {
+                const employee = appData.employees.find(e => e.id === tour.employeeId);
+                if(employee) {
+                    display.textContent = `👤 ${employee.name}`;
+                    display.style.display = 'inline-block';
+                    return;
+                }
+            }
+            
+            // Kein Mitarbeiter zugewiesen
+            display.style.display = 'none';
+        }
         
         async function loadFromAPI(){
             if (!currentVariantId) {
@@ -9500,75 +9592,7 @@ Weber, Peter;Erle;social</code>
             }
             queueSave();
         }
-        function ensureAppDataDefaults() {
-            if(!appData.pool) appData.pool = [];
-            if(!appData.events) appData.events = [];
-            if(!appData.tours || appData.tours.length === 0) appData.tours = [{id:'t1', name:'Tour 1'}, {id:'t2', name:'Tour 2'}];
-            if(!appData.employees) appData.employees = [];
-            if(!appData.wageSettings) appData.wageSettings = JSON.parse(JSON.stringify(DEFAULT_WAGE_SETTINGS));
-            if(!appData.favorites) appData.favorites = [];
-            return appData;
-        }
-        
-        function migrateZoneNames() {
-            let changed = false;
-            
-            // Migrate events
-            if(appData.events) {
-                appData.events.forEach(evt => {
-                    if(evt.extendedProps?.zone === 'Altstadt' || evt.extendedProps?.zone === 'Neustadt') {
-                        evt.extendedProps.zone = 'Alt-/Neustadt';
-                        changed = true;
-                    }
-                });
-            }
-            
-            // Migrate pool
-            if(appData.pool) {
-                appData.pool.forEach(item => {
-                    if(item.zone === 'Altstadt' || item.zone === 'Neustadt') {
-                        item.zone = 'Alt-/Neustadt';
-                        changed = true;
-                    }
-                });
-            }
-            
-            // Migrate employees homeZone
-            if(appData.employees) {
-                appData.employees.forEach(emp => {
-                    if(emp.homeZone === 'Altstadt' || emp.homeZone === 'Neustadt') {
-                        emp.homeZone = 'Alt-/Neustadt';
-                        changed = true;
-                    }
-                });
-            }
-            
-            if(changed) {
-                queueSave();
-                console.log('Zonen migriert: Altstadt/Neustadt → Alt-/Neustadt');
-            }
-        }
-        
-        // Bereinige veraltete Einsätze ohne dayIndex
-        function cleanupInvalidEvents() {
-            if(!appData.events) return;
-            
-            const initialCount = appData.events.length;
-            // Entferne Einsätze ohne dayIndex oder mit ungültigem dayIndex
-            appData.events = appData.events.filter(evt => {
-                // Behalte nur Einsätze mit gültigem dayIndex (0-6)
-                return evt && 
-                       evt.dayIndex !== undefined && 
-                       evt.dayIndex >= 0 && 
-                       evt.dayIndex <= 6;
-            });
-            
-            const removedCount = initialCount - appData.events.length;
-            if(removedCount > 0) {
-                console.log(`${removedCount} veraltete Einsätze ohne gültigen dayIndex wurden entfernt`);
-                queueSave();
-            }
-        }
+        // ensureAppDataDefaults, migrateZoneNames, cleanupInvalidEvents wurden bereits oben definiert
         
         async function loadFromAPI(){
             if (!currentVariantId) {
