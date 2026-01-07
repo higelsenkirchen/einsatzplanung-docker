@@ -4391,8 +4391,9 @@ Weber, Peter;Erle;social</code>
                 o2.textContent = t.name || '';
                 ets.appendChild(o2);
             });
-            updateTourEmployeeDisplay(); // Zeige zugewiesenen Mitarbeiter an
-            renderPool(); refreshView();
+            if (typeof updateTourEmployeeDisplay === 'function') updateTourEmployeeDisplay();
+            if (typeof renderPool === 'function') renderPool();
+            if (typeof refreshView === 'function') refreshView();
             renderList('employeeList', appData.employees || [], 
                 id => {
                     appData.employees = appData.employees.filter(e => e.id !== id);
