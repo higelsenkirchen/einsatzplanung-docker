@@ -413,8 +413,8 @@ router.put('/data', async (req, res) => {
         if (poolData && Array.isArray(poolData)) {
             for (const item of poolData) {
                 await client.query(
-                    'INSERT INTO pool (id, variant_id, title, zone, types) VALUES ($1, $2, $3, $4, $5)',
-                    [item.id, variantId, item.title, item.zone || null, JSON.stringify(item.types || [])]
+                    'INSERT INTO pool (id, variant_id, title, zone, address, postal_code, types, extended_props) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+                    [item.id, variantId, item.title, item.zone || null, item.address || null, item.postalCode || null, JSON.stringify(item.types || []), JSON.stringify(item.extendedProps || {})]
                 );
             }
         }
@@ -604,8 +604,8 @@ router.post('/backup/restore', async (req, res) => {
         if (poolData && Array.isArray(poolData)) {
             for (const item of poolData) {
                 await client.query(
-                    'INSERT INTO pool (id, variant_id, title, zone, types) VALUES ($1, $2, $3, $4, $5)',
-                    [item.id, targetVariantId, item.title, item.zone || null, JSON.stringify(item.types || [])]
+                    'INSERT INTO pool (id, variant_id, title, zone, address, postal_code, types, extended_props) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
+                    [item.id, targetVariantId, item.title, item.zone || null, item.address || null, item.postalCode || null, JSON.stringify(item.types || []), JSON.stringify(item.extendedProps || {})]
                 );
             }
         }
