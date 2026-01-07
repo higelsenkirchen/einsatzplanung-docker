@@ -4001,8 +4001,56 @@ Weber, Peter;Erle;social</code>
                 queueSave();
                 renderPool();
                 
+                // Aktualisiere Kundenliste falls im Admin-Tab
+                if (currentView === 'admin' && currentAdminTab === 'customers') {
+                    renderCustomerList();
+                }
+                
                 showToast(`Kunde "${itemName}" gelöscht`, 'success');
             }
+        }
+        
+        function deleteAllCustomers() {
+            const customerCount = appData.pool.length;
+            
+            if (customerCount === 0) {
+                showToast('Keine Kunden zum Löschen vorhanden', 'info');
+                return;
+            }
+            
+            const confirmed = confirm(
+                `⚠️ WARNUNG: Möchten Sie wirklich ALLE ${customerCount} Kunden löschen?\n\n` +
+                `Diese Aktion kann nicht rückgängig gemacht werden!\n\n` +
+                `Bitte geben Sie "LÖSCHEN" ein, um zu bestätigen:`
+            );
+            
+            if (!confirmed) {
+                return;
+            }
+            
+            // Zusätzliche Sicherheitsabfrage
+            const userInput = prompt(
+                `Geben Sie "LÖSCHEN" ein, um alle ${customerCount} Kunden zu löschen:`
+            );
+            
+            if (userInput !== 'LÖSCHEN') {
+                showToast('Löschung abgebrochen', 'info');
+                return;
+            }
+            
+            // Entferne alle Kunden aus Pool
+            appData.pool = [];
+            
+            // Speichere Änderungen
+            queueSave();
+            renderPool();
+            
+            // Aktualisiere Kundenliste
+            if (currentView === 'admin' && currentAdminTab === 'customers') {
+                renderCustomerList();
+            }
+            
+            showToast(`Alle ${customerCount} Kunden wurden gelöscht`, 'success');
         }
 
         function handleDropToPool() {
@@ -5570,6 +5618,11 @@ Weber, Peter;Erle;social</code>
             queueSave();
             renderPool();
             
+            // Aktualisiere Kundenliste falls im Admin-Tab
+            if (currentView === 'admin' && currentAdminTab === 'customers') {
+                renderCustomerList();
+            }
+            
             // Zeige Ergebnis
             let message = `${imported} Kunden erfolgreich importiert`;
             if(skipped > 0) {
@@ -6414,11 +6467,13 @@ Weber, Peter;Erle;social</code>
             container.innerHTML = `
                 <h3 style="margin:0 0 8px 0; font-size:1.2rem; color:var(--text-main);">👥 Kundenübersicht</h3>
                 
-                <div style="display:flex; gap:10px; margin-bottom:16px;">
-                    <input type="text" id="customerSearch" placeholder="🔍 Kunde suchen..." style="flex:1;" oninput="renderCustomerList()">
+                <div style="display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap;">
+                    <input type="text" id="customerSearch" placeholder="🔍 Kunde suchen..." style="flex:1; min-width:200px;" oninput="renderCustomerList()">
                     <select id="customerZoneFilter" onchange="renderCustomerList()" style="width:150px;">
                         <option value="">Alle Zonen</option>
                     </select>
+                    <button class="btn btn-primary" onclick="openModal('poolImportModal')" style="white-space:nowrap;">📥 Kunden importieren</button>
+                    <button class="btn btn-danger" onclick="deleteAllCustomers()" style="white-space:nowrap;">🗑️ Alle löschen</button>
                 </div>
                 
                 <div id="customerList" class="item-list" style="max-height:500px; overflow-y:auto;"></div>
