@@ -1533,13 +1533,54 @@
             background: var(--bg-card); 
             padding: 32px; 
             border-radius: var(--radius-xl); 
-            width: 460px; 
+            width: 750px; 
             max-width: 90vw;
             box-shadow: var(--shadow-xl); 
             animation: modalSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             max-height: 90vh; 
             overflow-y: auto;
             border: 1px solid var(--border);
+        }
+        
+        /* 2-Spalten-Layout für Event-Modal */
+        #eventModal .modal-content {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .event-modal-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            flex: 1;
+        }
+        
+        .event-modal-left,
+        .event-modal-right {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .event-modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1.5px solid var(--border);
+            flex-wrap: wrap;
+        }
+        
+        /* Responsive: 1-Spalten-Layout bei kleineren Bildschirmen */
+        @media (max-width: 900px) {
+            .event-modal-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            #eventModal .modal-content {
+                width: 95vw;
+            }
         }
         
         @keyframes modalSlideIn {
@@ -2480,80 +2521,94 @@
             <button class="modal-close-btn" onclick="closeModal('eventModal')" title="Schließen">×</button>
             <h3 style="margin-top:0; margin-bottom:16px;" id="modalTitle">Einsatz</h3>
             <input type="hidden" id="eventId">
+            <!-- Name oben (volle Breite) -->
             <div style="margin-bottom:16px;">
                 <input type="text" id="eventClient" list="patientList" placeholder="👤 Name" style="width:100%; font-size:1.1rem; font-weight:700; padding:12px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
             </div>
-            <div class="checkbox-group" style="margin:0 0 16px 0; padding:12px; background:var(--border-light); border-radius:var(--radius-sm);">
-                <label class="cb-item"><input type="checkbox" class="event-cb" value="care"> 🏥 Pflege</label>
-                <label class="cb-item"><input type="checkbox" class="event-cb" value="house"> 🏠 HW</label>
-                <label class="cb-item"><input type="checkbox" class="event-cb" value="social"> 🤝 Betr.</label>
-                <label class="cb-item"><input type="checkbox" class="event-cb" value="other"> 📋 Sonst.</label>
-            </div>
-            <!-- Zeit-Felder -->
-            <div style="margin-bottom:16px; padding:16px; background:var(--border-light); border-radius:var(--radius-md);">
-                <div id="eventDayLabel" style="font-size:0.9rem; color:var(--primary); font-weight:700; margin-bottom:12px; text-align:center; padding:6px 0;"></div>
-                <div style="display:flex; gap:12px; align-items:flex-start;">
-                    <div style="flex:1; min-width:0;">
-                        <label class="section-title" style="margin-bottom:6px; display:block;">⏰ Von</label>
-                        <input type="time" id="eventStartTime" style="width:100%; font-size:1rem; font-weight:600; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
+            <!-- 2-Spalten-Grid -->
+            <div class="event-modal-grid">
+                <!-- Linke Spalte -->
+                <div class="event-modal-left">
+                    <!-- Typ-Checkboxen -->
+                    <div class="checkbox-group" style="margin:0; padding:12px; background:var(--border-light); border-radius:var(--radius-sm);">
+                        <label class="cb-item"><input type="checkbox" class="event-cb" value="care"> 🏥 Pflege</label>
+                        <label class="cb-item"><input type="checkbox" class="event-cb" value="house"> 🏠 HW</label>
+                        <label class="cb-item"><input type="checkbox" class="event-cb" value="social"> 🤝 Betr.</label>
+                        <label class="cb-item"><input type="checkbox" class="event-cb" value="other"> 📋 Sonst.</label>
                     </div>
-                    <div style="flex:1; min-width:0;">
-                        <label class="section-title" style="margin-bottom:6px; display:block;">⏰ Bis</label>
-                        <input type="time" id="eventEndTime" style="width:100%; font-size:1rem; font-weight:600; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
+                    <!-- Zeit-Felder -->
+                    <div style="padding:16px; background:var(--border-light); border-radius:var(--radius-md);">
+                        <div id="eventDayLabel" style="font-size:0.9rem; color:var(--primary); font-weight:700; margin-bottom:12px; text-align:center; padding:6px 0;"></div>
+                        <div style="display:flex; gap:12px; align-items:flex-start;">
+                            <div style="flex:1; min-width:0;">
+                                <label class="section-title" style="margin-bottom:6px; display:block;">⏰ Von</label>
+                                <input type="time" id="eventStartTime" style="width:100%; font-size:1rem; font-weight:600; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
+                            </div>
+                            <div style="flex:1; min-width:0;">
+                                <label class="section-title" style="margin-bottom:6px; display:block;">⏰ Bis</label>
+                                <input type="time" id="eventEndTime" style="width:100%; font-size:1rem; font-weight:600; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
+                            </div>
+                            <div style="flex:1; min-width:0;">
+                                <label class="section-title" style="margin-bottom:6px; display:block;">⏱️ Dauer</label>
+                                <div id="eventDuration" style="font-size:1rem; font-weight:700; color:var(--primary); padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body); min-height:42px; display:flex; align-items:center;">--</div>
+                            </div>
+                        </div>
                     </div>
-                    <div style="flex:1; min-width:0;">
-                        <label class="section-title" style="margin-bottom:6px; display:block;">⏱️ Dauer</label>
-                        <div id="eventDuration" style="font-size:1rem; font-weight:700; color:var(--primary); padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body); min-height:42px; display:flex; align-items:center;">--</div>
+                    <!-- Zone + Tour -->
+                    <div style="display:flex; gap:12px;">
+                        <div style="flex:1; min-width:0;">
+                            <label class="section-title" style="margin-bottom:6px; display:block;">🌍 Zone</label>
+                            <select id="eventZone" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);"></select>
+                        </div>
+                        <div style="flex:1; min-width:0;">
+                            <label class="section-title" style="margin-bottom:6px; display:block;">🚐 Tour</label>
+                            <select id="eventTourSelect" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);"></select>
+                        </div>
+                    </div>
+                    <!-- Wiederholung -->
+                    <div style="padding:12px; background:var(--border-light); border-radius:var(--radius-sm);">
+                        <label class="section-title" style="margin-bottom:10px; display:block;">🔄 Auch anlegen für (Wiederholung)</label>
+                        <div class="checkbox-group" style="margin:0; display:flex; flex-wrap:wrap; gap:12px;">
+                            <label class="cb-item"><input type="checkbox" class="repeat-cb" value="0"> Mo</label>
+                            <label class="cb-item"><input type="checkbox" class="repeat-cb" value="1"> Di</label>
+                            <label class="cb-item"><input type="checkbox" class="repeat-cb" value="2"> Mi</label>
+                            <label class="cb-item"><input type="checkbox" class="repeat-cb" value="3"> Do</label>
+                            <label class="cb-item"><input type="checkbox" class="repeat-cb" value="4"> Fr</label>
+                            <label class="cb-item"><input type="checkbox" class="repeat-cb" value="5"> Sa</label>
+                            <label class="cb-item"><input type="checkbox" class="repeat-cb" value="6"> So</label>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div style="display:flex; gap:12px; margin-bottom:12px;">
-                <div style="flex:1; min-width:0;">
-                    <label class="section-title" style="margin-bottom:6px; display:block;">🌍 Zone</label>
-                    <select id="eventZone" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);"></select>
+                <!-- Rechte Spalte -->
+                <div class="event-modal-right">
+                    <!-- Adresse + Koordinaten (kombiniert) -->
+                    <div id="eventLocationDisplay" style="display:none; padding:10px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm); font-size:0.9rem;">
+                        <div id="eventAddressText" style="margin-bottom:4px;"></div>
+                        <div id="eventCoordinatesText" style="color:var(--text-muted); font-size:0.85rem;"></div>
+                    </div>
+                    <!-- Rhythmus + Tag -->
+                    <div style="display:flex; gap:12px;">
+                        <div style="flex:1; min-width:0;">
+                            <label class="section-title" style="margin-bottom:6px; display:block;">🔄 Rhythmus</label>
+                            <select id="eventRhythm" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
+                                <option value="weekly">1-wöchentlich</option>
+                                <option value="biweekly">2-wöchentlich</option>
+                                <option value="fourweekly">4-wöchentlich</option>
+                            </select>
+                        </div>
+                        <div style="flex:1; min-width:0;">
+                            <label class="section-title" style="margin-bottom:6px; display:block;">🏷️ Tag</label>
+                            <input type="text" id="eventTag" placeholder="z.B. Wichtig, Dringend" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
+                        </div>
+                    </div>
+                    <!-- Buttons -->
+                    <div class="event-modal-buttons">
+                        <button class="btn btn-secondary" onclick="moveBackToPool()" style="display:flex; align-items:center; gap:6px; padding:10px 16px;">📤 In Pool</button>
+                        <button class="btn btn-secondary" onclick="duplicateEvent()" id="duplicateBtn" style="display:none; align-items:center; gap:6px; padding:10px 16px;">📄 Duplizieren</button>
+                        <button class="btn btn-danger" onclick="deleteEvent()" style="display:flex; align-items:center; gap:6px; padding:10px 16px;">🗑️ Löschen</button>
+                        <button class="btn btn-primary" onclick="saveEvent()" style="display:flex; align-items:center; gap:6px; padding:10px 20px; font-weight:600;">💾 Speichern</button>
+                    </div>
                 </div>
-                <div style="flex:1; min-width:0;">
-                    <label class="section-title" style="margin-bottom:6px; display:block;">🚐 Tour</label>
-                    <select id="eventTourSelect" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);"></select>
-                </div>
-            </div>
-            <div id="eventAddressDisplay" style="display:none; margin-bottom:12px; padding:10px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm); font-size:0.9rem;">
-                <strong>📍 Adresse:</strong> <span id="eventAddressText"></span>
-            </div>
-            <div id="eventCoordinatesDisplay" style="display:none; margin-bottom:12px; padding:10px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm); font-size:0.9rem;">
-                <strong>📍 Koordinaten:</strong> <span id="eventCoordinatesText"></span>
-            </div>
-            <div style="display:flex; gap:12px; margin-top:12px;">
-                <div style="flex:1; min-width:0;">
-                    <label class="section-title" style="margin-bottom:6px; display:block;">🔄 Rhythmus</label>
-                    <select id="eventRhythm" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
-                        <option value="weekly">1-wöchentlich</option>
-                        <option value="biweekly">2-wöchentlich</option>
-                        <option value="fourweekly">4-wöchentlich</option>
-                    </select>
-                </div>
-                <div style="flex:1; min-width:0;">
-                    <label class="section-title" style="margin-bottom:6px; display:block;">🏷️ Tag</label>
-                    <input type="text" id="eventTag" placeholder="z.B. Wichtig, Dringend" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
-                </div>
-            </div>
-            <div style="margin-top:16px; padding:12px; background:var(--border-light); border-radius:var(--radius-sm);">
-                <label class="section-title" style="margin-bottom:10px; display:block;">🔄 Auch anlegen für (Wiederholung)</label>
-                <div class="checkbox-group" style="margin:0; display:flex; flex-wrap:wrap; gap:12px;">
-                    <label class="cb-item"><input type="checkbox" class="repeat-cb" value="0"> Mo</label>
-                    <label class="cb-item"><input type="checkbox" class="repeat-cb" value="1"> Di</label>
-                    <label class="cb-item"><input type="checkbox" class="repeat-cb" value="2"> Mi</label>
-                    <label class="cb-item"><input type="checkbox" class="repeat-cb" value="3"> Do</label>
-                    <label class="cb-item"><input type="checkbox" class="repeat-cb" value="4"> Fr</label>
-                    <label class="cb-item"><input type="checkbox" class="repeat-cb" value="5"> Sa</label>
-                    <label class="cb-item"><input type="checkbox" class="repeat-cb" value="6"> So</label>
-                </div>
-            </div>
-            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:24px; padding-top:20px; border-top:1.5px solid var(--border); flex-wrap:wrap;">
-                <button class="btn btn-secondary" onclick="moveBackToPool()" style="display:flex; align-items:center; gap:6px; padding:10px 16px;">📤 In Pool</button>
-                <button class="btn btn-secondary" onclick="duplicateEvent()" id="duplicateBtn" style="display:none; align-items:center; gap:6px; padding:10px 16px;">📄 Duplizieren</button>
-                <button class="btn btn-danger" onclick="deleteEvent()" style="display:flex; align-items:center; gap:6px; padding:10px 16px;">🗑️ Löschen</button>
-                <button class="btn btn-primary" onclick="saveEvent()" style="display:flex; align-items:center; gap:6px; padding:10px 20px; font-weight:600;">💾 Speichern</button>
             </div>
         </div>
     </div>
@@ -8937,11 +8992,13 @@ Weber, Peter;Erle;social</code>
                 delete modal.dataset.fromPoolId;
             }
             
-            // Zeige Adresse und Koordinaten falls vorhanden (aus Pool-Item)
-            const addressDisplay = document.getElementById('eventAddressDisplay');
+            // Zeige Adresse und Koordinaten falls vorhanden (aus Pool-Item) - kombiniert in einem Block
+            const locationDisplay = document.getElementById('eventLocationDisplay');
             const addressText = document.getElementById('eventAddressText');
-            const coordinatesDisplay = document.getElementById('eventCoordinatesDisplay');
             const coordinatesText = document.getElementById('eventCoordinatesText');
+            
+            let hasAddress = false;
+            let hasCoordinates = false;
             
             if (poolId) {
                 const poolItem = appData.pool?.find(p => p.id === poolId);
@@ -8951,19 +9008,19 @@ Weber, Peter;Erle;social</code>
                         let addressParts = [];
                         if (poolItem.address) addressParts.push(poolItem.address);
                         if (poolItem.postalCode) addressParts.push(poolItem.postalCode);
-                        addressText.textContent = addressParts.join(', ');
-                        addressDisplay.style.display = 'block';
+                        addressText.innerHTML = `<strong>📍 Adresse:</strong> ${addressParts.join(', ')}`;
+                        hasAddress = true;
                     } else {
-                        addressDisplay.style.display = 'none';
+                        addressText.textContent = '';
                     }
                     
                     // Zeige Koordinaten falls vorhanden
                     const coordinates = poolItem.extendedProps?.coordinates || poolItem.extended_props?.coordinates;
                     if (coordinates && coordinates.lat && coordinates.lng) {
-                        coordinatesText.textContent = `${coordinates.lat.toFixed(6)}°N, ${coordinates.lng.toFixed(6)}°E`;
-                        coordinatesDisplay.style.display = 'block';
+                        coordinatesText.textContent = `Koordinaten: ${coordinates.lat.toFixed(6)}°N, ${coordinates.lng.toFixed(6)}°E`;
+                        hasCoordinates = true;
                     } else {
-                        coordinatesDisplay.style.display = 'none';
+                        coordinatesText.textContent = '';
                     }
                 } else {
                     // Pool-Item nicht gefunden - verwende Fallback aus Event extendedProps
@@ -8975,22 +9032,29 @@ Weber, Peter;Erle;social</code>
                         let addressParts = [];
                         if (eventAddress) addressParts.push(eventAddress);
                         if (eventPostalCode) addressParts.push(eventPostalCode);
-                        addressText.textContent = addressParts.join(', ');
-                        addressDisplay.style.display = 'block';
+                        addressText.innerHTML = `<strong>📍 Adresse:</strong> ${addressParts.join(', ')}`;
+                        hasAddress = true;
                     } else {
-                        addressDisplay.style.display = 'none';
+                        addressText.textContent = '';
                     }
                     
                     if (eventCoordinates && eventCoordinates.lat && eventCoordinates.lng) {
-                        coordinatesText.textContent = `${eventCoordinates.lat.toFixed(6)}°N, ${eventCoordinates.lng.toFixed(6)}°E`;
-                        coordinatesDisplay.style.display = 'block';
+                        coordinatesText.textContent = `Koordinaten: ${eventCoordinates.lat.toFixed(6)}°N, ${eventCoordinates.lng.toFixed(6)}°E`;
+                        hasCoordinates = true;
                     } else {
-                        coordinatesDisplay.style.display = 'none';
+                        coordinatesText.textContent = '';
                     }
                 }
             } else {
-                addressDisplay.style.display = 'none';
-                coordinatesDisplay.style.display = 'none';
+                addressText.textContent = '';
+                coordinatesText.textContent = '';
+            }
+            
+            // Zeige Location-Display nur wenn mindestens eine Information vorhanden ist
+            if (hasAddress || hasCoordinates) {
+                locationDisplay.style.display = 'block';
+            } else {
+                locationDisplay.style.display = 'none';
             }
 
             const defaultTour = document.getElementById('tourSelect') ? document.getElementById('tourSelect').value : ((appData.tours && appData.tours.length) ? appData.tours[0].id : 't1');
