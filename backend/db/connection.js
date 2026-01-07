@@ -101,6 +101,9 @@ async function initializeDatabase() {
         
         // Migration: preferred_types zu tours hinzufügen
         await migrateToursPreferredTypes();
+        
+        // Migration: address und postal_code zu pool hinzufügen
+        await migratePoolAddresses();
     } catch (error) {
         console.error('❌ Fehler beim Initialisieren des Schemas:', error);
         console.error('Error code:', error.code);
@@ -274,6 +277,58 @@ async function migrateToursPreferredTypes() {
     } catch (error) {
         // Fehler nicht werfen, da Migration optional ist
         console.log('ℹ️  Migration preferred_types übersprungen:', error.message);
+    } finally {
+        client.release();
+    }
+}
+
+// Migration: Fügt address und postal_code Spalten zu pool hinzu
+async function migratePoolAddresses() {
+    const client = await pool.connect();
+    
+    try {
+        // Prüfe ob Spalten bereits existieren
+        const addressCheck = await client.query(`
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name = 'pool' AND column_name = 'address'
+        `);
+        
+        const postalCodeCheck = await client.query(`
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name = 'pool' AND column_name = 'postal_code'
+        `);
+        
+        if (addressCheck.rows.length === 0) {
+            await client.query(`
+                ALTER TABLE pool 
+                ADD COLUMN address VARCHAR(255) DEFAULT NULL
+            `);
+            console.log('✅ Migration: address zu pool hinzugefügt');
+        }
+        
+        if (postalCodeCheck.rows.length === 0) {
+            await client.query(`
+                ALTER TABLE pool 
+                ADD COLUMN postal_code VARCHAR(10) DEFAULT NULL
+            `);
+            
+            // Füge Index hinzu
+            await client.query(`
+                CREATE INDEX IF NOT EXISTS idx_pool_postal_code 
+                ON pool(postal_code)
+            `);
+            
+            console.log('✅ Migration: postal_code zu pool hinzugefügt');
+        }
+        
+        if (addressCheck.rows.length > 0 && postalCodeCheck.rows.length > 0) {
+            console.log('ℹ️  Spalten address und postal_code existieren bereits');
+        }
+    } catch (error) {
+        // Fehler nicht werfen, da Migration optional ist
+        console.log('ℹ️  Migration pool addresses übersprungen:', error.message);
     } finally {
         client.release();
     }

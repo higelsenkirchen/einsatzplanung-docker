@@ -447,6 +447,18 @@ function calculateTravelTime(poolId1, poolId2, poolData) {
     return Math.max(5, Math.min(30, timeMinutes));
 }
 
+// Haversine-Formel: Berechnet Luftlinie zwischen zwei Koordinaten
+function haversineDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Erdradius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c; // Distanz in km
+}
+
 // Zone-Koordinaten für Gelsenkirchen (gleiche wie im Frontend)
 const ZONE_DISTANCES = {
     coords: {
@@ -497,6 +509,23 @@ function calculateDistance(poolId1, poolId2, poolData) {
     
     if (!pool1 || !pool2) return 5; // Default 5 km
     
+    // Prüfe ob beide Pool-Items Koordinaten haben
+    const coords1 = pool1.extended_props?.coordinates || pool1.extendedProps?.coordinates;
+    const coords2 = pool2.extended_props?.coordinates || pool2.extendedProps?.coordinates;
+    
+    if (coords1 && coords2 && 
+        typeof coords1.lat === 'number' && typeof coords1.lng === 'number' &&
+        typeof coords2.lat === 'number' && typeof coords2.lng === 'number') {
+        // Haversine-Berechnung für Luftlinie
+        const airDistance = haversineDistance(
+            coords1.lat, coords1.lng,
+            coords2.lat, coords2.lng
+        );
+        // Multipliziere mit Straßenfaktor (1.4 = ca. 40% längere Strecke durch Straßen)
+        return airDistance * 1.4;
+    }
+    
+    // Fallback: Zone-basierte Distanzberechnung
     return getZoneDistance(pool1.zone, pool2.zone);
 }
 

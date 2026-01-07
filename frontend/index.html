@@ -2379,6 +2379,17 @@
             <input type="text" id="poolName" list="patientList" placeholder="👤 Name">
             <label class="section-title">Zone</label>
             <select id="poolZone"></select>
+            <label class="section-title">Straße + Hausnummer</label>
+            <input type="text" id="poolAddress" placeholder="Musterstraße 123">
+            <label class="section-title">Postleitzahl</label>
+            <input type="text" id="poolPostalCode" placeholder="45879" maxlength="10">
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <button class="btn btn-secondary" onclick="geocodePoolAddress()" id="geocodeBtn" style="flex:1;">🔍 Koordinaten ermitteln</button>
+                <button class="btn btn-secondary" onclick="openManualCoordinatesModal()" style="flex:1;">✏️ Manuell eingeben</button>
+            </div>
+            <div id="poolCoordinatesDisplay" style="display:none; margin-bottom:15px; padding:10px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm); font-size:0.9rem;">
+                <strong>Koordinaten:</strong> <span id="poolCoordinatesText"></span>
+            </div>
             <label class="section-title">Leistungen</label>
             <div class="checkbox-group">
                 <label class="cb-item"><input type="checkbox" class="pool-cb" value="care"><div class="dot care"></div>Pflege</label>
@@ -2390,6 +2401,22 @@
         </div>
     </div>
 
+    <!-- Manuelle Koordinaten-Eingabe Modal -->
+    <div id="manualCoordinatesModal" class="modal-overlay">
+        <div class="modal-content" style="max-width:500px;">
+            <button class="modal-close-btn" onclick="closeModal('manualCoordinatesModal')" title="Schließen">×</button>
+            <h3 style="margin-top:0;">Koordinaten manuell eingeben</h3>
+            <label class="section-title">Breitengrad (Latitude)</label>
+            <input type="number" id="manualLat" step="any" placeholder="51.5125" min="-90" max="90">
+            <label class="section-title">Längengrad (Longitude)</label>
+            <input type="number" id="manualLng" step="any" placeholder="7.1026" min="-180" max="180">
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button class="btn btn-primary" onclick="saveManualCoordinates()">✅ Speichern</button>
+                <button class="btn btn-secondary" onclick="closeModal('manualCoordinatesModal')">❌ Abbrechen</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Pool Import Modal -->
     <div id="poolImportModal" class="modal-overlay">
         <div class="modal-content" style="max-width:700px;">
@@ -2398,8 +2425,8 @@
             
             <div style="margin-bottom:20px; padding:12px; background:var(--border-light); border-radius:var(--radius-sm);">
                 <p style="margin:0 0 8px 0; font-weight:600; font-size:0.9rem;">Format:</p>
-                <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">Name und Postleitzahl (getrennt durch Tab, Semikolon oder Leerzeichen)</p>
-                <p style="margin:8px 0 0 0; font-size:0.85rem; color:var(--text-muted);">Beispiel: <code style="background:var(--bg-body);padding:2px 4px;border-radius:3px;">Max Mustermann	45879</code> oder <code style="background:var(--bg-body);padding:2px 4px;border-radius:3px;">Max Mustermann;45879</code></p>
+                <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">Name, Postleitzahl und optional Adresse (getrennt durch Tab, Semikolon oder Komma)</p>
+                <p style="margin:8px 0 0 0; font-size:0.85rem; color:var(--text-muted);">Beispiel: <code style="background:var(--bg-body);padding:2px 4px;border-radius:3px;">Max Mustermann	45879	Musterstraße 123</code> oder <code style="background:var(--bg-body);padding:2px 4px;border-radius:3px;">Max Mustermann;45879;Musterstraße 123</code></p>
             </div>
             
             <div style="display:flex; gap:10px; margin-bottom:20px;">
@@ -4043,7 +4070,19 @@ Weber, Peter;Erle;social</code>
             filteredPool.forEach(p => {
                 const d = document.createElement('div'); 
                 d.className = 'pool-item ' + sizeClass;
-                d.title = p.title + (p.zone ? ' (' + getZoneWithPostalCode(p.zone) + ')' : '') + ' - Ziehen zum Planen';
+                
+                // Baue Tooltip mit Adresse und Koordinaten
+                const coordinates = p.extendedProps?.coordinates || p.extended_props?.coordinates;
+                let tooltip = p.title;
+                if (p.address) tooltip += `\n${p.address}`;
+                if (p.postalCode) tooltip += `, ${p.postalCode}`;
+                if (p.zone) tooltip += `\nZone: ${getZoneWithPostalCode(p.zone)}`;
+                if (coordinates && coordinates.lat && coordinates.lng) {
+                    tooltip += `\n📍 Koordinaten: ${coordinates.lat.toFixed(6)}°N, ${coordinates.lng.toFixed(6)}°E`;
+                }
+                tooltip += '\n\nZiehen zum Planen';
+                d.title = tooltip;
+                
                 d.draggable = true;
                 d.ondragstart = (e) => handleDragStart(e, 'pool', p.id);
                 
@@ -4054,12 +4093,15 @@ Weber, Peter;Erle;social</code>
                 let dots = (p.types || []).map(t => `<div class="dot ${t}"></div>`).join('');
                 const starIcon = p.favorite ? '⭐' : '☆';
                 const starStyle = p.favorite ? 'color:#f59e0b;' : 'color:var(--text-light); opacity:0.6;';
+                const hasCoordinates = coordinates && coordinates.lat && coordinates.lng;
+                const coordIcon = hasCoordinates ? '📍' : '';
                 
                 d.innerHTML = `
                     <div style="display:flex;justify-content:space-between;align-items:center;">
                         <div style="display:flex;align-items:center;gap:5px; min-width:0; flex:1;">
                             <span class="favorite-star" style="cursor:pointer;font-size:0.9rem;${starStyle}flex-shrink:0;" data-id="${p.id}" title="${p.favorite ? 'Favorit entfernen' : 'Als Favorit markieren'}">${starIcon}</span>
                             <span class="pool-title" style="font-weight:600;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.title}</span>
+                            ${coordIcon ? `<span style="font-size:0.75rem;opacity:0.7;" title="Koordinaten vorhanden">${coordIcon}</span>` : ''}
                     </div>
                         <div style="display:flex;align-items:center;gap:3px;flex-shrink:0;">
                             <span style="display:flex;gap:3px;flex-shrink:0;margin-left:6px;">${dots}</span>
@@ -4069,6 +4111,7 @@ Weber, Peter;Erle;social</code>
                     <div class="pool-zone" style="color:var(--text-muted);display:flex;align-items:center;gap:4px;margin-top:2px;">
                         <span style="width:6px;height:6px;background:${zoneColor};border-radius:2px;display:inline-block;flex-shrink:0;"></span>
                         <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${getZoneWithPostalCode(p.zone) || 'Keine Zone'}</span>
+                        ${p.address ? `<span style="font-size:0.75rem;opacity:0.7;margin-left:4px;" title="${p.address}">${p.address}</span>` : ''}
                     </div>`;
                 
                 // Favorite star click handler
@@ -4189,13 +4232,31 @@ Weber, Peter;Erle;social</code>
 
         function openPoolItemEdit(poolItem) {
             // Open pool modal for editing
-            document.getElementById('poolName').value = poolItem.title;
-            document.getElementById('poolZone').value = poolItem.zone;
+            document.getElementById('poolName').value = poolItem.title || '';
+            document.getElementById('poolZone').value = poolItem.zone || '';
+            document.getElementById('poolAddress').value = poolItem.address || '';
+            document.getElementById('poolPostalCode').value = poolItem.postalCode || '';
             
             // Set checkboxes
             document.querySelectorAll('.pool-cb').forEach(cb => {
                 cb.checked = (poolItem.types || []).includes(cb.value);
             });
+            
+            // Zeige Koordinaten falls vorhanden
+            const coordinates = poolItem.extendedProps?.coordinates || poolItem.extended_props?.coordinates;
+            const display = document.getElementById('poolCoordinatesDisplay');
+            const text = document.getElementById('poolCoordinatesText');
+            
+            if (coordinates && coordinates.lat && coordinates.lng) {
+                text.textContent = `${coordinates.lat.toFixed(6)}°N, ${coordinates.lng.toFixed(6)}°E`;
+                display.style.display = 'block';
+                
+                // Speichere Koordinaten temporär im Modal
+                const modal = document.getElementById('poolModal');
+                modal.dataset.tempCoordinates = JSON.stringify(coordinates);
+            } else {
+                display.style.display = 'none';
+            }
             
             // Store editing ID
             const modal = document.getElementById('poolModal');
@@ -5848,8 +5909,46 @@ Weber, Peter;Erle;social</code>
             const editingId = modal.dataset.editingId;
             const n=document.getElementById('poolName').value.trim(); 
             const z=document.getElementById('poolZone').value;
+            const address = document.getElementById('poolAddress').value.trim();
+            const postalCode = document.getElementById('poolPostalCode').value.trim();
             let t=[]; document.querySelectorAll('.pool-cb:checked').forEach(c=>t.push(c.value)); 
             if(!t.length) t=['other'];
+            
+            // Hole Koordinaten aus Modal-Daten oder extendedProps
+            const modal = document.getElementById('poolModal');
+            let coordinates = null;
+            
+            // Prüfe zuerst temporäre Koordinaten im Modal
+            if (modal.dataset.tempCoordinates) {
+                try {
+                    coordinates = JSON.parse(modal.dataset.tempCoordinates);
+                } catch (e) {
+                    // Ignoriere Fehler
+                }
+            }
+            
+            // Falls keine temporären Koordinaten, prüfe Display
+            if (!coordinates) {
+                const coordinatesDisplay = document.getElementById('poolCoordinatesDisplay');
+                if (coordinatesDisplay && coordinatesDisplay.style.display !== 'none') {
+                    const coordsText = document.getElementById('poolCoordinatesText').textContent;
+                    const match = coordsText.match(/([\d.]+),\s*([\d.]+)/);
+                    if (match) {
+                        coordinates = {
+                            lat: parseFloat(match[1]),
+                            lng: parseFloat(match[2])
+                        };
+                    }
+                }
+            }
+            
+            // Beim Bearbeiten: Behalte bestehende Koordinaten falls keine neuen eingegeben wurden
+            if (editingId && !coordinates) {
+                const existingItem = appData.pool.find(p => p.id === editingId);
+                if (existingItem) {
+                    coordinates = existingItem.extendedProps?.coordinates || existingItem.extended_props?.coordinates;
+                }
+            }
             
             if(n) {
                 if(editingId) {
@@ -5858,12 +5957,29 @@ Weber, Peter;Erle;social</code>
                     if(item) {
                         item.title = n;
                         item.zone = z;
+                        item.address = address || null;
+                        item.postalCode = postalCode || null;
                         item.types = t;
+                        if (coordinates) {
+                            if (!item.extendedProps) item.extendedProps = {};
+                            item.extendedProps.coordinates = coordinates;
+                        }
                     }
                     delete modal.dataset.editingId;
                 } else {
                     // Create new pool item
-                    appData.pool.push({id:generateId(), title:n, zone:z, types:t});
+                    const newItem = {
+                        id: generateId(),
+                        title: n,
+                        zone: z,
+                        address: address || null,
+                        postalCode: postalCode || null,
+                        types: t
+                    };
+                    if (coordinates) {
+                        newItem.extendedProps = { coordinates };
+                    }
+                    appData.pool.push(newItem);
                 }
                 queueSave(); 
                 renderPool(); 
@@ -5871,6 +5987,9 @@ Weber, Peter;Erle;social</code>
                 
                 // Reset form
                 document.getElementById('poolName').value = '';
+                document.getElementById('poolAddress').value = '';
+                document.getElementById('poolPostalCode').value = '';
+                document.getElementById('poolCoordinatesDisplay').style.display = 'none';
                 document.querySelectorAll('.pool-cb').forEach(cb => cb.checked = false);
             }
         }
@@ -5880,8 +5999,106 @@ Weber, Peter;Erle;social</code>
             const modal = document.getElementById('poolModal');
             delete modal.dataset.editingId;
             document.getElementById('poolName').value = '';
+            document.getElementById('poolAddress').value = '';
+            document.getElementById('poolPostalCode').value = '';
+            document.getElementById('poolCoordinatesDisplay').style.display = 'none';
             document.querySelectorAll('.pool-cb').forEach(cb => cb.checked = false);
             openModal('poolModal');
+        }
+        
+        async function geocodePoolAddress() {
+            const address = document.getElementById('poolAddress').value.trim();
+            const postalCode = document.getElementById('poolPostalCode').value.trim();
+            const btn = document.getElementById('geocodeBtn');
+            
+            if (!address && !postalCode) {
+                showToast('Bitte geben Sie eine Adresse oder Postleitzahl ein', 'error');
+                return;
+            }
+            
+            // Zeige Lade-Indikator
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = '⏳ Lädt...';
+            
+            try {
+                const response = await fetch('/api/geocoding/geocode', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ address, postalCode, city: 'Gelsenkirchen' })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Zeige Koordinaten an
+                    const display = document.getElementById('poolCoordinatesDisplay');
+                    const text = document.getElementById('poolCoordinatesText');
+                    text.textContent = `${data.latitude.toFixed(6)}°N, ${data.longitude.toFixed(6)}°E`;
+                    display.style.display = 'block';
+                    
+                    // Speichere Koordinaten temporär im Modal (werden beim Speichern übernommen)
+                    const modal = document.getElementById('poolModal');
+                    modal.dataset.tempCoordinates = JSON.stringify({
+                        lat: data.latitude,
+                        lng: data.longitude
+                    });
+                    
+                    showToast('Koordinaten erfolgreich ermittelt', 'success');
+                } else {
+                    showToast('Adresse konnte nicht gefunden werden. Verwende Zone-basierte Berechnung.', 'warning');
+                }
+            } catch (error) {
+                console.error('Geocoding-Fehler:', error);
+                showToast('Fehler beim Geocoding. Verwende Zone-basierte Berechnung.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        }
+        
+        function openManualCoordinatesModal() {
+            // Lade aktuelle Koordinaten falls vorhanden
+            const modal = document.getElementById('poolModal');
+            const tempCoords = modal.dataset.tempCoordinates;
+            if (tempCoords) {
+                try {
+                    const coords = JSON.parse(tempCoords);
+                    document.getElementById('manualLat').value = coords.lat || '';
+                    document.getElementById('manualLng').value = coords.lng || '';
+                } catch (e) {
+                    // Ignoriere Fehler
+                }
+            }
+            openModal('manualCoordinatesModal');
+        }
+        
+        function saveManualCoordinates() {
+            const lat = parseFloat(document.getElementById('manualLat').value);
+            const lng = parseFloat(document.getElementById('manualLng').value);
+            
+            if (isNaN(lat) || lat < -90 || lat > 90) {
+                showToast('Ungültiger Breitengrad (muss zwischen -90 und 90 liegen)', 'error');
+                return;
+            }
+            
+            if (isNaN(lng) || lng < -180 || lng > 180) {
+                showToast('Ungültiger Längengrad (muss zwischen -180 und 180 liegen)', 'error');
+                return;
+            }
+            
+            // Speichere Koordinaten temporär im Modal
+            const modal = document.getElementById('poolModal');
+            modal.dataset.tempCoordinates = JSON.stringify({ lat, lng });
+            
+            // Zeige Koordinaten an
+            const display = document.getElementById('poolCoordinatesDisplay');
+            const text = document.getElementById('poolCoordinatesText');
+            text.textContent = `${lat.toFixed(6)}°N, ${lng.toFixed(6)}°E`;
+            display.style.display = 'block';
+            
+            closeModal('manualCoordinatesModal');
+            showToast('Koordinaten gespeichert', 'success');
         }
         
         function openPoolImportModal() {
@@ -5918,9 +6135,10 @@ Weber, Peter;Erle;social</code>
                     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                     const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
                     
-                    // Finde Spalten für Name und PLZ
+                    // Finde Spalten für Name, PLZ und Adresse
                     let nameColIndex = -1;
                     let plzColIndex = -1;
+                    let addressColIndex = -1;
                     
                     if(jsonData.length > 0) {
                         const headerRow = jsonData[0];
@@ -5933,20 +6151,25 @@ Weber, Peter;Erle;social</code>
                             if(cellLower.includes('plz') || cellLower.includes('postleitzahl') || cellLower.includes('postal')) {
                                 plzColIndex = index;
                             }
+                            if(cellLower.includes('adresse') || cellLower.includes('straße') || cellLower.includes('strasse') || cellLower.includes('street') || cellLower.includes('address')) {
+                                addressColIndex = index;
+                            }
                         });
                         
-                        // Falls keine Header gefunden, verwende erste zwei Spalten
+                        // Falls keine Header gefunden, verwende erste Spalten
                         if(nameColIndex === -1) nameColIndex = 0;
                         if(plzColIndex === -1) plzColIndex = 1;
+                        if(addressColIndex === -1 && jsonData[0].length > 2) addressColIndex = 2;
                         
                         // Parse Datenzeilen (überspringe Header)
                         for(let i = 1; i < jsonData.length; i++) {
                             const row = jsonData[i];
                             const name = String(row[nameColIndex] || '').trim();
                             const postalCode = String(row[plzColIndex] || '').trim();
+                            const address = addressColIndex >= 0 ? String(row[addressColIndex] || '').trim() : '';
                             
                             if(name && postalCode) {
-                                items.push({ name, postalCode });
+                                items.push({ name, postalCode, address: address || null });
                             }
                         }
                     }
@@ -5982,9 +6205,10 @@ Weber, Peter;Erle;social</code>
                     if(parts.length >= 2) {
                         const name = parts[0].trim();
                         const postalCode = parts[1].trim();
+                        const address = parts.length >= 3 ? parts[2].trim() : null;
                         
                         if(name && postalCode) {
-                            items.push({ name, postalCode });
+                            items.push({ name, postalCode, address: address || null });
                         }
                     }
                 });
@@ -6015,12 +6239,12 @@ Weber, Peter;Erle;social</code>
                 const previewContent = document.getElementById('poolImportPreviewContent');
                 
                 let previewHTML = `<p style="margin:0 0 10px 0; font-size:0.85rem; color:var(--text-muted);">${items.length} Kunden gefunden:</p>`;
-                previewHTML += '<div style="display:grid; grid-template-columns:1fr 1fr auto; gap:8px; font-size:0.8rem;">';
-                previewHTML += '<div style="font-weight:600;">Name</div><div style="font-weight:600;">PLZ</div><div style="font-weight:600;">Zone</div>';
+                previewHTML += '<div style="display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:8px; font-size:0.8rem;">';
+                previewHTML += '<div style="font-weight:600;">Name</div><div style="font-weight:600;">PLZ</div><div style="font-weight:600;">Adresse</div><div style="font-weight:600;">Zone</div>';
                 
                 items.forEach(item => {
                     const zone = getZoneFromPostalCode(item.postalCode) || 'Außerhalb';
-                    previewHTML += `<div>${item.name}</div><div>${item.postalCode}</div><div style="color:${zone === 'Außerhalb' ? 'var(--warning)' : 'var(--success)'}">${zone}</div>`;
+                    previewHTML += `<div>${item.name}</div><div>${item.postalCode}</div><div>${item.address || '-'}</div><div style="color:${zone === 'Außerhalb' ? 'var(--warning)' : 'var(--success)'}">${zone}</div>`;
                 });
                 
                 previewHTML += '</div>';
@@ -6059,6 +6283,8 @@ Weber, Peter;Erle;social</code>
                     id: generateId(),
                     title: item.name.trim(),
                     zone: zone,
+                    address: item.address || null,
+                    postalCode: item.postalCode || null,
                     types: ['other']
                 };
                 

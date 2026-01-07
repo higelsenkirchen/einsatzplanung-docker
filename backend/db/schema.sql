@@ -28,6 +28,8 @@ CREATE TABLE IF NOT EXISTS pool (
     variant_id INTEGER NOT NULL REFERENCES variants(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     zone VARCHAR(255),
+    address VARCHAR(255) DEFAULT NULL,
+    postal_code VARCHAR(10) DEFAULT NULL,
     types JSONB NOT NULL DEFAULT '[]',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -97,6 +99,7 @@ CREATE INDEX IF NOT EXISTS idx_events_day_index ON events(day_index);
 CREATE INDEX IF NOT EXISTS idx_events_extended_props ON events USING GIN(extended_props);
 CREATE INDEX IF NOT EXISTS idx_pool_variant_id ON pool(variant_id);
 CREATE INDEX IF NOT EXISTS idx_pool_zone ON pool(zone);
+CREATE INDEX IF NOT EXISTS idx_pool_postal_code ON pool(postal_code);
 CREATE INDEX IF NOT EXISTS idx_employees_variant_id ON employees(variant_id);
 CREATE INDEX IF NOT EXISTS idx_employees_home_zone ON employees(home_zone);
 CREATE INDEX IF NOT EXISTS idx_tours_variant_id ON tours(variant_id);

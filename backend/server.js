@@ -18,6 +18,7 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use('/api', apiRoutes);
 app.use('/api/export', exportRoutes);
 app.use('/api/optimize', optimizationRoutes);
+app.use('/api/geocoding', geocodingRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -35,6 +36,10 @@ app.get('/', (req, res) => {
             },
             optimize: {
                 tours: '/api/optimize/tours'
+            },
+            geocoding: {
+                geocode: '/api/geocoding/geocode',
+                reverse: '/api/geocoding/reverse'
             }
         }
     });

@@ -218,8 +218,8 @@ router.post('/variants/:id/duplicate', async (req, res) => {
         if (poolData && Array.isArray(poolData)) {
             for (const item of poolData) {
                 await client.query(
-                    'INSERT INTO pool (id, variant_id, title, zone, types) VALUES ($1, $2, $3, $4, $5)',
-                    [item.id, newVariantId, item.title, item.zone || null, JSON.stringify(item.types || [])]
+                    'INSERT INTO pool (id, variant_id, title, zone, address, postal_code, types) VALUES ($1, $2, $3, $4, $5, $6, $7)',
+                    [item.id, newVariantId, item.title, item.zone || null, item.address || null, item.postalCode || null, JSON.stringify(item.types || [])]
                 );
             }
         }
@@ -304,11 +304,13 @@ router.get('/data', async (req, res) => {
         }));
 
         // Pool laden
-        const poolResult = await pool.query('SELECT id, title, zone, types FROM pool WHERE variant_id = $1', [variantId]);
+        const poolResult = await pool.query('SELECT id, title, zone, address, postal_code, types FROM pool WHERE variant_id = $1', [variantId]);
         const poolData = poolResult.rows.map(row => ({
             id: row.id,
             title: row.title,
             zone: row.zone,
+            address: row.address || null,
+            postalCode: row.postal_code || null,
             types: row.types
         }));
 
@@ -483,7 +485,7 @@ router.get('/backup', async (req, res) => {
         
         // Lade alle Daten für diese Variante
         const eventsResult = await pool.query('SELECT id, title, start, "end", day_index, extended_props FROM events WHERE variant_id = $1', [variantId]);
-        const poolResult = await pool.query('SELECT id, title, zone, types FROM pool WHERE variant_id = $1', [variantId]);
+        const poolResult = await pool.query('SELECT id, title, zone, address, postal_code, types FROM pool WHERE variant_id = $1', [variantId]);
         const employeesResult = await pool.query('SELECT id, name, weekly_hours, wage_group, transport, home_zone FROM employees WHERE variant_id = $1', [variantId]);
         const toursResult = await pool.query('SELECT id, name, employee_id, weekly_hours_limit, preferred_types FROM tours WHERE variant_id = $1', [variantId]);
         const wageSettingsResult = await pool.query('SELECT settings FROM wage_settings WHERE variant_id = $1 ORDER BY id DESC LIMIT 1', [variantId]);
@@ -502,6 +504,8 @@ router.get('/backup', async (req, res) => {
                 id: row.id,
                 title: row.title,
                 zone: row.zone,
+                address: row.address || null,
+                postalCode: row.postal_code || null,
                 types: row.types
             })),
             employees: employeesResult.rows.map(row => ({
