@@ -77,7 +77,7 @@ async function initializeDatabase() {
                         skipCount++;
                         // Log nur bei wichtigen Objekten
                         if (statement.toUpperCase().includes('CREATE TABLE')) {
-                            const tableMatch = statement.match(/CREATE TABLE.*?(\w+)/i;
+                            const tableMatch = statement.match(/CREATE TABLE.*?(\w+)/i);
                             if (tableMatch) {
                                 console.log(`ℹ️  Tabelle existiert bereits: ${tableMatch[1]}`);
                             }
