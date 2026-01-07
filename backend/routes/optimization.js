@@ -6,17 +6,35 @@ const { pool } = require('../db/connection');
 router.post('/tours', async (req, res) => {
     try {
         const variantId = req.query.variant_id || req.body.variant_id;
-        const { dayIndex, optimizeFor, typeSeparation } = req.body; // optimizeFor: 'time', 'distance', 'cost', typeSeparation: 'strict' | 'flexible'
+        const { dayIndex, tourId, optimizeFor, typeSeparation, optimizeScope } = req.body; 
+        // optimizeFor: 'time', 'distance', 'cost'
+        // typeSeparation: 'strict' | 'flexible'
+        // optimizeScope: 'day' | 'tour' - 'day' für einzelne Tage, 'tour' für gesamte Touren
 
-        if (dayIndex === undefined || dayIndex < 0 || dayIndex > 6) {
-            return res.status(400).json({ error: 'Ungültiger dayIndex (0-6 erforderlich)' });
+        const scope = optimizeScope || 'day';
+        
+        // Lade Events basierend auf Scope
+        let eventsResult;
+        if (scope === 'tour' && tourId) {
+            // Tour-Optimierung: Lade alle Events der Tour über alle Tage
+            eventsResult = await pool.query(
+                `SELECT id, title, start, "end", day_index, extended_props 
+                 FROM events 
+                 WHERE variant_id = $1 
+                 AND extended_props->>'tour' = $2
+                 AND (extended_props->>'isTravel' IS NULL OR extended_props->>'isTravel' = 'false')`,
+                [variantId, tourId]
+            );
+        } else {
+            // Tag-Optimierung: Lade Events eines Tages
+            if (dayIndex === undefined || dayIndex < 0 || dayIndex > 6) {
+                return res.status(400).json({ error: 'Ungültiger dayIndex (0-6 erforderlich)' });
+            }
+            eventsResult = await pool.query(
+                'SELECT id, title, start, "end", day_index, extended_props FROM events WHERE variant_id = $1 AND day_index = $2',
+                [variantId, dayIndex]
+            );
         }
-
-        // Lade alle Daten
-        const eventsResult = await pool.query(
-            'SELECT id, title, start, "end", day_index, extended_props FROM events WHERE variant_id = $1 AND day_index = $2',
-            [variantId, dayIndex]
-        );
         
         const toursResult = await pool.query(
             'SELECT id, name, employee_id, weekly_hours_limit, preferred_types FROM tours WHERE variant_id = $1',
@@ -58,8 +76,17 @@ router.post('/tours', async (req, res) => {
         const poolData = poolResult.rows;
         const wageSettings = wageSettingsResult.rows.length > 0 ? wageSettingsResult.rows[0].settings : null;
 
+        // Für Tour-Optimierung: Filtere Touren auf die spezifische Tour
+        let toursToOptimize = tours;
+        if (scope === 'tour' && tourId) {
+            toursToOptimize = tours.filter(t => t.id === tourId);
+            if (toursToOptimize.length === 0) {
+                return res.status(404).json({ error: 'Tour nicht gefunden' });
+            }
+        }
+
         // Optimierungsalgorithmus
-        const optimized = optimizeTours(events, tours, employees, poolData, wageSettings, optimizeFor || 'time', typeSeparation || 'flexible');
+        const optimized = optimizeTours(events, toursToOptimize, employees, poolData, wageSettings, optimizeFor || 'time', typeSeparation || 'flexible', scope === 'tour');
 
         res.json({
             success: true,
@@ -73,7 +100,7 @@ router.post('/tours', async (req, res) => {
 });
 
 // Optimierungsalgorithmus
-function optimizeTours(events, tours, employees, poolData, wageSettings, optimizeFor, typeSeparation) {
+function optimizeTours(events, tours, employees, poolData, wageSettings, optimizeFor, typeSeparation, isTourOptimization = false) {
     // Filtere nur echte Events (keine Travel-Events)
     const realEvents = events.filter(e => !e.extendedProps?.isTravel);
     
@@ -338,8 +365,29 @@ function optimizeTours(events, tours, employees, poolData, wageSettings, optimiz
         }
     });
     
+    // Setze realistische Abstände zwischen Events
+    Object.keys(tourWorkloads).forEach(tourId => {
+        if (tourWorkloads[tourId].events.length > 0) {
+            adjustEventTimings(tourWorkloads[tourId].events, poolData, employees.find(e => e.id === tours.find(t => t.id === tourId)?.employee_id));
+        }
+    });
+    
+    // Sammle alle optimierten Events mit aktualisierten Zeiten
+    const optimizedEvents = [];
+    Object.keys(tourWorkloads).forEach(tourId => {
+        tourWorkloads[tourId].events.forEach(event => {
+            optimizedEvents.push({
+                id: event.id,
+                start: event.start,
+                end: event.end,
+                dayIndex: event.dayIndex
+            });
+        });
+    });
+    
     return {
         assignments,
+        optimizedEvents, // Events mit aktualisierten Zeiten
         tourWorkloads: Object.keys(tourWorkloads).map(tourId => ({
             tourId,
             tourName: tours.find(t => t.id === tourId)?.name || tourId,
@@ -349,6 +397,60 @@ function optimizeTours(events, tours, employees, poolData, wageSettings, optimiz
             employeeName: tourWorkloads[tourId].employee?.name || 'Kein Mitarbeiter'
         }))
     };
+}
+
+// Passt die Startzeiten von Events an, um realistische Abstände basierend auf Fahrzeiten zu setzen
+function adjustEventTimings(events, poolData, employee) {
+    if (events.length === 0) return;
+    
+    // Sortiere Events nach aktueller Startzeit
+    const sortedEvents = [...events].sort((a, b) => {
+        return parseTimeToMinutes(a.start) - parseTimeToMinutes(b.start);
+    });
+    
+    // Starte mit dem ersten Event - behalte seine Startzeit
+    let lastEventEnd = parseTimeToMinutes(sortedEvents[0].end);
+    let lastPoolId = sortedEvents[0].extendedProps?.poolId;
+    
+    // Für das erste Event: Prüfe ob es von Home-Zone kommt
+    if (employee?.home_zone && sortedEvents[0].extendedProps?.poolId) {
+        const firstPool = poolData.find(p => p.id === sortedEvents[0].extendedProps?.poolId);
+        if (firstPool?.zone) {
+            const homeTravelTime = calculateTravelTime(null, sortedEvents[0].extendedProps?.poolId, poolData, employee.home_zone, firstPool.zone);
+            const currentStart = parseTimeToMinutes(sortedEvents[0].start);
+            const suggestedStart = currentStart - homeTravelTime;
+            // Setze Startzeit nur wenn sie realistisch ist (nicht zu früh)
+            if (suggestedStart >= 0 && suggestedStart < currentStart) {
+                sortedEvents[0].start = minutesToTime(suggestedStart);
+                // Aktualisiere auch lastEventEnd
+                lastEventEnd = parseTimeToMinutes(sortedEvents[0].end);
+            }
+        }
+    }
+    
+    // Passe die folgenden Events an
+    for (let i = 1; i < sortedEvents.length; i++) {
+        const currentEvent = sortedEvents[i];
+        const currentPoolId = currentEvent.extendedProps?.poolId;
+        
+        if (lastPoolId && currentPoolId) {
+            // Berechne realistische Fahrzeit
+            const travelTime = calculateTravelTime(lastPoolId, currentPoolId, poolData);
+            
+            // Neue Startzeit = Ende des letzten Events + Fahrzeit
+            const newStart = lastEventEnd + travelTime;
+            const currentStart = parseTimeToMinutes(currentEvent.start);
+            const eventDuration = parseTimeToMinutes(currentEvent.end) - currentStart;
+            
+            // Setze neue Startzeit (auch wenn sie früher ist, um Abstände zu optimieren)
+            currentEvent.start = minutesToTime(newStart);
+            currentEvent.end = minutesToTime(newStart + eventDuration);
+        }
+        
+        // Aktualisiere für nächste Iteration
+        lastEventEnd = parseTimeToMinutes(currentEvent.end);
+        lastPoolId = currentPoolId;
+    }
 }
 
 // Optimiert die Reihenfolge von Events innerhalb einer Tour (Nearest Neighbor)
@@ -431,7 +533,25 @@ function parseTimeToMinutes(timeStr) {
     return (hours || 0) * 60 + (minutes || 0);
 }
 
-function calculateTravelTime(poolId1, poolId2, poolData) {
+function minutesToTime(minutes) {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+}
+
+function calculateTravelTime(poolId1, poolId2, poolData, zone1 = null, zone2 = null) {
+    // Wenn von Home-Zone: verwende Zone-Parameter
+    if (!poolId1 && zone1 && poolId2) {
+        const pool2 = poolData.find(p => p.id === poolId2);
+        if (pool2?.zone) {
+            const distance = getZoneDistance(zone1, pool2.zone);
+            const avgSpeedKmH = 25;
+            const timeHours = distance / avgSpeedKmH;
+            const timeMinutes = Math.round(timeHours * 60);
+            return Math.max(5, Math.min(30, timeMinutes));
+        }
+    }
+    
     if (!poolId1 || !poolId2) return 15; // Default 15 Minuten
     
     const pool1 = poolData.find(p => p.id === poolId1);

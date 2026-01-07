@@ -2895,6 +2895,13 @@
             <button class="modal-close-btn" onclick="closeModal('optimizationModal')" title="Schließen">×</button>
             <h3 style="margin-top:0;">⚡ Tourenoptimierung</h3>
             <div style="margin-bottom:20px;">
+                <label style="display:block; margin-bottom:8px; font-weight:600;">Optimierungsbereich:</label>
+                <select id="optimizeScopeSelect" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-md);" onchange="updateOptimizeScope()">
+                    <option value="day">Einzelner Tag</option>
+                    <option value="tour">Gesamte Tour</option>
+                </select>
+            </div>
+            <div id="optimizeDayContainer" style="margin-bottom:20px;">
                 <label style="display:block; margin-bottom:8px; font-weight:600;">Tag auswählen:</label>
                 <select id="optimizeDaySelect" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-md);">
                     <option value="0">Montag</option>
@@ -2904,6 +2911,11 @@
                     <option value="4">Freitag</option>
                     <option value="5">Samstag</option>
                     <option value="6">Sonntag</option>
+                </select>
+            </div>
+            <div id="optimizeTourContainer" style="margin-bottom:20px; display:none;">
+                <label style="display:block; margin-bottom:8px; font-weight:600;">Tour auswählen:</label>
+                <select id="optimizeTourSelect" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-md);">
                 </select>
             </div>
             <div style="margin-bottom:20px;">
@@ -8740,21 +8752,42 @@ Weber, Peter;Erle;social</code>
         }
         
         async function executeOptimization() {
-            const dayIndex = parseInt(document.getElementById('optimizeDaySelect').value);
+            const scope = document.getElementById('optimizeScopeSelect').value;
             const optimizeFor = document.getElementById('optimizeForSelect').value;
             const typeSeparation = document.getElementById('optimizeTypeSeparation')?.value || 'flexible';
+            
+            let dayIndex = null;
+            let tourId = null;
+            
+            if (scope === 'tour') {
+                tourId = document.getElementById('optimizeTourSelect').value;
+                if (!tourId) {
+                    showToast('Bitte wähle eine Tour aus', 'error');
+                    return;
+                }
+            } else {
+                dayIndex = parseInt(document.getElementById('optimizeDaySelect').value);
+            }
             
             try {
                 showToast('Optimierung läuft...', 'info');
                 
+                const requestBody = {
+                    variant_id: currentVariantId,
+                    optimizeFor: optimizeFor,
+                    typeSeparation: typeSeparation,
+                    optimizeScope: scope
+                };
+                
+                if (scope === 'tour') {
+                    requestBody.tourId = tourId;
+                } else {
+                    requestBody.dayIndex = dayIndex;
+                }
+                
                 const response = await apiCall('/api/optimize/tours', {
                     method: 'POST',
-                    body: JSON.stringify({
-                        variant_id: currentVariantId,
-                        dayIndex: dayIndex,
-                        optimizeFor: optimizeFor,
-                        typeSeparation: typeSeparation
-                    })
+                    body: JSON.stringify(requestBody)
                 });
 
                 const result = await response.json();
@@ -8762,7 +8795,10 @@ Weber, Peter;Erle;social</code>
                 if (result.success) {
                     // Speichere Assignments in globaler Variable für späteren Zugriff
                     window.currentOptimizationAssignments = result.optimizedAssignments.assignments;
+                    window.currentOptimizationOptimizedEvents = result.optimizedAssignments.optimizedEvents || [];
                     window.currentOptimizationDayIndex = dayIndex;
+                    window.currentOptimizationScope = scope;
+                    window.currentOptimizationTourId = tourId;
                     
                     // Berechne Statistiken für Anzeige
                     const totalEvents = result.statistics.totalEvents;
@@ -8810,7 +8846,7 @@ Weber, Peter;Erle;social</code>
                             `).join('')}
                         </div>
                         <div style="margin-top:15px; padding-top:15px; border-top:1px solid var(--border);">
-                            <button class="btn btn-primary" onclick="applyOptimization(window.currentOptimizationDayIndex, window.currentOptimizationAssignments)" style="width:100%;">
+                            <button class="btn btn-primary" onclick="applyOptimization(window.currentOptimizationDayIndex, window.currentOptimizationAssignments, window.currentOptimizationScope, window.currentOptimizationTourId, window.currentOptimizationOptimizedEvents)" style="width:100%;">
                                 ✓ Optimierung anwenden
                             </button>
                         </div>
@@ -8826,10 +8862,12 @@ Weber, Peter;Erle;social</code>
             }
         }
         
-        async function applyOptimization(dayIndex, assignmentsJson) {
+        async function applyOptimization(dayIndex, assignmentsJson, scope = 'day', tourId = null, optimizedEvents = []) {
             // Konvertiere dayIndex zu Number falls nötig
-            dayIndex = typeof dayIndex === 'string' ? parseInt(dayIndex, 10) : dayIndex;
-            console.log('[DEBUG] applyOptimization called', {dayIndex, dayIndexType: typeof dayIndex, assignmentsJsonType: typeof assignmentsJson, assignmentsJsonLength: assignmentsJson?.length, assignmentsJson});
+            if (dayIndex !== null && dayIndex !== undefined) {
+                dayIndex = typeof dayIndex === 'string' ? parseInt(dayIndex, 10) : dayIndex;
+            }
+            console.log('[DEBUG] applyOptimization called', {dayIndex, dayIndexType: typeof dayIndex, assignmentsJsonType: typeof assignmentsJson, assignmentsJsonLength: assignmentsJson?.length, scope, tourId, optimizedEventsCount: optimizedEvents?.length});
             // #region agent log
             fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8825',message:'applyOptimization entry',data:{dayIndex,dayIndexType:typeof dayIndex,assignmentsJsonType:typeof assignmentsJson,assignmentsJsonLength:assignmentsJson?.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
             // #endregion
@@ -8858,11 +8896,17 @@ Weber, Peter;Erle;social</code>
                         console.warn('[DEBUG] Invalid assignment', assignment);
                         return;
                     }
-                    // Prüfe sowohl mit Number als auch String dayIndex
+                    // Finde Event - für Tour-Optimierung ohne dayIndex-Filter
                     const event = appData.events.find(e => {
-                        const eventDayMatch = e.dayIndex === dayIndex || e.dayIndex === String(dayIndex) || String(e.dayIndex) === String(dayIndex);
-                        const eventIdMatch = e.id === assignment.eventId;
-                        return eventDayMatch && eventIdMatch;
+                        if (scope === 'tour') {
+                            // Bei Tour-Optimierung: nur Event-ID prüfen
+                            return e.id === assignment.eventId;
+                        } else {
+                            // Bei Tag-Optimierung: Event-ID und dayIndex prüfen
+                            const eventDayMatch = e.dayIndex === dayIndex || e.dayIndex === String(dayIndex) || String(e.dayIndex) === String(dayIndex);
+                            const eventIdMatch = e.id === assignment.eventId;
+                            return eventDayMatch && eventIdMatch;
+                        }
                     });
                     if (event) {
                         // #region agent log
@@ -8881,6 +8925,20 @@ Weber, Peter;Erle;social</code>
                 fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8836',message:'assignments applied',data:{foundCount,notFoundCount:notFoundEventIds.length,notFoundEventIds},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
                 // #endregion
                 console.log('[DEBUG] assignments applied', {foundCount, notFoundCount: notFoundEventIds.length, notFoundEventIds});
+                
+                // Aktualisiere Event-Zeiten basierend auf optimierten Zeiten
+                if (optimizedEvents && optimizedEvents.length > 0) {
+                    let timeUpdatesCount = 0;
+                    optimizedEvents.forEach(optEvent => {
+                        const event = appData.events.find(e => e.id === optEvent.id);
+                        if (event) {
+                            event.start = optEvent.start;
+                            event.end = optEvent.end;
+                            timeUpdatesCount++;
+                        }
+                    });
+                    console.log('[DEBUG] Event times updated', {timeUpdatesCount});
+                }
 
                 // #region agent log
                 fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8838',message:'before executeSave',data:{eventsWithTour:appData.events?.filter(e=>e.extendedProps?.tour)?.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
@@ -10928,8 +10986,40 @@ Weber, Peter;Erle;social</code>
         const modalHandlers = {};
         
         // Hilfsfunktion zum Öffnen des Optimierungs-Modals
+        function updateOptimizeScope() {
+            const scope = document.getElementById('optimizeScopeSelect').value;
+            const dayContainer = document.getElementById('optimizeDayContainer');
+            const tourContainer = document.getElementById('optimizeTourContainer');
+            
+            if (scope === 'tour') {
+                dayContainer.style.display = 'none';
+                tourContainer.style.display = 'block';
+                // Fülle Tour-Auswahl
+                const tourSelect = document.getElementById('optimizeTourSelect');
+                tourSelect.innerHTML = '';
+                if (appData.tours && appData.tours.length > 0) {
+                    appData.tours.forEach(tour => {
+                        const option = document.createElement('option');
+                        option.value = tour.id;
+                        option.textContent = tour.name;
+                        tourSelect.appendChild(option);
+                    });
+                } else {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = 'Keine Touren verfügbar';
+                    tourSelect.appendChild(option);
+                }
+            } else {
+                dayContainer.style.display = 'block';
+                tourContainer.style.display = 'none';
+            }
+        }
+        
         function openOptimizationModal() {
             openModal('optimizationModal');
+            // Initialisiere Scope-Auswahl
+            updateOptimizeScope();
         }
         
         function openModal(id){
