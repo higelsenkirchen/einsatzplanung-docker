@@ -6313,6 +6313,74 @@ Weber, Peter;Erle;social</code>
             renderTourList();
         }
         
+        function renderTourList() {
+            const container = document.getElementById('tourList');
+            if (!container) return;
+            
+            if (!appData.tours || appData.tours.length === 0) {
+                container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-light);">Keine Touren vorhanden</div>';
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            appData.tours.forEach(tour => {
+                const entry = document.createElement('div');
+                entry.className = 'item-list-entry';
+                entry.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding:12px; border-bottom:1px solid var(--border-light);';
+                
+                const eventCount = appData.events.filter(e => e.extendedProps?.tour === tour.id && !e.extendedProps?.isTravel).length;
+                
+                entry.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:10px; flex:1;">
+                        <span class="item-name" style="font-weight:600;">${tour.name}</span>
+                        ${tour.weeklyHoursLimit ? `<span style="font-size:0.75rem; color:var(--text-muted);">⏱️ ${tour.weeklyHoursLimit} Std/Woche</span>` : ''}
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span style="font-size:0.75rem; background:var(--primary-light); color:var(--primary); padding:2px 8px; border-radius:10px;">${eventCount} Einsätze</span>
+                        <button class="btn btn-sm btn-danger" onclick="deleteTour('${tour.id}')" style="padding:4px 10px; font-size:0.75rem;">🗑️</button>
+                    </div>
+                `;
+                container.appendChild(entry);
+            });
+        }
+        
+        function deleteTour(tourId) {
+            const tour = appData.tours.find(t => t.id === tourId);
+            if (!tour) return;
+            
+            const eventCount = appData.events.filter(e => e.extendedProps?.tour === tourId && !e.extendedProps?.isTravel).length;
+            
+            if (eventCount > 0) {
+                if (!confirm(`Die Tour "${tour.name}" hat ${eventCount} zugeordnete Einsätze.\n\nMöchten Sie die Tour trotzdem löschen?`)) {
+                    return;
+                }
+            } else {
+                if (!confirm(`Möchten Sie die Tour "${tour.name}" wirklich löschen?`)) {
+                    return;
+                }
+            }
+            
+            // Entferne Tour aus Liste
+            appData.tours = appData.tours.filter(t => t.id !== tourId);
+            
+            // Entferne Tour-Zuordnung aus Events (optional - oder Events ohne Tour lassen)
+            // appData.events.forEach(e => {
+            //     if (e.extendedProps?.tour === tourId) {
+            //         delete e.extendedProps.tour;
+            //     }
+            // });
+            
+            // Speichere Änderungen
+            queueSave();
+            refreshUI();
+            
+            // Aktualisiere Tour-Liste
+            renderTourList();
+            
+            showToast(`Tour "${tour.name}" gelöscht`, 'success');
+        }
+        
         function renderAdminEmployees(container) {
             container.innerHTML = `
                 <h3 style="margin:0 0 8px 0; font-size:1.2rem; color:var(--text-main);">👥 Team verwalten</h3>

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../db/connection');
+const { optionalAuth, requireEditPermission } = require('../middleware/auth');
 
 // GET /api/variants - Lädt alle Varianten
 router.get('/variants', async (req, res) => {
@@ -38,7 +39,7 @@ router.post('/variants', async (req, res) => {
 });
 
 // PUT /api/variants/:id - Aktualisiert Variante
-router.put('/variants/:id', async (req, res) => {
+router.put('/variants/:id', optionalAuth, async (req, res) => {
     try {
         const { id } = req.params;
         const { name } = req.body;
@@ -67,19 +68,44 @@ router.put('/variants/:id', async (req, res) => {
 });
 
 // DELETE /api/variants/:id - Löscht Variante
-router.delete('/variants/:id', async (req, res) => {
+router.delete('/variants/:id', optionalAuth, async (req, res) => {
+    const client = await pool.connect();
     try {
         const { id } = req.params;
-        const result = await pool.query('DELETE FROM variants WHERE id = $1 RETURNING id', [id]);
+        const variantId = parseInt(id);
         
-        if (result.rows.length === 0) {
+        if (isNaN(variantId)) {
+            return res.status(400).json({ error: 'Ungültige Varianten-ID' });
+        }
+        
+        // Prüfe ob Variante existiert
+        const checkResult = await client.query('SELECT id, name FROM variants WHERE id = $1', [variantId]);
+        if (checkResult.rows.length === 0) {
             return res.status(404).json({ error: 'Variante nicht gefunden' });
         }
         
+        await client.query('BEGIN');
+        
+        // Lösche Variante (CASCADE sollte automatisch alle zugehörigen Daten löschen)
+        const result = await client.query('DELETE FROM variants WHERE id = $1 RETURNING id', [variantId]);
+        
+        await client.query('COMMIT');
+        
         res.json({ success: true, message: 'Variante gelöscht' });
     } catch (error) {
+        await client.query('ROLLBACK');
         console.error('Fehler beim Löschen der Variante:', error);
-        res.status(500).json({ error: 'Fehler beim Löschen der Variante', details: error.message });
+        console.error('Error code:', error.code);
+        console.error('Error detail:', error.detail);
+        
+        // Spezifische Fehlerbehandlung
+        if (error.code === '23503') {
+            res.status(409).json({ error: 'Variante kann nicht gelöscht werden, da sie noch referenziert wird' });
+        } else {
+            res.status(500).json({ error: 'Fehler beim Löschen der Variante', details: error.message });
+        }
+    } finally {
+        client.release();
     }
 });
 
