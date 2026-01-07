@@ -3942,22 +3942,10 @@ Weber, Peter;Erle;social</code>
             if (typeof renderFilterPresetSelect === 'function') renderFilterPresetSelect();
             
             // #region agent log
-            console.log('[DEBUG] Vor switchView Aufruf, currentView:', currentView);
+            console.log('[DEBUG] DOMContentLoaded ENDE (switchView wird später aufgerufen, wenn refreshView definiert ist)');
             // #endregion
-            
-            // Stelle sicher, dass die View initialisiert wird
-            if (typeof switchView === 'function') {
-                // #region agent log
-                console.log('[DEBUG] switchView wird aufgerufen mit:', currentView || 'week');
-                // #endregion
-                switchView(currentView || 'week');
-            } else if (typeof refreshView === 'function') {
-                refreshView();
-            }
-            
-            // #region agent log
-            console.log('[DEBUG] DOMContentLoaded ENDE');
-            // #endregion
+            // HINWEIS: switchView wird im späteren DOMContentLoaded Handler aufgerufen,
+            // nachdem refreshView definiert wurde (siehe weiter unten im Code)
         });
         
         async function loadTemplatesFromStorage() {
@@ -5602,9 +5590,25 @@ Weber, Peter;Erle;social</code>
         
         // setZoom wurde bereits oben definiert
 
-        // Initialize zoom buttons
+        // Initialize zoom buttons and view
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof setZoom === 'function') setZoom(15); // Default to 15min
+            
+            // #region agent log
+            console.log('[DEBUG] Zweiter DOMContentLoaded - refreshView verfügbar:', typeof refreshView === 'function');
+            // #endregion
+            
+            // Stelle sicher, dass die View initialisiert wird (refreshView ist jetzt definiert)
+            setTimeout(() => {
+                if (typeof switchView === 'function') {
+                    // #region agent log
+                    console.log('[DEBUG] Verzögerter switchView Aufruf');
+                    // #endregion
+                    switchView(currentView || 'week');
+                } else if (typeof refreshView === 'function') {
+                    refreshView();
+                }
+            }, 100);
         });
 
         // --- STANDARD LOGIC ---
