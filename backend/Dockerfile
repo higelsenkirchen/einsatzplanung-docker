@@ -5,9 +5,9 @@ WORKDIR /app
 # Kopiere package files (für besseres Caching)
 COPY package*.json ./
 
-# Installiere Dependencies (ohne Puppeteer für schnellere Builds)
-# Puppeteer wird optional installiert wenn PDF-Export benötigt wird
-RUN npm install --production --ignore-scripts && \
+# Installiere Dependencies (bcryptjs benötigt keine native Kompilierung)
+# --no-optional überspringt Puppeteer
+RUN npm ci --production --no-optional && \
     npm cache clean --force
 
 # Kopiere Anwendungsdateien
