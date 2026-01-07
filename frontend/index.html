@@ -4193,6 +4193,46 @@ Weber, Peter;Erle;social</code>
             });
         }
 
+        // --- TOAST NOTIFICATIONS ---
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if(!container) return;
+            
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `<span class="toast-icon">${icons[type] || icons.info}</span><span>${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                toast.classList.add('hiding');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        
+        // --- VARIANTEN FUNKTIONEN ---
+        async function loadVariants() {
+            try {
+                const response = await apiCall('/api/variants');
+                if(!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                variants = await response.json();
+                console.log('Varianten geladen:', variants);
+            } catch(e) {
+                console.error('Fehler beim Laden der Varianten:', e);
+                throw e;
+            }
+        }
+        
         // --- ZONE LEGEND ---
         function renderZoneLegend() {
             const container = document.getElementById('zoneLegendContent');
@@ -9478,19 +9518,7 @@ Weber, Peter;Erle;social</code>
             }
         }
         
-        async function loadVariants() {
-            try {
-                const response = await apiCall('/api/variants');
-                if(!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-                variants = await response.json();
-                console.log('Varianten geladen:', variants);
-            } catch(e) {
-                console.error('Fehler beim Laden der Varianten:', e);
-                throw e;
-            }
-        }
+        // loadVariants wurde bereits oben definiert
         
         function updateVariantSelect() {
             const select = document.getElementById('variantSelect');
