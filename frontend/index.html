@@ -2522,53 +2522,53 @@
             <h3 style="margin-top:0; margin-bottom:16px;" id="modalTitle">Einsatz</h3>
             <input type="hidden" id="eventId">
             <!-- Name oben (volle Breite) -->
-            <div style="margin-bottom:16px;">
-                <input type="text" id="eventClient" list="patientList" placeholder="👤 Name" style="width:100%; font-size:1.1rem; font-weight:700; padding:12px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
+            <div style="margin-bottom:12px;">
+                <input type="text" id="eventClient" list="patientList" placeholder="👤 Name" style="width:100%; font-size:0.95rem; font-weight:600; padding:8px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
             </div>
             <!-- 2-Spalten-Grid -->
             <div class="event-modal-grid">
                 <!-- Linke Spalte -->
                 <div class="event-modal-left">
                     <!-- Typ-Checkboxen -->
-                    <div class="checkbox-group" style="margin:0; padding:12px; background:var(--border-light); border-radius:var(--radius-sm);">
+                    <div class="checkbox-group" style="margin:0; padding:10px; background:var(--border-light); border-radius:var(--radius-sm);">
                         <label class="cb-item"><input type="checkbox" class="event-cb" value="care"> 🏥 Pflege</label>
                         <label class="cb-item"><input type="checkbox" class="event-cb" value="house"> 🏠 HW</label>
                         <label class="cb-item"><input type="checkbox" class="event-cb" value="social"> 🤝 Betr.</label>
                         <label class="cb-item"><input type="checkbox" class="event-cb" value="other"> 📋 Sonst.</label>
                     </div>
                     <!-- Zeit-Felder -->
-                    <div style="padding:16px; background:var(--border-light); border-radius:var(--radius-md);">
-                        <div id="eventDayLabel" style="font-size:0.9rem; color:var(--primary); font-weight:700; margin-bottom:12px; text-align:center; padding:6px 0;"></div>
-                        <div style="display:flex; gap:12px; align-items:flex-start;">
+                    <div style="padding:12px; background:var(--border-light); border-radius:var(--radius-md);">
+                        <div id="eventDayLabel" style="font-size:0.85rem; color:var(--primary); font-weight:600; margin-bottom:8px; text-align:center; padding:4px 0;"></div>
+                        <div style="display:flex; gap:8px; align-items:flex-start;">
                             <div style="flex:1; min-width:0;">
-                                <label class="section-title" style="margin-bottom:6px; display:block;">⏰ Von</label>
-                                <input type="time" id="eventStartTime" style="width:100%; font-size:1rem; font-weight:600; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
+                                <label class="section-title" style="margin-bottom:4px; display:block; font-size:0.8rem;">⏰ Von</label>
+                                <input type="time" id="eventStartTime" style="width:100%; font-size:0.9rem; font-weight:500; padding:6px 8px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
                             </div>
                             <div style="flex:1; min-width:0;">
-                                <label class="section-title" style="margin-bottom:6px; display:block;">⏰ Bis</label>
-                                <input type="time" id="eventEndTime" style="width:100%; font-size:1rem; font-weight:600; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
+                                <label class="section-title" style="margin-bottom:4px; display:block; font-size:0.8rem;">⏰ Bis</label>
+                                <input type="time" id="eventEndTime" style="width:100%; font-size:0.9rem; font-weight:500; padding:6px 8px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
                             </div>
                             <div style="flex:1; min-width:0;">
-                                <label class="section-title" style="margin-bottom:6px; display:block;">⏱️ Dauer</label>
-                                <div id="eventDuration" style="font-size:1rem; font-weight:700; color:var(--primary); padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body); min-height:42px; display:flex; align-items:center;">--</div>
+                                <label class="section-title" style="margin-bottom:4px; display:block; font-size:0.8rem;">⏱️ Dauer</label>
+                                <div id="eventDuration" style="font-size:0.9rem; font-weight:600; color:var(--primary); padding:6px 8px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body); min-height:34px; display:flex; align-items:center;">--</div>
                             </div>
                         </div>
                     </div>
                     <!-- Zone + Tour -->
-                    <div style="display:flex; gap:12px;">
+                    <div style="display:flex; gap:8px;">
                         <div style="flex:1; min-width:0;">
-                            <label class="section-title" style="margin-bottom:6px; display:block;">🌍 Zone</label>
-                            <select id="eventZone" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);"></select>
+                            <label class="section-title" style="margin-bottom:4px; display:block; font-size:0.8rem;">🌍 Zone</label>
+                            <select id="eventZone" style="width:100%; font-size:0.9rem; padding:6px 8px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);"></select>
                         </div>
                         <div style="flex:1; min-width:0;">
-                            <label class="section-title" style="margin-bottom:6px; display:block;">🚐 Tour</label>
-                            <select id="eventTourSelect" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);"></select>
+                            <label class="section-title" style="margin-bottom:4px; display:block; font-size:0.8rem;">🚐 Tour</label>
+                            <select id="eventTourSelect" style="width:100%; font-size:0.9rem; padding:6px 8px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);"></select>
                         </div>
                     </div>
                     <!-- Wiederholung -->
-                    <div style="padding:12px; background:var(--border-light); border-radius:var(--radius-sm);">
-                        <label class="section-title" style="margin-bottom:10px; display:block;">🔄 Auch anlegen für (Wiederholung)</label>
-                        <div class="checkbox-group" style="margin:0; display:flex; flex-wrap:wrap; gap:12px;">
+                    <div style="padding:10px; background:var(--border-light); border-radius:var(--radius-sm);">
+                        <label class="section-title" style="margin-bottom:8px; display:block; font-size:0.8rem;">🔄 Auch anlegen für (Wiederholung)</label>
+                        <div class="checkbox-group" style="margin:0; display:flex; flex-wrap:wrap; gap:8px;">
                             <label class="cb-item"><input type="checkbox" class="repeat-cb" value="0"> Mo</label>
                             <label class="cb-item"><input type="checkbox" class="repeat-cb" value="1"> Di</label>
                             <label class="cb-item"><input type="checkbox" class="repeat-cb" value="2"> Mi</label>
@@ -2587,18 +2587,18 @@
                         <div id="eventCoordinatesText" style="color:var(--text-muted); font-size:0.85rem;"></div>
                     </div>
                     <!-- Rhythmus + Tag -->
-                    <div style="display:flex; gap:12px;">
+                    <div style="display:flex; gap:8px;">
                         <div style="flex:1; min-width:0;">
-                            <label class="section-title" style="margin-bottom:6px; display:block;">🔄 Rhythmus</label>
-                            <select id="eventRhythm" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
+                            <label class="section-title" style="margin-bottom:4px; display:block; font-size:0.8rem;">🔄 Rhythmus</label>
+                            <select id="eventRhythm" style="width:100%; font-size:0.9rem; padding:6px 8px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
                                 <option value="weekly">1-wöchentlich</option>
                                 <option value="biweekly">2-wöchentlich</option>
                                 <option value="fourweekly">4-wöchentlich</option>
                             </select>
                         </div>
                         <div style="flex:1; min-width:0;">
-                            <label class="section-title" style="margin-bottom:6px; display:block;">🏷️ Tag</label>
-                            <input type="text" id="eventTag" placeholder="z.B. Wichtig, Dringend" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
+                            <label class="section-title" style="margin-bottom:4px; display:block; font-size:0.8rem;">🏷️ Tag</label>
+                            <input type="text" id="eventTag" placeholder="z.B. Wichtig, Dringend" style="width:100%; font-size:0.9rem; padding:6px 8px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
                         </div>
                     </div>
                     <!-- Buttons -->
@@ -3011,6 +3011,53 @@
         </div>
     </div>
 
+    <!-- Input Modal für Text-Eingaben -->
+    <div id="inputModal" class="modal-overlay">
+        <div class="modal-content" style="width:500px;">
+            <button class="modal-close-btn" onclick="closeInputModal()" title="Schließen">×</button>
+            <h3 style="margin-top:0; margin-bottom:12px;" id="inputModalTitle">Eingabe</h3>
+            <p style="margin:0 0 16px 0; color:var(--text-muted); font-size:0.9rem;" id="inputModalMessage"></p>
+            <input type="text" id="inputModalField" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body); font-size:1rem; margin-bottom:20px;" placeholder="Eingabe...">
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button class="btn btn-secondary" onclick="closeInputModal()">Abbrechen</button>
+                <button class="btn btn-primary" onclick="confirmInputModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Input Modal für Bestätigungen mit Text-Eingabe -->
+    <div id="confirmInputModal" class="modal-overlay">
+        <div class="modal-content" style="width:550px;">
+            <button class="modal-close-btn" onclick="closeConfirmInputModal()" title="Schließen">×</button>
+            <h3 style="margin-top:0; margin-bottom:12px;" id="confirmInputModalTitle">Bestätigung erforderlich</h3>
+            <div style="background:rgba(239, 68, 68, 0.1); padding:16px; border-radius:var(--radius-md); margin-bottom:16px; border:2px solid var(--danger);">
+                <p style="margin:0; font-weight:600; color:var(--danger); font-size:1rem; margin-bottom:8px;">⚠️ WARNUNG</p>
+                <p style="margin:0; font-size:0.9rem; color:var(--text-main);" id="confirmInputModalMessage"></p>
+            </div>
+            <label class="section-title" style="margin-bottom:6px; display:block;" id="confirmInputModalLabel">Bestätigungstext eingeben:</label>
+            <input type="text" id="confirmInputModalField" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body); font-size:1rem; margin-bottom:20px;" placeholder="Text eingeben...">
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button class="btn btn-secondary" onclick="closeConfirmInputModal()">Abbrechen</button>
+                <button class="btn btn-danger" onclick="confirmConfirmInputModal()">Bestätigen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Modal für Nachrichten -->
+    <div id="alertModal" class="modal-overlay">
+        <div class="modal-content" style="width:450px;">
+            <button class="modal-close-btn" onclick="closeAlertModal()" title="Schließen">×</button>
+            <div style="text-align:center; margin-bottom:16px;">
+                <div id="alertModalIcon" style="font-size:3rem; margin-bottom:12px;">ℹ️</div>
+                <h3 style="margin:0; margin-bottom:8px;" id="alertModalTitle">Information</h3>
+            </div>
+            <p style="margin:0 0 20px 0; color:var(--text-main); text-align:center; font-size:1rem;" id="alertModalMessage"></p>
+            <div style="display:flex; justify-content:center;">
+                <button class="btn btn-primary" onclick="closeAlertModal()" style="min-width:120px;">OK</button>
+            </div>
+        </div>
+    </div>
+
     <div id="csvImportModal" class="modal-overlay">
         <div class="modal-content" style="width:550px;">
             <button class="modal-close-btn" onclick="closeModal('csvImportModal')" title="Schließen">×</button>
@@ -3224,6 +3271,129 @@ Weber, Peter;Erle;social</code>
             if(minutes <= 20) return '#eab308'; // Gelb
             if(minutes <= 30) return '#f97316'; // Orange
             return '#ef4444';                    // Rot
+        }
+        
+        // Berechne Fahrzeit-Vorschläge basierend auf Distanz
+        function calculateTravelTimeSuggestions(distanceKm) {
+            if (!distanceKm || distanceKm <= 0) {
+                return {
+                    optimistic: 5,
+                    realistic: 10,
+                    pessimistic: 15,
+                    distance: 0
+                };
+            }
+            
+            // Optimistisch: 30 km/h (wenig Verkehr)
+            const optimisticSpeed = 30;
+            const optimisticMin = Math.max(3, Math.round((distanceKm / optimisticSpeed) * 60));
+            
+            // Realistisch: 25 km/h (Durchschnitt Stadtverkehr)
+            const realisticSpeed = 25;
+            const realisticMin = Math.max(5, Math.round((distanceKm / realisticSpeed) * 60));
+            
+            // Pessimistisch: 20 km/h (viel Verkehr, Stau)
+            const pessimisticSpeed = 20;
+            const pessimisticMin = Math.max(8, Math.round((distanceKm / pessimisticSpeed) * 60));
+            
+            return {
+                optimistic: optimisticMin,
+                realistic: realisticMin,
+                pessimistic: pessimisticMin,
+                distance: distanceKm
+            };
+        }
+        
+        // Zeige Tooltip mit Fahrzeit-Vorschlägen
+        let travelTimeTooltip = null;
+        
+        function showTravelTimeSuggestions(event, travelEvent, distanceKm, fromZone, toZone) {
+            // Entferne vorhandenes Tooltip
+            if (travelTimeTooltip) {
+                travelTimeTooltip.remove();
+            }
+            
+            const suggestions = calculateTravelTimeSuggestions(distanceKm);
+            const currentTime = parseTimeToMinutes(travelEvent.end) - parseTimeToMinutes(travelEvent.start);
+            
+            // Erstelle Tooltip
+            travelTimeTooltip = document.createElement('div');
+            travelTimeTooltip.className = 'travel-time-tooltip';
+            travelTimeTooltip.style.cssText = `
+                position: fixed;
+                background: var(--bg-card);
+                border: 2px solid var(--primary);
+                border-radius: var(--radius-md);
+                padding: 12px 16px;
+                box-shadow: var(--shadow-xl);
+                z-index: 10000;
+                font-size: 0.85rem;
+                min-width: 280px;
+                pointer-events: none;
+            `;
+            
+            const zoneInfo = fromZone && toZone ? 
+                `<div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid var(--border);">
+                    <strong>📍 Route:</strong> ${fromZone} → ${toZone}
+                </div>` : '';
+            
+            const distanceInfo = distanceKm > 0 ? 
+                `<div style="margin-bottom:8px; color:var(--text-muted); font-size:0.8rem;">
+                    📏 Distanz: ${distanceKm.toFixed(1)} km
+                </div>` : '';
+            
+            travelTimeTooltip.innerHTML = `
+                <div style="font-weight:700; margin-bottom:10px; color:var(--primary); font-size:0.9rem;">
+                    ⏱️ Fahrzeit-Vorschläge
+                </div>
+                ${zoneInfo}
+                ${distanceInfo}
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="color:var(--text-muted);">Optimistisch (30 km/h):</span>
+                        <span style="font-weight:600; color:#10b981;">${suggestions.optimistic} min</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="color:var(--text-muted);">Realistisch (25 km/h):</span>
+                        <span style="font-weight:600; color:#3b82f6;">${suggestions.realistic} min</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="color:var(--text-muted);">Pessimistisch (20 km/h):</span>
+                        <span style="font-weight:600; color:#f59e0b;">${suggestions.pessimistic} min</span>
+                    </div>
+                </div>
+                <div style="margin-top:10px; padding-top:10px; border-top:1px solid var(--border); font-size:0.8rem; color:var(--text-muted);">
+                    Aktuell: <strong style="color:var(--text-main);">${currentTime} min</strong>
+                </div>
+            `;
+            
+            document.body.appendChild(travelTimeTooltip);
+            
+            // Positioniere Tooltip neben dem Mauszeiger
+            const x = event.clientX + 15;
+            const y = event.clientY + 15;
+            travelTimeTooltip.style.left = x + 'px';
+            travelTimeTooltip.style.top = y + 'px';
+            
+            // Stelle sicher, dass Tooltip nicht außerhalb des Viewports ist
+            setTimeout(() => {
+                if (travelTimeTooltip) {
+                    const rect = travelTimeTooltip.getBoundingClientRect();
+                    if (rect.right > window.innerWidth) {
+                        travelTimeTooltip.style.left = (event.clientX - rect.width - 15) + 'px';
+                    }
+                    if (rect.bottom > window.innerHeight) {
+                        travelTimeTooltip.style.top = (event.clientY - rect.height - 15) + 'px';
+                    }
+                }
+            }, 0);
+        }
+        
+        function hideTravelTimeTooltip() {
+            if (travelTimeTooltip) {
+                travelTimeTooltip.remove();
+                travelTimeTooltip = null;
+            }
         }
         const COLORS = { care: '#3b82f6', house: '#10b981', social: '#f59e0b', other: '#6b7280' };
         const DEFAULT_DURATION_MIN = 60;
@@ -4263,22 +4433,24 @@ Weber, Peter;Erle;social</code>
         }
         
         async function saveFilterPreset() {
-            const name = prompt('Name für das Filter-Preset:');
-            if(!name) return;
+            showInputModal('Filter-Preset speichern', 'Name für das Filter-Preset:', '', async (name) => {
+                if(!name || !name.trim()) return;
+                const presetName = name.trim();
             
-            const preset = {
-                id: generateId(),
-                name: name,
-                search: document.getElementById('poolSearchInput')?.value || '',
-                type: document.getElementById('poolTypeFilter')?.value || '',
-                zone: document.getElementById('poolZoneFilter')?.value || '',
-                sort: document.getElementById('poolSort')?.value || 'name'
-            };
-            
-            const presets = getFilterPresets();
-            presets.push(preset);
-            await saveFilterPresets(presets);
-            showToast(`Filter-Preset "${name}" gespeichert`, 'success');
+                const preset = {
+                    id: generateId(),
+                    name: presetName,
+                    search: document.getElementById('poolSearchInput')?.value || '',
+                    type: document.getElementById('poolTypeFilter')?.value || '',
+                    zone: document.getElementById('poolZoneFilter')?.value || '',
+                    sort: document.getElementById('poolSort')?.value || 'name'
+                };
+                
+                const presets = getFilterPresets();
+                presets.push(preset);
+                await saveFilterPresets(presets);
+                showToast(`Filter-Preset "${presetName}" gespeichert`, 'success');
+            });
         }
         
         function loadFilterPreset() {
@@ -4433,40 +4605,41 @@ Weber, Peter;Erle;social</code>
                 const count = deleteType === 'pool' ? poolCount : totalCount;
                 const typeText = deleteType === 'pool' ? 'Pool-Kunden' : 'Kunden';
                 
-                const userInput = prompt(
-                    `⚠️ WARNUNG: Möchten Sie wirklich ${count} ${typeText} löschen?\n\n` +
-                    `Diese Aktion kann nicht rückgängig gemacht werden!\n\n` +
-                    `Geben Sie "LÖSCHEN" ein, um zu bestätigen:`
+                showConfirmInputModal(
+                    'Kunden löschen',
+                    `⚠️ WARNUNG: Möchten Sie wirklich ${count} ${typeText} löschen?\n\nDiese Aktion kann nicht rückgängig gemacht werden!`,
+                    'LÖSCHEN',
+                    'Geben Sie "LÖSCHEN" ein, um zu bestätigen:',
+                    (isValid) => {
+                        if (!isValid) {
+                            showToast('Löschung abgebrochen', 'info');
+                            return;
+                        }
+                        
+                        if (deleteType === 'pool') {
+                            // Nur Pool-Kunden löschen
+                            appData.pool = [];
+                        } else {
+                            // Alle Kunden löschen (Pool + verplante Einsätze)
+                            appData.pool = [];
+                            appData.events = appData.events.filter(e => e.extendedProps?.isTravel === true);
+                        }
+                        
+                        // Speichere Änderungen
+                        queueSave();
+                        renderPool();
+                        
+                        // Aktualisiere Kundenliste
+                        if (currentView === 'admin' && currentAdminTab === 'customers') {
+                            renderCustomerList();
+                        }
+                        
+                        // Aktualisiere Ansicht
+                        refreshView();
+                        
+                        showToast(`${count} ${typeText} wurden gelöscht`, 'success');
+                    }
                 );
-                
-                if (userInput !== 'LÖSCHEN') {
-                    showToast('Löschung abgebrochen', 'info');
-                    return;
-                }
-                
-                if (deleteType === 'pool') {
-                    // Nur Pool-Kunden löschen
-                    appData.pool = [];
-                } else {
-                    // Alle Kunden löschen (Pool + verplante Einsätze)
-                    appData.pool = [];
-                    appData.events = appData.events.filter(e => e.extendedProps?.isTravel === true);
-                }
-                
-                // Speichere Änderungen
-                queueSave();
-                renderPool();
-                
-                // Aktualisiere Kundenliste
-                if (currentView === 'admin' && currentAdminTab === 'customers') {
-                    renderCustomerList();
-                }
-                
-                // Aktualisiere Ansicht
-                refreshView();
-                
-                showToast(`${count} ${typeText} wurden gelöscht`, 'success');
-            };
         }
         
         function deleteAllEvents() {
@@ -4489,25 +4662,29 @@ Weber, Peter;Erle;social</code>
                 return;
             }
             
-            const userInput = prompt(
-                `Geben Sie "LÖSCHEN" ein, um alle ${eventCount} Einsätze zu löschen:`
+            showConfirmInputModal(
+                'Alle Einsätze löschen',
+                `⚠️ WARNUNG: Möchten Sie wirklich ALLE ${eventCount} Einsätze löschen?\n\n${travelCount > 0 ? `Hinweis: ${travelCount} Fahrtzeiten werden nicht gelöscht.\n\n` : ''}Diese Aktion kann nicht rückgängig gemacht werden!`,
+                'LÖSCHEN',
+                'Geben Sie "LÖSCHEN" ein, um zu bestätigen:',
+                (isValid) => {
+                    if (!isValid) {
+                        showToast('Löschung abgebrochen', 'info');
+                        return;
+                    }
+                    
+                    // Entferne alle Einsätze (behalte Fahrtzeiten)
+                    appData.events = appData.events.filter(e => e.extendedProps?.isTravel === true);
+                    
+                    // Speichere Änderungen
+                    queueSave();
+                    
+                    // Aktualisiere Ansicht
+                    refreshView();
+                    
+                    showToast(`Alle ${eventCount} Einsätze wurden gelöscht`, 'success');
+                }
             );
-            
-            if (userInput !== 'LÖSCHEN') {
-                showToast('Löschung abgebrochen', 'info');
-                return;
-            }
-            
-            // Entferne alle Einsätze (behalte Fahrtzeiten)
-            appData.events = appData.events.filter(e => e.extendedProps?.isTravel === true);
-            
-            // Speichere Änderungen
-            queueSave();
-            
-            // Aktualisiere Ansicht
-            refreshView();
-            
-            showToast(`Alle ${eventCount} Einsätze wurden gelöscht`, 'success');
         }
         
         function renderAdminEvents(container) {
@@ -5686,7 +5863,17 @@ Weber, Peter;Erle;social</code>
                 const travelColor = evt.extendedProps?.travelColor || '#64748b';
                 const isCommute = evt.extendedProps?.isCommute;
                 const commuteType = evt.extendedProps?.commuteType;
-                const distKm = evt.extendedProps?.distanceKm;
+                const distKm = evt.extendedProps?.distanceKm || 0;
+                const fromZone = evt.extendedProps?.fromZone;
+                const toZone = evt.extendedProps?.toZone;
+                
+                // Hover-Handler für Fahrzeit-Vorschläge
+                row.onmouseenter = (e) => {
+                    showTravelTimeSuggestions(e, evt, distKm, fromZone, toZone);
+                };
+                row.onmouseleave = () => {
+                    hideTravelTimeTooltip();
+                };
                 
                 // Apply colored stripe pattern based on distance
                 if(isCommute) {
@@ -6707,7 +6894,7 @@ Weber, Peter;Erle;social</code>
                 const z=document.getElementById('eventZone').value; 
                 const tr=document.getElementById('eventTourSelect').value;
                 if(!t || !t.trim()) {
-                    alert('Bitte geben Sie einen Namen ein.');
+                    showAlertModal('Fehler', 'Bitte geben Sie einen Namen ein.', 'error');
                     return;
                 }
                 let ty=[]; document.querySelectorAll('.event-cb:checked').forEach(c=>ty.push(c.value)); 
@@ -6796,7 +6983,7 @@ Weber, Peter;Erle;social</code>
                     } else {
                         const m=document.getElementById('eventModal');
                         if(!m || !m.dataset.start || !m.dataset.end) {
-                            alert('Fehler: Start- oder Endzeit fehlt.');
+                            showAlertModal('Fehler', 'Start- oder Endzeit fehlt.', 'error');
                             return;
                         }
                         const dayIdx = parseInt(m.dataset.dayIndex) || 0;
@@ -6856,7 +7043,10 @@ Weber, Peter;Erle;social</code>
                     document.querySelectorAll('.repeat-cb').forEach(cb => cb.checked = false);
                     queueSave(); refreshView(); closeModal('eventModal');
                 }
-            } catch(e) { console.error(e); alert("Fehler beim Speichern: " + e.message); }
+            } catch(e) { 
+                console.error(e); 
+                showAlertModal('Fehler', 'Fehler beim Speichern: ' + e.message, 'error'); 
+            }
         }
         function deleteEvent(){ 
             if(currentEvent) { 
@@ -6880,7 +7070,7 @@ Weber, Peter;Erle;social</code>
             try {
                 const originalEvent = appData.events.find(e => e.id === currentEvent.id);
                 if(!originalEvent) {
-                    alert('Event nicht gefunden.');
+                    showAlertModal('Fehler', 'Event nicht gefunden.', 'error');
                     return;
                 }
                 
@@ -6914,14 +7104,14 @@ Weber, Peter;Erle;social</code>
             const toDay = parseInt(document.getElementById('copyToDay').value);
             
             if(fromDay === toDay) {
-                alert('Bitte wählen Sie unterschiedliche Tage.');
+                showAlertModal('Fehler', 'Bitte wählen Sie unterschiedliche Tage.', 'error');
                 return;
             }
             
             const eventsToCopy = filterRealEvents(appData.events.filter(e => e.dayIndex === fromDay));
             
             if(eventsToCopy.length === 0) {
-                alert('Keine Einsätze zum Kopieren an diesem Tag.');
+                showAlertModal('Information', 'Keine Einsätze zum Kopieren an diesem Tag.', 'info');
                 return;
             }
             
@@ -6942,7 +7132,7 @@ Weber, Peter;Erle;social</code>
             queueSave();
             refreshView();
             closeModal('copyDayModal');
-            alert(`${eventsToCopy.length} Einsätze kopiert.`);
+            showAlertModal('Erfolg', `${eventsToCopy.length} Einsätze kopiert.`, 'success');
         }
 
         // --- CUSTOMER OVERVIEW ---
@@ -7963,7 +8153,7 @@ Weber, Peter;Erle;social</code>
                     openModal('backupImportConfirmModal');
                 } catch(e) {
                     console.error('Fehler beim Laden:', e);
-                    alert('Fehler beim Laden des Backups:\n\n' + e.message + '\n\nBitte überprüfen Sie die Datei.');
+                    showAlertModal('Fehler', 'Fehler beim Laden des Backups:\n\n' + e.message + '\n\nBitte überprüfen Sie die Datei.', 'error');
                     showToast('Fehler beim Laden', 'error');
                 }
                 
@@ -8029,7 +8219,7 @@ Weber, Peter;Erle;social</code>
                 showToast('Backup erfolgreich importiert', 'success');
             } catch(e) {
                 console.error('Fehler beim Import:', e);
-                alert('Fehler beim Importieren des Backups:\n\n' + e.message);
+                showAlertModal('Fehler', 'Fehler beim Importieren des Backups:\n\n' + e.message, 'error');
                 showToast('Fehler beim Importieren', 'error');
                 pendingBackupImport = null;
                 closeModal('backupImportConfirmModal');
@@ -8057,7 +8247,7 @@ Weber, Peter;Erle;social</code>
                     const lines = text.split('\n').filter(l => l.trim());
                     
                     if(lines.length < 2) {
-                        alert('CSV-Datei ist leer oder hat kein gültiges Format.');
+                        showAlertModal('Fehler', 'CSV-Datei ist leer oder hat kein gültiges Format.', 'error');
                         return;
                     }
                     
@@ -8084,10 +8274,10 @@ Weber, Peter;Erle;social</code>
                     
                     queueSave();
                     renderPool();
-                    alert(`${imported} Kunden importiert.`);
+                    showAlertModal('Erfolg', `${imported} Kunden importiert.`, 'success');
                 } catch(err) {
                     console.error(err);
-                    alert('Fehler beim Import: ' + err.message);
+                    showAlertModal('Fehler', 'Fehler beim Import: ' + err.message, 'error');
                 }
             };
             reader.readAsText(file);
@@ -8631,7 +8821,7 @@ Weber, Peter;Erle;social</code>
             renderList('tourList', appData.tours || [], 
                 id => {
                     if(appData.tours.length <= 1) {
-                        alert('Mindestens eine Tour muss vorhanden sein.');
+                        showAlertModal('Fehler', 'Mindestens eine Tour muss vorhanden sein.', 'error');
                         return;
                     }
                     appData.tours = appData.tours.filter(t => t.id !== id);
@@ -9166,7 +9356,7 @@ Weber, Peter;Erle;social</code>
             } catch(e) {
                 if(e.name !== 'AbortError') {
                     console.error('Fehler beim Öffnen:', e);
-                    alert('Fehler beim Öffnen der Datei. Bitte überprüfen Sie das Format.');
+                    showAlertModal('Fehler', 'Fehler beim Öffnen der Datei. Bitte überprüfen Sie das Format.', 'error');
                 }
             }
         }
@@ -9339,41 +9529,43 @@ Weber, Peter;Erle;social</code>
         }
         
         async function openVariantModal() {
-            const name = prompt('Name der neuen Variante:');
-            if (!name || name.trim() === '') return;
+            showInputModal('Neue Variante', 'Name der neuen Variante:', '', async (name) => {
+                if (!name || name.trim() === '') return;
+                const variantName = name.trim();
             
-            try {
-                const response = await apiCall('/api/variants', {
-                    method: 'POST',
-                    body: JSON.stringify({ name: name.trim() })
-                });
-                
-                if(!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.error || 'Fehler beim Erstellen');
+                try {
+                    const response = await apiCall('/api/variants', {
+                        method: 'POST',
+                        body: JSON.stringify({ name: variantName })
+                    });
+                    
+                    if(!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.error || 'Fehler beim Erstellen');
+                    }
+                    
+                    const newVariant = await response.json();
+                    variants.push(newVariant);
+                    updateVariantSelect();
+                    currentVariantId = newVariant.id;
+                    document.getElementById('variantSelect').value = newVariant.id;
+                    
+                    // Lade leere Daten für neue Variante
+                    appData = {
+                        events: [],
+                        pool: [],
+                        employees: [],
+                        tours: [{id:'t1', name:'Tour 1'}, {id:'t2', name:'Tour 2'}],
+                        wageSettings: JSON.parse(JSON.stringify(DEFAULT_WAGE_SETTINGS)),
+                        favorites: []
+                    };
+                    refreshUI();
+                    showToast('Variante erstellt', 'success');
+                } catch(e) {
+                    console.error('Fehler beim Erstellen der Variante:', e);
+                    showToast(e.message || 'Fehler beim Erstellen der Variante', 'error');
                 }
-                
-                const newVariant = await response.json();
-                variants.push(newVariant);
-                updateVariantSelect();
-                currentVariantId = newVariant.id;
-                document.getElementById('variantSelect').value = newVariant.id;
-                
-                // Lade leere Daten für neue Variante
-                appData = {
-                    events: [],
-                    pool: [],
-                    employees: [],
-                    tours: [{id:'t1', name:'Tour 1'}, {id:'t2', name:'Tour 2'}],
-                    wageSettings: JSON.parse(JSON.stringify(DEFAULT_WAGE_SETTINGS)),
-                    favorites: []
-                };
-                refreshUI();
-                showToast('Variante erstellt', 'success');
-            } catch(e) {
-                console.error('Fehler beim Erstellen der Variante:', e);
-                showToast(e.message || 'Fehler beim Erstellen der Variante', 'error');
-            }
+            });
         }
         
         async function duplicateVariant(sourceVariantId, newName) {
@@ -9428,10 +9620,10 @@ Weber, Peter;Erle;social</code>
             const sourceName = sourceVariant ? sourceVariant.name : 'Variante';
             const defaultName = `${sourceName} (Kopie)`;
             
-            const newName = prompt('Name der neuen Variante:', defaultName);
-            if (!newName || newName.trim() === '') return;
-            
-            duplicateVariant(sourceVariantId, newName.trim());
+            showInputModal('Variante duplizieren', 'Name der neuen Variante:', defaultName, (newName) => {
+                if (!newName || newName.trim() === '') return;
+                duplicateVariant(sourceVariantId, newName.trim());
+            });
         }
         
         function showVariantContextMenu(event, variantId) {
@@ -9537,38 +9729,39 @@ Weber, Peter;Erle;social</code>
                 return;
             }
             
-            const newName = prompt('Neuer Name der Variante:', variant.name);
-            if (!newName || newName.trim() === '' || newName.trim() === variant.name) {
-                return;
-            }
-            
-            try {
-                const response = await apiCall(`/api/variants/${variantId}`, {
-                    method: 'PUT',
-                    body: JSON.stringify({ name: newName.trim() })
-                });
-                
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.error || 'Fehler beim Umbenennen');
+            showInputModal('Variante umbenennen', 'Neuer Name der Variante:', variant.name, async (newName) => {
+                if (!newName || newName.trim() === '' || newName.trim() === variant.name) {
+                    return;
                 }
                 
-                const updatedVariant = await response.json();
-                
-                // Aktualisiere Variantenliste
-                const index = variants.findIndex(v => v.id === variantId);
-                if (index !== -1) {
-                    variants[index] = updatedVariant;
+                try {
+                    const response = await apiCall(`/api/variants/${variantId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify({ name: newName.trim() })
+                    });
+                    
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.error || 'Fehler beim Umbenennen');
+                    }
+                    
+                    const updatedVariant = await response.json();
+                    
+                    // Aktualisiere Variantenliste
+                    const index = variants.findIndex(v => v.id === variantId);
+                    if (index !== -1) {
+                        variants[index] = updatedVariant;
+                    }
+                    
+                    // Aktualisiere UI
+                    updateVariantSelect();
+                    
+                    showToast(`Variante umbenannt zu "${updatedVariant.name}"`, 'success');
+                } catch (error) {
+                    console.error('Fehler beim Umbenennen der Variante:', error);
+                    showToast('Fehler beim Umbenennen: ' + error.message, 'error');
                 }
-                
-                // Aktualisiere UI
-                updateVariantSelect();
-                
-                showToast(`Variante umbenannt zu "${updatedVariant.name}"`, 'success');
-            } catch (error) {
-                console.error('Fehler beim Umbenennen der Variante:', error);
-                showToast('Fehler beim Umbenennen: ' + error.message, 'error');
-            }
+            });
         }
         
         async function handleDeleteVariant(variantId) {
@@ -9676,27 +9869,32 @@ Weber, Peter;Erle;social</code>
             if(!tour) return;
             
             // Öffne Modal oder bearbeite direkt in der Liste
-            const newName = prompt('Tour-Name:', tour.name);
-            if(newName === null) return;
-            
-            const newHoursLimit = prompt('Wochenstunden-Limit (leer für kein Limit):', tour.weeklyHoursLimit || '');
-            const hoursLimit = newHoursLimit === null || newHoursLimit === '' ? null : parseInt(newHoursLimit);
-            
-            // Bevorzugte Types bearbeiten
-            const currentTypes = tour.preferredTypes || [];
-            const typeStr = prompt('Bevorzugte Leistungstypen (Komma-getrennt: care, house, social) oder leer für alle:', currentTypes.join(', '));
-            let preferredTypes = null;
-            if(typeStr && typeStr.trim()) {
-                preferredTypes = typeStr.split(',').map(t => t.trim()).filter(t => ['care', 'house', 'social'].includes(t));
-                if(preferredTypes.length === 0) preferredTypes = null;
-            }
-            
-            tour.name = newName.trim();
-            tour.weeklyHoursLimit = hoursLimit;
-            tour.preferredTypes = preferredTypes;
-            
-            queueSave();
-            renderAdminTabContent('tours');
+            showInputModal('Tour bearbeiten', 'Tour-Name:', tour.name, (newName) => {
+                if(!newName || !newName.trim()) return;
+                const tourName = newName.trim();
+                
+                showInputModal('Wochenstunden-Limit', 'Wochenstunden-Limit (leer für kein Limit):', tour.weeklyHoursLimit || '', (newHoursLimit) => {
+                    const hoursLimit = newHoursLimit === null || newHoursLimit === '' ? null : parseInt(newHoursLimit);
+                    
+                    // Bevorzugte Types bearbeiten
+                    const currentTypes = tour.preferredTypes || [];
+                    showInputModal('Leistungstypen', 'Bevorzugte Leistungstypen (Komma-getrennt: care, house, social) oder leer für alle:', currentTypes.join(', '), (typeStr) => {
+                        let preferredTypes = null;
+                        if(typeStr && typeStr.trim()) {
+                            preferredTypes = typeStr.split(',').map(t => t.trim()).filter(t => ['care', 'house', 'social'].includes(t));
+                            if(preferredTypes.length === 0) preferredTypes = null;
+                        }
+                        
+                        tour.name = tourName;
+                        tour.weeklyHoursLimit = hoursLimit;
+                        tour.preferredTypes = preferredTypes;
+                        
+                        queueSave();
+                        renderAdminTabContent('tours');
+                        showToast('Tour aktualisiert', 'success');
+                    });
+                });
+            });
         }
         function addEmployee(){
             const n = document.getElementById('newEmpName');
@@ -10445,6 +10643,126 @@ Weber, Peter;Erle;social</code>
                     delete modalHandlers[id];
                 }
             }
+        }
+
+        // ===== INPUT MODAL (Ersatz für prompt) =====
+        let inputModalCallback = null;
+
+        function showInputModal(title, message, defaultValue = '', callback) {
+            document.getElementById('inputModalTitle').textContent = title;
+            document.getElementById('inputModalMessage').textContent = message || '';
+            const field = document.getElementById('inputModalField');
+            field.value = defaultValue;
+            inputModalCallback = callback;
+            openModal('inputModal');
+            setTimeout(() => field.focus(), 100);
+            
+            // Enter-Taste unterstützen
+            field.onkeydown = (e) => {
+                if (e.key === 'Enter') {
+                    confirmInputModal();
+                } else if (e.key === 'Escape') {
+                    closeInputModal();
+                }
+            };
+        }
+
+        function confirmInputModal() {
+            const value = document.getElementById('inputModalField').value;
+            if (inputModalCallback) {
+                inputModalCallback(value);
+            }
+            closeInputModal();
+        }
+
+        function closeInputModal() {
+            inputModalCallback = null;
+            closeModal('inputModal');
+        }
+
+        // ===== CONFIRM INPUT MODAL (für Bestätigungen mit Text-Eingabe) =====
+        let confirmInputModalCallback = null;
+        let confirmInputModalExpectedText = '';
+
+        function showConfirmInputModal(title, message, expectedText, inputLabel, callback) {
+            document.getElementById('confirmInputModalTitle').textContent = title;
+            document.getElementById('confirmInputModalMessage').textContent = message;
+            document.getElementById('confirmInputModalLabel').textContent = inputLabel || 'Bestätigungstext eingeben:';
+            const field = document.getElementById('confirmInputModalField');
+            field.value = '';
+            field.placeholder = expectedText || 'Text eingeben...';
+            confirmInputModalExpectedText = expectedText || '';
+            confirmInputModalCallback = callback;
+            openModal('confirmInputModal');
+            setTimeout(() => field.focus(), 100);
+            
+            // Enter-Taste unterstützen
+            field.onkeydown = (e) => {
+                if (e.key === 'Enter') {
+                    confirmConfirmInputModal();
+                } else if (e.key === 'Escape') {
+                    closeConfirmInputModal();
+                }
+            };
+        }
+
+        function confirmConfirmInputModal() {
+            const value = document.getElementById('confirmInputModalField').value;
+            const isValid = value === confirmInputModalExpectedText;
+            if (confirmInputModalCallback) {
+                confirmInputModalCallback(isValid, value);
+            }
+            closeConfirmInputModal();
+        }
+
+        function closeConfirmInputModal() {
+            confirmInputModalCallback = null;
+            confirmInputModalExpectedText = '';
+            closeModal('confirmInputModal');
+        }
+
+        // ===== ALERT MODAL (Ersatz für alert) =====
+        let alertModalAutoCloseTimer = null;
+
+        function showAlertModal(title, message, type = 'info') {
+            const iconMap = {
+                'info': 'ℹ️',
+                'success': '✅',
+                'error': '❌',
+                'warning': '⚠️'
+            };
+            
+            const colorMap = {
+                'info': 'var(--primary)',
+                'success': 'var(--success)',
+                'error': 'var(--danger)',
+                'warning': 'var(--warning)'
+            };
+            
+            document.getElementById('alertModalIcon').textContent = iconMap[type] || 'ℹ️';
+            document.getElementById('alertModalIcon').style.color = colorMap[type] || 'var(--primary)';
+            document.getElementById('alertModalTitle').textContent = title;
+            document.getElementById('alertModalMessage').textContent = message;
+            
+            openModal('alertModal');
+            
+            // Auto-close für success/info nach 3 Sekunden
+            if (alertModalAutoCloseTimer) {
+                clearTimeout(alertModalAutoCloseTimer);
+            }
+            if (type === 'success' || type === 'info') {
+                alertModalAutoCloseTimer = setTimeout(() => {
+                    closeAlertModal();
+                }, 3000);
+            }
+        }
+
+        function closeAlertModal() {
+            if (alertModalAutoCloseTimer) {
+                clearTimeout(alertModalAutoCloseTimer);
+                alertModalAutoCloseTimer = null;
+            }
+            closeModal('alertModal');
         }
 
         // --- DRAG & DROP & CLICK HELPERS ---
