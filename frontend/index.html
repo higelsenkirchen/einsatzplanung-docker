@@ -6604,6 +6604,17 @@ Weber, Peter;Erle;social</code>
                         if(tag) e.extendedProps.tag = tag;
                         else delete e.extendedProps.tag;
                         
+                        // Behalte poolId falls vorhanden (für Adresse/Koordinaten)
+                        if (e.extendedProps.poolId) {
+                            // poolId bleibt erhalten
+                        } else {
+                            // Prüfe ob poolId im Modal gesetzt ist (beim Bearbeiten nach Pool-Drop)
+                            const modal = document.getElementById('eventModal');
+                            if (modal && modal.dataset.fromPoolId) {
+                                e.extendedProps.poolId = modal.dataset.fromPoolId;
+                            }
+                        }
+                        
                         // Handle repeat days for existing events too
                         const repeatDays = [];
                         document.querySelectorAll('.repeat-cb:checked').forEach(cb => {
@@ -6642,6 +6653,11 @@ Weber, Peter;Erle;social</code>
                             extendedProps:{zone:z, tour:tr, types:ty, rhythm: rhythm}
                         };
                         if(tag) newEvent.extendedProps.tag = tag;
+                        
+                        // Speichere poolId falls vorhanden (für Adresse/Koordinaten)
+                        if(m.dataset.fromPoolId) {
+                            newEvent.extendedProps.poolId = m.dataset.fromPoolId;
+                        }
                         
                         saveUndoState(); // Save state before changes
                         appData.events.push(newEvent);
@@ -8800,14 +8816,18 @@ Weber, Peter;Erle;social</code>
             
             // Handle Pool Origin
             const modal = document.getElementById('eventModal');
+            const poolId = ev ? ev.extendedProps?.poolId : (info && info.fromPoolId ? info.fromPoolId : null);
+            
             if(info && info.fromPoolId) {
                 modal.dataset.fromPoolId = info.fromPoolId;
+            } else if (ev && ev.extendedProps?.poolId) {
+                // Behalte poolId aus Event beim Bearbeiten
+                modal.dataset.fromPoolId = ev.extendedProps.poolId;
             } else {
                 delete modal.dataset.fromPoolId;
             }
             
             // Zeige Adresse und Koordinaten falls vorhanden (aus Pool-Item)
-            const poolId = ev ? ev.extendedProps?.poolId : (info && info.fromPoolId ? info.fromPoolId : null);
             const addressDisplay = document.getElementById('eventAddressDisplay');
             const addressText = document.getElementById('eventAddressText');
             const coordinatesDisplay = document.getElementById('eventCoordinatesDisplay');
