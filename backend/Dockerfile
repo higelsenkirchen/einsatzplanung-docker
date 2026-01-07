@@ -13,7 +13,6 @@ RUN npm install --production --no-optional && \
 # Kopiere Anwendungsdateien
 COPY server.js ./
 COPY routes ./routes
-COPY middleware ./middleware
 COPY db ./db
 COPY scripts ./scripts
 
