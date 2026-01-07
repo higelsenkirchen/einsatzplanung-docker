@@ -560,6 +560,20 @@
             transform: scale(0.98);
         }
         
+        .pool-delete-btn {
+            opacity: 0.6;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+        
+        .pool-delete-btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        
+        .pool-delete-btn:active {
+            transform: scale(0.95);
+        }
+        
         #external-events {
             overflow-y: auto;
             overflow-x: hidden;
@@ -1798,6 +1812,7 @@
                 <div class="section-title" style="margin:0;">👥 Kundenpool</div>
                 <div style="display:flex; align-items:center; gap:6px;">
                     <button class="btn btn-primary icon-btn" style="width:auto; height:28px; padding:0 10px; font-size:0.75rem; gap:4px;" onclick="event.stopPropagation(); openPoolModal()">+ Neu</button>
+                    <button class="btn btn-secondary icon-btn" style="width:auto; height:28px; padding:0 10px; font-size:0.75rem; gap:4px;" onclick="event.stopPropagation(); openPoolImportModal()" title="Kunden importieren">📥</button>
                     <span class="menu-toggle" id="togglePool">▼</span>
             </div>
             </div>
@@ -1985,6 +2000,41 @@
             </div>
             <button class="btn btn-primary" onclick="createPoolItem()">✅ Anlegen</button>
             <button class="btn btn-secondary" onclick="closeModal('poolModal')">❌ Abbrechen</button>
+        </div>
+    </div>
+
+    <!-- Pool Import Modal -->
+    <div id="poolImportModal" class="modal-overlay">
+        <div class="modal-content" style="max-width:700px;">
+            <button class="modal-close-btn" onclick="closeModal('poolImportModal')" title="Schließen">×</button>
+            <h3 style="margin-top:0;">📥 Kunden importieren</h3>
+            
+            <div style="margin-bottom:20px; padding:12px; background:var(--border-light); border-radius:var(--radius-sm);">
+                <p style="margin:0 0 8px 0; font-weight:600; font-size:0.9rem;">Format:</p>
+                <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">Name und Postleitzahl (getrennt durch Tab, Semikolon oder Leerzeichen)</p>
+                <p style="margin:8px 0 0 0; font-size:0.85rem; color:var(--text-muted);">Beispiel: <code style="background:var(--bg-body);padding:2px 4px;border-radius:3px;">Max Mustermann	45879</code> oder <code style="background:var(--bg-body);padding:2px 4px;border-radius:3px;">Max Mustermann;45879</code></p>
+            </div>
+            
+            <div style="display:flex; gap:10px; margin-bottom:20px;">
+                <button class="btn btn-secondary" onclick="document.getElementById('poolImportFileInput').click()" style="flex:1;">📄 Excel-Datei auswählen</button>
+                <input type="file" id="poolImportFileInput" accept=".xlsx,.xls,.csv" style="display:none;" onchange="handlePoolImportFile(event)">
+            </div>
+            
+            <div style="margin-bottom:15px;">
+                <label class="section-title" style="margin-bottom:8px;">Oder Copy & Paste:</label>
+                <textarea id="poolImportTextarea" placeholder="Fügen Sie hier Ihre Daten ein (Name und PLZ)...&#10;Max Mustermann	45879&#10;Anna Schmidt	45894&#10;..." style="width:100%; min-height:150px; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body); color:var(--text-main); font-family:monospace; font-size:0.85rem; resize:vertical;"></textarea>
+            </div>
+            
+            <div id="poolImportPreview" style="display:none; margin-bottom:20px; padding:12px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm); max-height:200px; overflow-y:auto;">
+                <p style="margin:0 0 10px 0; font-weight:600; font-size:0.9rem;">Vorschau:</p>
+                <div id="poolImportPreviewContent"></div>
+            </div>
+            
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button class="btn btn-secondary" onclick="closeModal('poolImportModal')">Abbrechen</button>
+                <button class="btn btn-secondary" onclick="previewPoolImport()">Vorschau</button>
+                <button class="btn btn-primary" onclick="handlePoolImportPaste()">📥 Importieren</button>
+            </div>
         </div>
     </div>
 
@@ -2542,6 +2592,9 @@ Weber, Peter;Erle;social</code>
         </div>
     </div>
 
+    <!-- SheetJS für Excel-Import -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    
     <script>
         const CITY_ZONES = ["Alt-/Neustadt", "Beckhausen", "Bismarck", "Buer", "Bulmke-Hüllen", "Erle", "Feldmark", "Hassel", "Heßler", "Horst", "Resser Mark", "Resse", "Rotthausen", "Schalke", "Scholven", "Ückendorf", "Außerhalb"];
         
@@ -2571,6 +2624,23 @@ Weber, Peter;Erle;social</code>
             if(!zone || zone === "Außerhalb") return zone;
             const plz = ZONE_POSTAL_CODES[zone];
             return plz ? `${zone} (${plz})` : zone;
+        }
+        
+        // Hilfsfunktion: Mappt PLZ zu Zone (umgekehrtes Mapping)
+        function getZoneFromPostalCode(postalCode) {
+            if(!postalCode) return null;
+            // Normalisiere PLZ (entferne Leerzeichen, konvertiere zu String)
+            const normalizedPLZ = String(postalCode).trim();
+            
+            // Durchsuche ZONE_POSTAL_CODES nach passender PLZ
+            for(const [zone, plz] of Object.entries(ZONE_POSTAL_CODES)) {
+                if(plz && String(plz).trim() === normalizedPLZ) {
+                    return zone;
+                }
+            }
+            
+            // Keine Zone gefunden
+            return null;
         }
         
         // Deutlich unterscheidbare Farben für jede Zone
@@ -3760,7 +3830,10 @@ Weber, Peter;Erle;social</code>
                             <span class="favorite-star" style="cursor:pointer;font-size:0.9rem;${starStyle}flex-shrink:0;" data-id="${p.id}" title="${p.favorite ? 'Favorit entfernen' : 'Als Favorit markieren'}">${starIcon}</span>
                             <span class="pool-title" style="font-weight:600;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.title}</span>
                     </div>
-                        <span style="display:flex;gap:3px;flex-shrink:0;margin-left:6px;">${dots}</span>
+                        <div style="display:flex;align-items:center;gap:3px;flex-shrink:0;">
+                            <span style="display:flex;gap:3px;flex-shrink:0;margin-left:6px;">${dots}</span>
+                            <button class="pool-delete-btn" onclick="event.stopPropagation(); deletePoolItem('${p.id}')" title="Kunde löschen" style="background:none;border:none;color:var(--danger);cursor:pointer;padding:2px 4px;font-size:0.85rem;opacity:0.6;transition:opacity 0.2s;">🗑️</button>
+                        </div>
                     </div>
                     <div class="pool-zone" style="color:var(--text-muted);display:flex;align-items:center;gap:4px;margin-top:2px;">
                         <span style="width:6px;height:6px;background:${zoneColor};border-radius:2px;display:inline-block;flex-shrink:0;"></span>
@@ -3774,6 +3847,17 @@ Weber, Peter;Erle;social</code>
                         e.stopPropagation();
                         toggleFavorite(p.id);
                     };
+                }
+                
+                // Hover-Effekt für Löschen-Button
+                const deleteBtn = d.querySelector('.pool-delete-btn');
+                if(deleteBtn) {
+                    d.addEventListener('mouseenter', () => {
+                        deleteBtn.style.opacity = '1';
+                    });
+                    d.addEventListener('mouseleave', () => {
+                        deleteBtn.style.opacity = '0.6';
+                    });
                 }
                 
                 // Click to edit pool item (not schedule)
@@ -3887,6 +3971,23 @@ Weber, Peter;Erle;social</code>
             modal.dataset.editingId = poolItem.id;
             
             openModal('poolModal');
+        }
+        
+        function deletePoolItem(poolId) {
+            const item = appData.pool.find(p => p.id === poolId);
+            if(!item) return;
+            
+            const itemName = item.title;
+            if(confirm(`Möchten Sie den Kunden "${itemName}" wirklich löschen?`)) {
+                // Entferne Item aus Pool
+                appData.pool = appData.pool.filter(p => p.id !== poolId);
+                
+                // Speichere Änderungen
+                queueSave();
+                renderPool();
+                
+                showToast(`Kunde "${itemName}" gelöscht`, 'success');
+            }
         }
 
         function handleDropToPool() {
@@ -5266,6 +5367,246 @@ Weber, Peter;Erle;social</code>
             document.getElementById('poolName').value = '';
             document.querySelectorAll('.pool-cb').forEach(cb => cb.checked = false);
             openModal('poolModal');
+        }
+        
+        function openPoolImportModal() {
+            // Reset import modal
+            document.getElementById('poolImportTextarea').value = '';
+            document.getElementById('poolImportFileInput').value = '';
+            document.getElementById('poolImportPreview').style.display = 'none';
+            openModal('poolImportModal');
+        }
+        
+        function parseImportData(data, isFile) {
+            const items = [];
+            
+            if(isFile) {
+                // Excel-Datei parsen
+                try {
+                    const workbook = XLSX.read(data, { type: 'binary' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
+                    
+                    // Finde Spalten für Name und PLZ
+                    let nameColIndex = -1;
+                    let plzColIndex = -1;
+                    
+                    if(jsonData.length > 0) {
+                        const headerRow = jsonData[0];
+                        // Suche nach Spaltennamen
+                        headerRow.forEach((cell, index) => {
+                            const cellLower = String(cell).toLowerCase();
+                            if(cellLower.includes('name') || cellLower.includes('kunde') || cellLower.includes('kundenname')) {
+                                nameColIndex = index;
+                            }
+                            if(cellLower.includes('plz') || cellLower.includes('postleitzahl') || cellLower.includes('postal')) {
+                                plzColIndex = index;
+                            }
+                        });
+                        
+                        // Falls keine Header gefunden, verwende erste zwei Spalten
+                        if(nameColIndex === -1) nameColIndex = 0;
+                        if(plzColIndex === -1) plzColIndex = 1;
+                        
+                        // Parse Datenzeilen (überspringe Header)
+                        for(let i = 1; i < jsonData.length; i++) {
+                            const row = jsonData[i];
+                            const name = String(row[nameColIndex] || '').trim();
+                            const postalCode = String(row[plzColIndex] || '').trim();
+                            
+                            if(name && postalCode) {
+                                items.push({ name, postalCode });
+                            }
+                        }
+                    }
+                } catch(error) {
+                    console.error('Fehler beim Parsen der Excel-Datei:', error);
+                    throw new Error('Fehler beim Lesen der Excel-Datei: ' + error.message);
+                }
+            } else {
+                // Text parsen (Copy&Paste)
+                const lines = data.split('\n').filter(line => line.trim());
+                
+                lines.forEach(line => {
+                    // Unterstütze verschiedene Trennzeichen: Tab, Semikolon, Komma
+                    let parts = [];
+                    if(line.includes('\t')) {
+                        parts = line.split('\t');
+                    } else if(line.includes(';')) {
+                        parts = line.split(';');
+                    } else if(line.includes(',')) {
+                        parts = line.split(',');
+                    } else {
+                        // Versuche Leerzeichen als Trenner (mindestens 2 Leerzeichen oder Tab)
+                        parts = line.split(/\s{2,}|\t/);
+                        if(parts.length < 2) {
+                            // Fallback: Einzelne Leerzeichen
+                            const spaceIndex = line.indexOf(' ');
+                            if(spaceIndex > 0) {
+                                parts = [line.substring(0, spaceIndex), line.substring(spaceIndex + 1).trim()];
+                            }
+                        }
+                    }
+                    
+                    if(parts.length >= 2) {
+                        const name = parts[0].trim();
+                        const postalCode = parts[1].trim();
+                        
+                        if(name && postalCode) {
+                            items.push({ name, postalCode });
+                        }
+                    }
+                });
+            }
+            
+            return items;
+        }
+        
+        function previewPoolImport() {
+            const textarea = document.getElementById('poolImportTextarea');
+            const text = textarea.value.trim();
+            
+            if(!text) {
+                showToast('Bitte geben Sie Daten ein', 'warning');
+                return;
+            }
+            
+            try {
+                const items = parseImportData(text, false);
+                
+                if(items.length === 0) {
+                    showToast('Keine gültigen Daten gefunden', 'warning');
+                    return;
+                }
+                
+                // Zeige Vorschau
+                const previewDiv = document.getElementById('poolImportPreview');
+                const previewContent = document.getElementById('poolImportPreviewContent');
+                
+                let previewHTML = `<p style="margin:0 0 10px 0; font-size:0.85rem; color:var(--text-muted);">${items.length} Kunden gefunden:</p>`;
+                previewHTML += '<div style="display:grid; grid-template-columns:1fr 1fr auto; gap:8px; font-size:0.8rem;">';
+                previewHTML += '<div style="font-weight:600;">Name</div><div style="font-weight:600;">PLZ</div><div style="font-weight:600;">Zone</div>';
+                
+                items.forEach(item => {
+                    const zone = getZoneFromPostalCode(item.postalCode) || 'Außerhalb';
+                    previewHTML += `<div>${item.name}</div><div>${item.postalCode}</div><div style="color:${zone === 'Außerhalb' ? 'var(--warning)' : 'var(--success)'}">${zone}</div>`;
+                });
+                
+                previewHTML += '</div>';
+                previewContent.innerHTML = previewHTML;
+                previewDiv.style.display = 'block';
+            } catch(error) {
+                showToast('Fehler bei Vorschau: ' + error.message, 'error');
+            }
+        }
+        
+        function importPoolItems(items) {
+            if(!items || items.length === 0) {
+                showToast('Keine Daten zum Importieren', 'warning');
+                return;
+            }
+            
+            let imported = 0;
+            let skipped = 0;
+            const warnings = [];
+            
+            items.forEach(item => {
+                if(!item.name || !item.postalCode) {
+                    skipped++;
+                    return;
+                }
+                
+                // Mappe PLZ zu Zone
+                let zone = getZoneFromPostalCode(item.postalCode);
+                if(!zone) {
+                    zone = 'Außerhalb';
+                    warnings.push(`${item.name}: PLZ ${item.postalCode} nicht gefunden`);
+                }
+                
+                // Erstelle Pool-Item
+                const poolItem = {
+                    id: generateId(),
+                    title: item.name.trim(),
+                    zone: zone,
+                    types: ['other']
+                };
+                
+                appData.pool.push(poolItem);
+                imported++;
+            });
+            
+            // Speichere Änderungen
+            queueSave();
+            renderPool();
+            
+            // Zeige Ergebnis
+            let message = `${imported} Kunden erfolgreich importiert`;
+            if(skipped > 0) {
+                message += `, ${skipped} übersprungen`;
+            }
+            if(warnings.length > 0) {
+                message += `. ${warnings.length} Warnung(en)`;
+                console.warn('Import-Warnungen:', warnings);
+            }
+            
+            showToast(message, warnings.length > 0 ? 'warning' : 'success');
+            closeModal('poolImportModal');
+        }
+        
+        function handlePoolImportFile(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+            
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                try {
+                    let data;
+                    const fileName = file.name.toLowerCase();
+                    
+                    if(fileName.endsWith('.csv')) {
+                        // CSV-Datei als Text lesen
+                        data = e.target.result;
+                        const items = parseImportData(data, false);
+                        importPoolItems(items);
+                    } else if(fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+                        // Excel-Datei mit SheetJS parsen
+                        data = e.target.result;
+                        const items = parseImportData(data, true);
+                        importPoolItems(items);
+                    } else {
+                        throw new Error('Nicht unterstütztes Dateiformat. Bitte verwenden Sie .xlsx, .xls oder .csv');
+                    }
+                } catch(error) {
+                    console.error('Import-Fehler:', error);
+                    showToast('Fehler beim Import: ' + error.message, 'error');
+                }
+            };
+            
+            const fileName = file.name.toLowerCase();
+            if(fileName.endsWith('.csv')) {
+                reader.readAsText(file);
+            } else {
+                reader.readAsBinaryString(file);
+            }
+        }
+        
+        function handlePoolImportPaste() {
+            const textarea = document.getElementById('poolImportTextarea');
+            const text = textarea.value.trim();
+            
+            if(!text) {
+                showToast('Bitte geben Sie Daten ein', 'warning');
+                return;
+            }
+            
+            try {
+                const items = parseImportData(text, false);
+                importPoolItems(items);
+            } catch(error) {
+                console.error('Import-Fehler:', error);
+                showToast('Fehler beim Import: ' + error.message, 'error');
+            }
         }
         function clearAllTooltips() {
             // Remove title attributes from ALL elements to clear native browser tooltips

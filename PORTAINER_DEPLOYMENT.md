@@ -116,3 +116,6 @@ ls -la /app/
 - Stacks → einsatzplanung → Backend-Container → "Logs"
 - Stacks → einsatzplanung → Backend-Container → "Inspect" → "Logs"
 
+
+
+

@@ -13,7 +13,7 @@ package-lock.json
 
 # IDE
 .vscode/
-.idea/
+.idea/https://github.com/higelsenkirchen/einsatzplanung-docker
 *.swp
 *.swo
 
