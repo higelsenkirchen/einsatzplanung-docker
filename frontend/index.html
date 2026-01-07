@@ -2016,8 +2016,11 @@
             </div>
             
             <div style="display:flex; gap:10px; margin-bottom:20px;">
-                <button class="btn btn-secondary" onclick="document.getElementById('poolImportFileInput').click()" style="flex:1;">📄 Excel-Datei auswählen</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('poolImportFileInput').click()" style="flex:1;">📄 Datei auswählen (.xlsx, .xls, .csv)</button>
                 <input type="file" id="poolImportFileInput" accept=".xlsx,.xls,.csv" style="display:none;" onchange="handlePoolImportFile(event)">
+            </div>
+            <div id="sheetjsWarning" style="display:none; margin-bottom:15px; padding:10px; background:rgba(245, 158, 11, 0.1); border-left:3px solid #f59e0b; border-radius:var(--radius-sm);">
+                <p style="margin:0; font-size:0.85rem; color:var(--warning);">⚠️ Excel-Import möglicherweise nicht verfügbar. CSV-Format oder Copy&Paste funktionieren immer.</p>
             </div>
             
             <div style="margin-bottom:15px;">
@@ -2592,8 +2595,20 @@ Weber, Peter;Erle;social</code>
         </div>
     </div>
 
-    <!-- SheetJS für Excel-Import -->
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <!-- SheetJS für Excel-Import (optional, lädt asynchron) -->
+    <script>
+        // Lade SheetJS asynchron, damit es den Seitenaufbau nicht blockiert
+        (function() {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js';
+            script.async = true;
+            script.defer = true;
+            script.onerror = function() {
+                console.warn('SheetJS konnte nicht geladen werden. Excel-Import wird nicht verfügbar sein.');
+            };
+            document.head.appendChild(script);
+        })();
+    </script>
     
     <script>
         const CITY_ZONES = ["Alt-/Neustadt", "Beckhausen", "Bismarck", "Buer", "Bulmke-Hüllen", "Erle", "Feldmark", "Hassel", "Heßler", "Horst", "Resser Mark", "Resse", "Rotthausen", "Schalke", "Scholven", "Ückendorf", "Außerhalb"];
@@ -5374,6 +5389,17 @@ Weber, Peter;Erle;social</code>
             document.getElementById('poolImportTextarea').value = '';
             document.getElementById('poolImportFileInput').value = '';
             document.getElementById('poolImportPreview').style.display = 'none';
+            
+            // Prüfe ob SheetJS verfügbar ist
+            const warningDiv = document.getElementById('sheetjsWarning');
+            if(warningDiv) {
+                if(typeof XLSX === 'undefined') {
+                    warningDiv.style.display = 'block';
+                } else {
+                    warningDiv.style.display = 'none';
+                }
+            }
+            
             openModal('poolImportModal');
         }
         
@@ -5383,6 +5409,11 @@ Weber, Peter;Erle;social</code>
             if(isFile) {
                 // Excel-Datei parsen
                 try {
+                    // Prüfe ob SheetJS verfügbar ist
+                    if(typeof XLSX === 'undefined') {
+                        throw new Error('SheetJS Bibliothek nicht geladen. Bitte verwenden Sie CSV-Format oder Copy&Paste.');
+                    }
+                    
                     const workbook = XLSX.read(data, { type: 'binary' });
                     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                     const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
@@ -5571,6 +5602,9 @@ Weber, Peter;Erle;social</code>
                         importPoolItems(items);
                     } else if(fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
                         // Excel-Datei mit SheetJS parsen
+                        if(typeof XLSX === 'undefined') {
+                            throw new Error('Excel-Import nicht verfügbar. SheetJS Bibliothek konnte nicht geladen werden. Bitte verwenden Sie CSV-Format oder Copy&Paste.');
+                        }
                         data = e.target.result;
                         const items = parseImportData(data, true);
                         importPoolItems(items);
