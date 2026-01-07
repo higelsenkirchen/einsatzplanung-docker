@@ -4328,13 +4328,32 @@ Weber, Peter;Erle;social</code>
             
             // Stelle sicher, dass main-content Overflow korrekt ist
             const mainContent = document.querySelector('.main-content');
+            const container = document.getElementById('weekView');
+            
             if(mainContent) {
                 if(view === 'overall') {
-                    mainContent.style.overflowX = 'auto';
-                    mainContent.style.overflowY = 'hidden';
-                } else {
+                    // In Gesamtansicht: main-content soll NICHT scrollen, nur der Container
                     mainContent.style.overflowX = 'visible';
                     mainContent.style.overflowY = 'auto';
+                } else {
+                    // Reset main-content styles für andere Views
+                    mainContent.style.overflowX = 'visible';
+                    mainContent.style.overflowY = 'auto';
+                }
+            }
+            
+            // Reset container styles wenn nicht in overall view
+            if(container && view !== 'overall') {
+                container.style.width = '';
+                container.style.minWidth = '';
+                container.style.maxWidth = '';
+                container.style.overflowX = '';
+                container.style.overflowY = '';
+                // Stelle sicher, dass Parent-Container auch zurückgesetzt wird
+                const parent = container.parentElement;
+                if(parent) {
+                    parent.style.overflowX = '';
+                    parent.style.minWidth = '';
                 }
             }
         }
@@ -4731,26 +4750,27 @@ Weber, Peter;Erle;social</code>
             const minColumnWidth = 200; // Mindestbreite pro Spalte in px
             container.style.gridTemplateColumns = `50px repeat(${totalColumns}, minmax(${minColumnWidth}px, 1fr))`;
             container.style.padding = '';
-            container.style.overflowY = 'auto';
-            container.style.overflowX = 'auto';
-            container.style.height = '100%';
             container.style.width = 'max-content'; // max-content für horizontales Scrollen
             container.style.maxWidth = 'none'; // Keine max-width Begrenzung
             container.style.minWidth = `${50 + (totalColumns * minColumnWidth)}px`; // Mindestbreite für Scrollen
-            // Parent Container muss auch overflow-x erlauben
+            container.style.height = 'calc(100vh - 250px)'; // Höhe anpassen, damit Platz für top-bar bleibt
+            container.style.overflowY = 'auto';
+            container.style.overflowX = 'auto';
+            
+            // Parent Container (main-content) soll NICHT scrollen, damit top-bar sichtbar bleibt
             const parent = container.parentElement;
             if(parent) {
-                parent.style.overflowX = 'auto';
+                parent.style.overflowX = 'visible'; // Wichtig: nicht 'auto', damit top-bar nicht mitwandert
+                parent.style.overflowY = 'auto';
                 parent.style.minWidth = '0'; // Wichtig für flex children
-                // Stelle sicher, dass der Parent-Container auch scrollbar ist
                 parent.style.position = 'relative';
             }
             
-            // Stelle sicher, dass main-content beim horizontalen Scrollen korrekt funktioniert
+            // Stelle sicher, dass main-content NICHT scrollt (nur der Container selbst)
             const mainContent = document.querySelector('.main-content');
             if(mainContent && currentView === 'overall') {
-                mainContent.style.overflowX = 'auto';
-                mainContent.style.overflowY = 'hidden';
+                mainContent.style.overflowX = 'visible'; // Wichtig: nicht 'auto'
+                mainContent.style.overflowY = 'auto';
             }
             container.innerHTML = '';
 
@@ -6247,11 +6267,15 @@ Weber, Peter;Erle;social</code>
 
         // --- DASHBOARD ---
         function renderDashboard(container) {
-            // Reset container styles that might have been set by week/compare views
+            // Reset container styles that might have been set by week/compare/overall views
             container.style.gridTemplateColumns = '1fr';
             container.style.display = 'block';
             container.style.padding = '20px';
             container.style.overflowY = 'auto';
+            container.style.overflowX = ''; // Reset from overall view
+            container.style.width = ''; // Reset from overall view
+            container.style.minWidth = ''; // Reset from overall view
+            container.style.maxWidth = ''; // Reset from overall view
             container.style.height = 'auto';
             
             const dayNames = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
@@ -6423,6 +6447,10 @@ Weber, Peter;Erle;social</code>
             container.style.display = 'block';
             container.style.padding = '20px';
             container.style.overflowY = 'auto';
+            container.style.overflowX = ''; // Reset from overall view
+            container.style.width = ''; // Reset from overall view
+            container.style.minWidth = ''; // Reset from overall view
+            container.style.maxWidth = ''; // Reset from overall view
             container.style.height = 'auto';
             
             const tabs = [
