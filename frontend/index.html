@@ -8048,15 +8048,15 @@ Weber, Peter;Erle;social</code>
                             style="
                                 padding:10px 16px;
                                 border:none;
-                                background:${currentAdminTab === tab.id ? 'var(--gradient-primary)' : 'transparent'};
-                                color:${currentAdminTab === tab.id ? 'white' : 'var(--text-muted)'};
+                                background:${currentAdminTab === tab.id ? 'var(--primary)' : 'transparent'};
+                                color:${currentAdminTab === tab.id ? '#0a0a0f' : 'var(--text-muted)'};
                                 font-size:0.85rem;
-                                font-weight:600;
+                                font-weight:700;
                                 cursor:pointer;
                                 border-radius:var(--radius-md);
                                 white-space:nowrap;
                                 transition:all 0.2s;
-                                box-shadow:${currentAdminTab === tab.id ? '0 0 15px rgba(6, 182, 212, 0.3)' : 'none'};
+                                box-shadow:${currentAdminTab === tab.id ? '0 0 15px rgba(6, 182, 212, 0.4)' : 'none'};
                             "
                             onmouseover="if('${currentAdminTab}' !== '${tab.id}') { this.style.background='var(--bg-hover)'; this.style.color='var(--primary)'; }"
                             onmouseout="if('${currentAdminTab}' !== '${tab.id}') { this.style.background='transparent'; this.style.color='var(--text-muted)'; }"
