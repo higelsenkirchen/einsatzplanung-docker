@@ -1,0 +1,362 @@
+/* ==============================================
+   RESPONSIVE.CSS - Media Queries & Print Styles
+   ============================================== */
+
+/* ==============================================
+   PRINT STYLES
+   ============================================== */
+
+@media print {
+    @page {
+        size: A4 landscape;
+        margin: 10mm;
+    }
+    
+    body {
+        background: white !important;
+        height: auto;
+        overflow: visible;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    
+    .sidebar {
+        display: none !important;
+    }
+    .main-content {
+        padding: 0;
+        margin: 0;
+    }
+    .top-bar {
+        display: none !important;
+    }
+    .hud-stats {
+        display: none !important;
+    }
+    .toast-container, .context-menu {
+        display: none !important;
+    }
+    
+    .print-header {
+        display: block !important;
+        text-align: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #333;
+    }
+    .print-header h1 {
+        margin: 0;
+        font-size: 18px;
+    }
+    .print-header p {
+        margin: 5px 0 0 0;
+        font-size: 12px;
+        color: #666;
+    }
+    
+    .week-board {
+        display: grid !important;
+        grid-template-columns: 40px repeat(7, 1fr) !important;
+        gap: 4px;
+        height: auto !important;
+        overflow: visible !important;
+    }
+    .week-day-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        border: 1px solid #ccc !important;
+    }
+    .week-day-header {
+        background: #f0f0f0 !important;
+        padding: 8px !important;
+    }
+    .week-day-body {
+        height: auto !important;
+        min-height: 200px;
+        background: white !important;
+    }
+    .week-event-row {
+        position: relative !important;
+        top: auto !important;
+        height: auto !important;
+        margin-bottom: 4px;
+        font-size: 0.7rem;
+        border-left-width: 4px !important;
+        padding: 6px !important;
+    }
+    .week-event-row .event-title {
+        font-weight: 700;
+    }
+    .week-event-row .event-time {
+        font-size: 0.65rem;
+    }
+    .modal-overlay {
+        display: none !important;
+    }
+}
+
+/* ==============================================
+   DESKTOP RESPONSIVE
+   ============================================== */
+
+@media (max-width: 1400px) {
+    .sidebar { width: 300px; }
+    #calendar { padding: 14px; }
+}
+
+@media (max-width: 1200px) {
+    .sidebar { width: 270px; }
+    .main-content { padding: 16px; }
+}
+
+@media (max-width: 1024px) {
+    body {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+        overflow-y: auto;
+    }
+    .sidebar {
+        width: 100%;
+        position: sticky;
+        top: 0;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        box-shadow: none;
+        padding: 18px;
+        z-index: 30;
+    }
+    #external-events {
+        max-height: 220px;
+    }
+    .main-content {
+        padding: 18px;
+    }
+    #calendar {
+        overflow: auto;
+    }
+    .hud-stats {
+        position: static;
+        margin-top: 16px;
+        width: 100%;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+/* ==============================================
+   TABLET RESPONSIVE
+   ============================================== */
+
+@media (max-width: 768px) {
+    .sidebar-toggle-btn {
+        display: none;
+    }
+    
+    .top-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    #weekControls,
+    #compareControls {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .view-switcher {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .view-switcher .view-btn {
+        flex: 1;
+    }
+    .hud-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    
+    /* Sidebar als Overlay */
+    .sidebar {
+        position: fixed;
+        left: -100%;
+        top: 0;
+        height: 100vh;
+        width: 280px;
+        z-index: 1000;
+        transition: left 0.3s ease;
+        border-right: 1px solid var(--border);
+    }
+    
+    .sidebar.open {
+        left: 0;
+    }
+    
+    /* Mobile Menu Button */
+    .mobile-menu-btn {
+        display: block;
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 1001;
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: var(--radius-md);
+        font-size: 1.2rem;
+        cursor: pointer;
+        box-shadow: var(--shadow-md);
+    }
+    
+    /* Hauptbereich anpassen */
+    .main-content {
+        margin-left: 0;
+        padding: 50px 10px 20px;
+    }
+    
+    /* Top Bar kompakter */
+    .top-bar {
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px;
+    }
+    
+    .view-switcher {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .view-btn {
+        font-size: 0.75rem;
+        padding: 6px 10px;
+        min-height: 44px;
+    }
+    
+    /* Wochentage vertikal statt horizontal */
+    .week-days-container {
+        flex-direction: column;
+    }
+    
+    .week-day-card {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+    
+    /* Events größer für Touch */
+    .week-event-row {
+        min-height: 50px;
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+    
+    /* Modals vollbild auf Mobile */
+    .modal-content {
+        width: 95vw;
+        max-height: 90vh;
+        margin: 5vh auto;
+    }
+    
+    /* Buttons größer für Touch */
+    .btn {
+        min-height: 44px;
+        padding: 12px 16px;
+    }
+    
+    .btn.icon-btn {
+        min-width: 44px;
+        min-height: 44px;
+    }
+    
+    /* Pool-Items größer */
+    .pool-item {
+        min-height: 50px;
+        padding: 12px;
+    }
+}
+
+/* ==============================================
+   MOBILE SMALL RESPONSIVE
+   ============================================== */
+
+@media (max-width: 600px) {
+    body { font-size: 13px; }
+    .sidebar {
+        padding: 14px;
+    }
+    #external-events {
+        max-height: 180px;
+    }
+    #calendar {
+        padding: 12px;
+    }
+    .event-tag {
+        font-size: 0.65rem;
+    }
+}
+
+@media (max-width: 480px) {
+    #weekControls select,
+    #compareControls select {
+        width: 100%;
+    }
+    .view-switcher {
+        flex-direction: column;
+        gap: 8px;
+    }
+    .hud-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Noch kompakter für kleine Screens */
+    .view-btn {
+        font-size: 0.7rem;
+        padding: 5px 8px;
+    }
+    
+    .week-event-row {
+        font-size: 0.85rem;
+        padding: 8px;
+    }
+    
+    /* Text kleiner aber lesbar */
+    .event-title {
+        font-size: 0.9rem;
+    }
+    
+    .event-time {
+        font-size: 0.8rem;
+    }
+}
+
+/* ==============================================
+   MODAL RESPONSIVE
+   ============================================== */
+
+@media (max-width: 900px) {
+    .event-modal-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    #eventModal .modal-content {
+        width: 95vw;
+    }
+}
+
+/* ==============================================
+   TOUCH DEVICE OPTIMIZATIONS
+   ============================================== */
+
+@media (hover: none) and (pointer: coarse) {
+    /* Größere Touch-Targets */
+    button, .btn, .pool-item, .week-event-row {
+        min-height: 44px;
+    }
+    
+    /* Keine Hover-Effekte auf Touch-Geräten */
+    .pool-item:hover {
+        transform: none;
+    }
+    
+    /* Swipe-Gesten für Navigation */
+    .week-day-card {
+        touch-action: pan-x pan-y;
+    }
+}
+

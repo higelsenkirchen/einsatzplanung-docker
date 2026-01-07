@@ -1,0 +1,376 @@
+/* ==============================================
+   CALENDAR.CSS - Week Board, Events, Timeline
+   ============================================== */
+
+/* ==============================================
+   WEEK BOARD LAYOUT
+   ============================================== */
+
+.week-board {
+    display: grid;
+    grid-template-columns: 50px repeat(7, 1fr);
+    gap: 8px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+    padding-bottom: 10px;
+    position: relative;
+}
+
+/* ==============================================
+   TIME COLUMN
+   ============================================== */
+
+.time-column {
+    display: flex;
+    flex-direction: column;
+    padding-top: 60px; /* Header offset - align with week-day-header height */
+    position: relative;
+}
+
+.time-label {
+    height: 60px; /* 1 hour = 60px */
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-align: right;
+    padding-right: 8px;
+    border-top: 1px solid transparent;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 2px;
+}
+
+.time-label::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -8px;
+    width: 8px;
+    height: 1px;
+    background: #94a3b8;
+}
+
+/* ==============================================
+   DAY CARDS
+   ============================================== */
+
+.week-day-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-sm);
+    min-width: 140px;
+    position: relative;
+}
+
+.week-day-header {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-body);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top-left-radius: var(--radius-md);
+    border-top-right-radius: var(--radius-md);
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.week-day-body {
+    position: relative;
+    height: calc(15 * 60px); /* TIMELINE_HOURS * 60px = 15h * 60px = 900px */
+    background: 
+        repeating-linear-gradient(
+            to bottom,
+            #cbd5e1 0px,
+            #cbd5e1 1px,
+            transparent 1px,
+            transparent 100%
+        );
+    flex-grow: 1;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.week-day-empty { display: none; }
+
+/* ==============================================
+   EVENT ROWS
+   ============================================== */
+
+.week-event-row {
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 4px 8px;
+    cursor: pointer;
+    border-left: 3px solid var(--primary);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    font-size: 0.8rem;
+    z-index: 5;
+    transition: box-shadow 0.2s, transform 0.1s;
+}
+
+.week-event-row:hover {
+    z-index: 20;
+    box-shadow: var(--shadow-md);
+}
+
+.week-event-row .event-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+}
+
+.week-event-row .event-title {
+    font-weight: 700;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.week-event-row .event-time {
+    font-size: 0.7em;
+    color: var(--text-muted);
+}
+
+.week-event-row .event-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-top: 2px;
+}
+
+/* ==============================================
+   RESIZE HANDLES
+   ============================================== */
+
+.week-event-row .resize-handle {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 8px;
+    cursor: ns-resize;
+    background: transparent;
+}
+
+.week-event-row .resize-handle.resize-bottom {
+    bottom: 0;
+    border-bottom-left-radius: var(--radius-sm);
+    border-bottom-right-radius: var(--radius-sm);
+}
+
+.week-event-row .resize-handle.resize-top {
+    top: 0;
+    border-top-left-radius: var(--radius-sm);
+    border-top-right-radius: var(--radius-sm);
+}
+
+.week-event-row:hover .resize-handle.resize-bottom {
+    background: linear-gradient(to top, rgba(99, 102, 241, 0.3), transparent);
+}
+
+.week-event-row:hover .resize-handle.resize-top {
+    background: linear-gradient(to bottom, rgba(99, 102, 241, 0.3), transparent);
+}
+
+/* ==============================================
+   EVENT RHYTHM VARIANTS
+   ============================================== */
+
+.week-event-row.is-biweekly {
+    border-left: 3px solid #8b5cf6;
+    background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+}
+
+.week-event-row.is-biweekly::before {
+    content: '2W';
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    font-size: 0.6rem;
+}
+
+.week-event-row.is-fourweekly {
+    border-left: 3px solid #ec4899;
+    background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+}
+
+.week-event-row.is-fourweekly::before {
+    content: '4W';
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: #ec4899;
+    background: rgba(236, 72, 153, 0.15);
+    padding: 1px 4px;
+    border-radius: 3px;
+}
+
+/* ==============================================
+   TRAVEL EVENTS
+   ============================================== */
+
+.week-event-row.is-travel {
+    background: repeating-linear-gradient(135deg, rgba(248, 250, 252, 0.9) 0px, rgba(248, 250, 252, 0.9) 10px, rgba(226, 232, 240, 0.6) 10px, rgba(226, 232, 240, 0.6) 20px);
+    border: 1px dashed var(--border);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-style: italic;
+    pointer-events: none;
+    border-left: none;
+    z-index: 3;
+}
+
+.week-event-row.commute-event {
+    z-index: 3;
+}
+
+/* ==============================================
+   OVERLAP POSITIONING
+   ============================================== */
+
+/* Biweekly events side by side */
+.week-event-row.biweekly-left,
+.week-event-row.overlap-left {
+    width: calc(50% - 3px) !important;
+    left: 2px !important;
+    right: auto !important;
+}
+
+.week-event-row.biweekly-right,
+.week-event-row.overlap-right {
+    width: calc(50% - 3px) !important;
+    left: auto !important;
+    right: 2px !important;
+}
+
+/* Support for 3 overlapping events */
+.week-event-row.overlap-middle {
+    width: calc(33.333% - 4px) !important;
+    left: calc(33.333% + 1px) !important;
+    right: auto !important;
+}
+
+.week-event-row.overlap-left.three-events {
+    width: calc(33.333% - 4px) !important;
+    left: 2px !important;
+    right: auto !important;
+}
+
+.week-event-row.overlap-right.three-events {
+    width: calc(33.333% - 4px) !important;
+    left: auto !important;
+    right: 2px !important;
+}
+
+/* Support for 4 overlapping events */
+.week-event-row.overlap-middle-left {
+    width: calc(25% - 4px) !important;
+    left: calc(25% + 1px) !important;
+    right: auto !important;
+}
+
+.week-event-row.overlap-middle-right {
+    width: calc(25% - 4px) !important;
+    left: calc(50% + 1px) !important;
+    right: auto !important;
+}
+
+.week-event-row.overlap-left.four-events {
+    width: calc(25% - 4px) !important;
+    left: 2px !important;
+    right: auto !important;
+}
+
+.week-event-row.overlap-right.four-events {
+    width: calc(25% - 4px) !important;
+    left: auto !important;
+    right: 2px !important;
+}
+
+/* ==============================================
+   DRAG TIME INDICATOR
+   ============================================== */
+
+.drag-time-indicator {
+    position: fixed;
+    background: var(--primary);
+    color: white;
+    padding: 6px 12px;
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    font-weight: 600;
+    z-index: 9999;
+    pointer-events: none;
+    box-shadow: var(--shadow-lg);
+    transform: translate(-50%, -100%);
+    margin-top: -10px;
+}
+
+/* ==============================================
+   CONFLICT INDICATOR
+   ============================================== */
+
+.week-event-row.has-conflict {
+    border-left: 3px solid var(--danger) !important;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+    animation: pulse-conflict 2s infinite;
+}
+
+@keyframes pulse-conflict {
+    0%, 100% { box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2); }
+    50% { box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1); }
+}
+
+.week-event-row.has-conflict::after {
+    content: '⚠';
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    font-size: 0.7rem;
+}
+
+/* ==============================================
+   SELECTION STATE
+   ============================================== */
+
+.week-event-row.selected {
+    outline: 3px solid var(--primary);
+    outline-offset: -1px;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.25);
+    z-index: 50;
+}
+
+.week-event-row.selected::before {
+    content: '✓';
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    font-size: 0.7rem;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
