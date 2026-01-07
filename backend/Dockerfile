@@ -9,7 +9,8 @@ WORKDIR /app
 COPY package*.json ./
 
 # Installiere Dependencies (nur Production)
-RUN npm ci --only=production --no-optional && \
+# Verwende npm install statt npm ci, da keine package-lock.json vorhanden ist
+RUN npm install --omit=dev --no-optional && \
     npm cache clean --force
 
 # ========================================
