@@ -3955,8 +3955,8 @@ Weber, Peter;Erle;social</code>
             await loadFilterPresetsFromStorage();
             
             refreshUI(); // Hier wird renderPool() aufgerufen
-            updatePatientList();
-            renderFilterPresetSelect();
+            if (typeof updatePatientList === 'function') updatePatientList();
+            if (typeof renderFilterPresetSelect === 'function') renderFilterPresetSelect();
         });
         
         async function loadTemplatesFromStorage() {
