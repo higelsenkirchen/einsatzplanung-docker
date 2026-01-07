@@ -4233,6 +4233,108 @@ Weber, Peter;Erle;social</code>
             }
         }
         
+        function updateVariantSelect() {
+            const select = document.getElementById('variantSelect');
+            if (!select) return;
+            
+            select.innerHTML = '';
+            variants.forEach(variant => {
+                const option = document.createElement('option');
+                option.value = variant.id;
+                option.textContent = variant.name;
+                if (variant.id === currentVariantId) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+        }
+        
+        async function loadFromAPI(){
+            if (!currentVariantId) {
+                console.warn('Keine Variante ausgewählt');
+                return;
+            }
+            
+            try {
+                const response = await apiCall(`/api/data?variant_id=${currentVariantId}`);
+                if(!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                const data = await response.json();
+                
+                appData = data;
+                ensureAppDataDefaults();
+                
+                // Migrate old zone names to new combined zone
+                migrateZoneNames();
+                
+                // Bereinige veraltete Einsätze ohne dayIndex
+                cleanupInvalidEvents();
+                
+                console.log('Daten erfolgreich vom Server geladen');
+            } catch(e) {
+                console.error('Fehler beim Laden vom Server:', e);
+                throw e;
+            }
+        }
+        
+        function refreshUI() {
+            const ts=document.getElementById('tourSelect'); 
+            const ets=document.getElementById('eventTourSelect'); 
+            if(!ts || !ets) return;
+            ts.innerHTML=''; 
+            ets.innerHTML='';
+            if(!appData.tours || appData.tours.length === 0) {
+                appData.tours = [{id:'t1', name:'Tour 1'}, {id:'t2', name:'Tour 2'}];
+            }
+            appData.tours.forEach(t=>{
+                const o=document.createElement('option');
+                o.value = t.id;
+                o.textContent = t.name || '';
+                ts.appendChild(o);
+                const o2=document.createElement('option');
+                o2.value = t.id;
+                o2.textContent = t.name || '';
+                ets.appendChild(o2);
+            });
+            updateTourEmployeeDisplay(); // Zeige zugewiesenen Mitarbeiter an
+            renderPool(); refreshView();
+            renderList('employeeList', appData.employees || [], 
+                id => {
+                    appData.employees = appData.employees.filter(e => e.id !== id);
+                    queueSave();
+                    refreshUI();
+                },
+                (id, newName) => {
+                    const emp = appData.employees.find(e => e.id === id);
+                    if(emp) {
+                        emp.name = newName;
+                        queueSave();
+                        refreshUI();
+                    }
+                }
+            );
+            renderList('tourList', appData.tours || [], 
+                id => {
+                    if(appData.tours.length <= 1) {
+                        showAlertModal('Fehler', 'Mindestens eine Tour muss vorhanden sein.', 'error');
+                        return;
+                    }
+                    appData.tours = appData.tours.filter(t => t.id !== id);
+                    queueSave();
+                    refreshUI();
+                },
+                (id, newName) => {
+                    const tour = appData.tours.find(t => t.id === id);
+                    if(tour) {
+                        tour.name = newName;
+                        queueSave();
+                        refreshUI();
+                    }
+                }
+            );
+        }
+        
         // --- ZONE LEGEND ---
         function renderZoneLegend() {
             const container = document.getElementById('zoneLegendContent');
@@ -9495,23 +9597,7 @@ Weber, Peter;Erle;social</code>
             }
         }
         
-        // loadVariants wurde bereits oben definiert
-        
-        function updateVariantSelect() {
-            const select = document.getElementById('variantSelect');
-            if (!select) return;
-            
-            select.innerHTML = '';
-            variants.forEach(variant => {
-                const option = document.createElement('option');
-                option.value = variant.id;
-                option.textContent = variant.name;
-                if (variant.id === currentVariantId) {
-                    option.selected = true;
-                }
-                select.appendChild(option);
-            });
-        }
+        // updateVariantSelect wurde bereits oben definiert
         
         async function switchVariant(variantId) {
             if (!variantId || variantId === currentVariantId) return;
