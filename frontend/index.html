@@ -2517,6 +2517,9 @@
                     <select id="eventTourSelect" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);"></select>
                 </div>
             </div>
+            <div id="eventAddressDisplay" style="display:none; margin-bottom:12px; padding:10px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm); font-size:0.9rem;">
+                <strong>📍 Adresse:</strong> <span id="eventAddressText"></span>
+            </div>
             <div id="eventCoordinatesDisplay" style="display:none; margin-bottom:12px; padding:10px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm); font-size:0.9rem;">
                 <strong>📍 Koordinaten:</strong> <span id="eventCoordinatesText"></span>
             </div>
@@ -8803,14 +8806,28 @@ Weber, Peter;Erle;social</code>
                 delete modal.dataset.fromPoolId;
             }
             
-            // Zeige Koordinaten falls vorhanden (aus Pool-Item)
+            // Zeige Adresse und Koordinaten falls vorhanden (aus Pool-Item)
             const poolId = ev ? ev.extendedProps?.poolId : (info && info.fromPoolId ? info.fromPoolId : null);
+            const addressDisplay = document.getElementById('eventAddressDisplay');
+            const addressText = document.getElementById('eventAddressText');
             const coordinatesDisplay = document.getElementById('eventCoordinatesDisplay');
             const coordinatesText = document.getElementById('eventCoordinatesText');
             
             if (poolId) {
                 const poolItem = appData.pool?.find(p => p.id === poolId);
                 if (poolItem) {
+                    // Zeige Adresse falls vorhanden
+                    if (poolItem.address || poolItem.postalCode) {
+                        let addressParts = [];
+                        if (poolItem.address) addressParts.push(poolItem.address);
+                        if (poolItem.postalCode) addressParts.push(poolItem.postalCode);
+                        addressText.textContent = addressParts.join(', ');
+                        addressDisplay.style.display = 'block';
+                    } else {
+                        addressDisplay.style.display = 'none';
+                    }
+                    
+                    // Zeige Koordinaten falls vorhanden
                     const coordinates = poolItem.extendedProps?.coordinates || poolItem.extended_props?.coordinates;
                     if (coordinates && coordinates.lat && coordinates.lng) {
                         coordinatesText.textContent = `${coordinates.lat.toFixed(6)}°N, ${coordinates.lng.toFixed(6)}°E`;
@@ -8819,9 +8836,11 @@ Weber, Peter;Erle;social</code>
                         coordinatesDisplay.style.display = 'none';
                     }
                 } else {
+                    addressDisplay.style.display = 'none';
                     coordinatesDisplay.style.display = 'none';
                 }
             } else {
+                addressDisplay.style.display = 'none';
                 coordinatesDisplay.style.display = 'none';
             }
 
