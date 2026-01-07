@@ -7,7 +7,7 @@ COPY package*.json ./
 
 # Installiere Dependencies (bcryptjs benötigt keine native Kompilierung)
 # --no-optional überspringt Puppeteer
-RUN npm ci --production --no-optional && \
+RUN npm install --production --no-optional && \
     npm cache clean --force
 
 # Kopiere Anwendungsdateien
