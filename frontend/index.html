@@ -234,8 +234,14 @@
             box-shadow: var(--shadow-lg);
             transition: all var(--transition-normal);
             position: relative;
+            overflow: visible;
+        }
+        
+        .sidebar-content {
             overflow-y: auto;
             overflow-x: hidden;
+            flex: 1;
+            min-height: 0;
         }
 
         .sidebar.collapsed {
