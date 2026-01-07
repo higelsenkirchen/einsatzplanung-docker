@@ -35,17 +35,26 @@ router.post('/geocode', async (req, res) => {
         let coordinates = null;
         let retries = 0;
         const maxRetries = 2;
+        let lastError = null;
         
         while (retries <= maxRetries && !coordinates) {
             try {
                 coordinates = await geocodeWithNominatim(query);
                 if (coordinates) break;
             } catch (error) {
+                lastError = error;
                 retries++;
+                
+                // Bei HTTP 403 (Forbidden) nicht retry - das würde nur mehr Blockierungen verursachen
+                if (error.message.includes('HTTP 403')) {
+                    console.error('Geocoding HTTP 403 - keine Retries, um weitere Blockierungen zu vermeiden');
+                    break;
+                }
+                
                 if (retries <= maxRetries) {
                     console.log(`Geocoding Retry ${retries}/${maxRetries} für: ${query}`);
-                    // Warte länger bei Retry
-                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    // Warte länger bei Retry (exponentielles Backoff)
+                    await new Promise(resolve => setTimeout(resolve, 2000 * retries));
                 } else {
                     console.error(`Geocoding fehlgeschlagen nach ${maxRetries} Versuchen:`, error.message);
                 }
@@ -60,9 +69,13 @@ router.post('/geocode', async (req, res) => {
                 displayName: coordinates.display_name || query
             });
         } else {
-            res.status(404).json({
+            // Prüfe ob es ein HTTP 403 Fehler war
+            const isForbidden = lastError && lastError.message && lastError.message.includes('HTTP 403');
+            res.status(isForbidden ? 429 : 404).json({
                 success: false,
-                error: 'Adresse konnte nicht gefunden werden'
+                error: isForbidden 
+                    ? 'Nominatim API blockiert Anfrage. Bitte warten Sie einige Minuten und versuchen Sie es erneut.'
+                    : 'Adresse konnte nicht gefunden werden'
             });
         }
     } catch (error) {
@@ -122,8 +135,10 @@ function geocodeWithNominatim(query) {
         
         const options = {
             headers: {
-                'User-Agent': 'Einsatzplanung-App/1.0 (contact@example.com)', // Nominatim erfordert User-Agent
-                'Accept': 'application/json'
+                // Nominatim erfordert einen gültigen User-Agent mit Kontakt-E-Mail
+                'User-Agent': 'Einsatzplanung-App/1.0 (https://github.com/higelsenkirchen/einsatzplanung-docker)',
+                'Accept': 'application/json',
+                'Accept-Language': 'de-DE,de;q=0.9'
             }
         };
         
@@ -191,8 +206,10 @@ function reverseGeocodeWithNominatim(lat, lng) {
         
         const options = {
             headers: {
-                'User-Agent': 'Einsatzplanung-App/1.0 (contact@example.com)',
-                'Accept': 'application/json'
+                // Nominatim erfordert einen gültigen User-Agent mit Kontakt-E-Mail
+                'User-Agent': 'Einsatzplanung-App/1.0 (https://github.com/higelsenkirchen/einsatzplanung-docker)',
+                'Accept': 'application/json',
+                'Accept-Language': 'de-DE,de;q=0.9'
             }
         };
         
