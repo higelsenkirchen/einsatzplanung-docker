@@ -253,7 +253,124 @@
             padding: 24px; 
             z-index: 20; 
             box-shadow: 4px 0 24px rgba(0,0,0,0.04);
-            transition: box-shadow 0.3s ease;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .sidebar.collapsed {
+            width: 60px;
+            padding: 24px 8px;
+        }
+
+        .sidebar.collapsed .sidebar-content {
+            display: none;
+        }
+
+        .sidebar-toggle-btn {
+            position: absolute;
+            top: 20px;
+            right: -15px;
+            width: 30px;
+            height: 30px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 21;
+            box-shadow: var(--shadow-md);
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .sidebar-toggle-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: scale(1.1);
+        }
+
+        .sidebar.collapsed .sidebar-toggle-btn {
+            right: -15px;
+        }
+
+        .sidebar-toggle-btn::before {
+            content: '◀';
+            transition: transform 0.3s;
+        }
+
+        .sidebar.collapsed .sidebar-toggle-btn::before {
+            content: '▶';
+        }
+
+        @media (max-width: 768px) {
+            .sidebar-toggle-btn {
+                display: none;
+            }
+        }
+
+        /* Toolbar Groups */
+        .toolbar-group {
+            position: relative;
+            display: inline-block;
+        }
+
+        .toolbar-group-btn {
+            position: relative;
+        }
+
+        .toolbar-dropdown {
+            position: absolute;
+            top: calc(100% + 4px);
+            right: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            min-width: 180px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+            padding: 4px;
+        }
+
+        .toolbar-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .toolbar-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--text-main);
+            font-weight: 500;
+            text-align: left;
+            transition: all 0.15s ease;
+        }
+
+        .toolbar-dropdown-item:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .toolbar-dropdown-item span {
+            font-size: 1rem;
+            width: 20px;
+            text-align: center;
         }
         
         h2.brand { 
@@ -659,6 +776,160 @@
             background: var(--bg-card); 
             color: var(--primary); 
             box-shadow: var(--shadow-sm);
+        }
+
+        /* Navigation Dropdown */
+        .nav-group {
+            position: relative;
+            display: inline-block;
+        }
+
+        .nav-group-btn {
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-group-btn:hover {
+            color: var(--primary);
+            background: var(--bg-card);
+        }
+
+        .nav-group-btn.active {
+            background: var(--bg-card);
+            color: var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-group-btn::after {
+            content: '▼';
+            font-size: 0.6rem;
+            transition: transform 0.2s;
+        }
+
+        .nav-group-btn.open::after {
+            transform: rotate(180deg);
+        }
+
+        .nav-dropdown {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            min-width: 180px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+            padding: 4px;
+        }
+
+        .nav-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .nav-dropdown-item {
+            display: block;
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.8rem;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--text-main);
+            font-weight: 500;
+            text-align: left;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-dropdown-item:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .nav-dropdown-item.active {
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Filter Groups (Gesamtansicht) */
+        .filter-group-compact {
+            position: relative;
+            display: inline-block;
+        }
+
+        .filter-group-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: var(--bg-hover);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-group-toggle:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .filter-toggle-icon {
+            font-size: 0.6rem;
+            transition: transform 0.2s;
+        }
+
+        .filter-group-toggle.open .filter-toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .filter-dropdown {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-lg);
+            min-width: 300px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .filter-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
         }
 
 
@@ -1812,7 +2083,9 @@
         <div class="context-menu-item danger" onclick="contextMenuDelete()">🗑️ Löschen</div>
     </div>
 
-    <aside class="sidebar">
+    <aside class="sidebar" id="mainSidebar">
+        <button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Sidebar ein-/ausblenden" id="sidebarToggle"></button>
+        <div class="sidebar-content">
         <h2 class="brand">⚡ PflegePlaner</h2>
         
         <!-- Kundenpool - immer sichtbar -->
@@ -1884,6 +2157,7 @@
         <div style="margin-top:auto; padding:10px 0; text-align:center; font-size:0.6rem; color:var(--text-light); border-top:1px solid var(--border);">
             <div style="font-weight:600;">Tourenplanung v2.2.0</div>
         </div>
+        </div>
     </aside>
 
     <main class="main-content" id="mainArea">
@@ -1896,11 +2170,32 @@
                     <button class="btn btn-primary icon-btn" onclick="openVariantModal()" title="Neue Variante" style="width:32px; height:32px; padding:0; font-size:0.9rem;">+</button>
                 </div>
                 <div class="view-switcher">
-                    <button class="view-btn active" id="btnViewWeek" onclick="switchView('week')">📅 Woche</button>
-                    <button class="view-btn" id="btnViewCompare" onclick="switchView('compare')">🔀 Vergleich</button>
-                    <button class="view-btn" id="btnViewOverall" onclick="switchView('overall')">🌐 Gesamt</button>
-                    <button class="view-btn" id="btnViewDashboard" onclick="switchView('dashboard')">📊 Übersicht</button>
-                    <button class="view-btn" id="btnViewAdmin" onclick="switchView('admin')">⚙️ Verwaltung</button>
+                    <!-- Planung -->
+                    <div class="nav-group">
+                        <button class="nav-group-btn" id="navGroupPlanning" onclick="toggleNavGroup('planning')">
+                            📅 Planung
+                        </button>
+                        <div class="nav-dropdown" id="navDropdownPlanning">
+                            <button class="nav-dropdown-item active" id="btnViewWeek" onclick="switchView('week'); closeNavGroups();">📅 Woche</button>
+                            <button class="nav-dropdown-item" id="btnViewOverall" onclick="switchView('overall'); closeNavGroups();">🌐 Gesamt</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Analyse -->
+                    <div class="nav-group">
+                        <button class="nav-group-btn" id="navGroupAnalysis" onclick="toggleNavGroup('analysis')">
+                            📊 Analyse
+                        </button>
+                        <div class="nav-dropdown" id="navDropdownAnalysis">
+                            <button class="nav-dropdown-item" id="btnViewCompare" onclick="switchView('compare'); closeNavGroups();">🔀 Vergleich</button>
+                            <button class="nav-dropdown-item" id="btnViewDashboard" onclick="switchView('dashboard'); closeNavGroups();">📈 Übersicht</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Verwaltung -->
+                    <div class="nav-group">
+                        <button class="nav-group-btn" id="btnViewAdmin" onclick="switchView('admin')">⚙️ Verwaltung</button>
+                    </div>
                 </div>
             </div>
 
@@ -1933,103 +2228,136 @@
                 </select>
             </div>
 
-            <div id="overallControls" style="display:none; background:var(--bg-card); padding:16px; border-radius:var(--radius-lg); border:1px solid var(--border); margin-bottom:16px;">
-                <div style="display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start;">
-                    <!-- Tage Filter -->
-                    <div style="flex:1; min-width:280px;">
-                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-                            <label style="font-size:0.9rem; font-weight:700; color:var(--text-main); display:flex; align-items:center; gap:6px;">
-                                <span>📅</span> Wochentage
-                            </label>
-                            <div style="display:flex; gap:6px;">
-                                <button class="btn btn-sm btn-secondary" onclick="selectAllDays()" style="padding:4px 10px; font-size:0.7rem;">Alle</button>
-                                <button class="btn btn-sm btn-secondary" onclick="deselectAllDays()" style="padding:4px 10px; font-size:0.7rem;">Keine</button>
+            <div id="overallControls" style="display:none; background:var(--bg-card); padding:12px; border-radius:var(--radius-md); border:1px solid var(--border); margin-bottom:12px;">
+                <!-- Kompakte horizontale Filter-Leiste -->
+                <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                    <!-- Tage Filter - Kompakt -->
+                    <div class="filter-group-compact">
+                        <button class="filter-group-toggle" onclick="toggleFilterGroup('days')" id="filterToggleDays">
+                            <span>📅</span>
+                            <span id="filterDaysLabel">Alle Tage</span>
+                            <span class="filter-toggle-icon">▼</span>
+                        </button>
+                        <div class="filter-dropdown" id="filterDropdownDays">
+                            <div style="display:flex; gap:4px; flex-wrap:wrap; padding:8px;">
+                                <label class="day-checkbox-compact" style="display:inline-flex; align-items:center; gap:6px; padding:6px 10px; background:var(--bg-hover); border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; transition:all 0.2s; font-size:0.75rem; font-weight:500; user-select:none;" 
+                                       onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
+                                       onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
+                                    <input type="checkbox" value="0" checked onchange="updateOverallDayFilter()" style="width:16px; height:16px; margin:0; cursor:pointer; accent-color:var(--primary);">
+                                    <span>Mo</span>
+                                </label>
+                                <label class="day-checkbox-compact" style="display:inline-flex; align-items:center; gap:6px; padding:6px 10px; background:var(--bg-hover); border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; transition:all 0.2s; font-size:0.75rem; font-weight:500; user-select:none;" 
+                                       onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
+                                       onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
+                                    <input type="checkbox" value="1" checked onchange="updateOverallDayFilter()" style="width:16px; height:16px; margin:0; cursor:pointer; accent-color:var(--primary);">
+                                    <span>Di</span>
+                                </label>
+                                <label class="day-checkbox-compact" style="display:inline-flex; align-items:center; gap:6px; padding:6px 10px; background:var(--bg-hover); border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; transition:all 0.2s; font-size:0.75rem; font-weight:500; user-select:none;" 
+                                       onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
+                                       onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
+                                    <input type="checkbox" value="2" checked onchange="updateOverallDayFilter()" style="width:16px; height:16px; margin:0; cursor:pointer; accent-color:var(--primary);">
+                                    <span>Mi</span>
+                                </label>
+                                <label class="day-checkbox-compact" style="display:inline-flex; align-items:center; gap:6px; padding:6px 10px; background:var(--bg-hover); border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; transition:all 0.2s; font-size:0.75rem; font-weight:500; user-select:none;" 
+                                       onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
+                                       onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
+                                    <input type="checkbox" value="3" checked onchange="updateOverallDayFilter()" style="width:16px; height:16px; margin:0; cursor:pointer; accent-color:var(--primary);">
+                                    <span>Do</span>
+                                </label>
+                                <label class="day-checkbox-compact" style="display:inline-flex; align-items:center; gap:6px; padding:6px 10px; background:var(--bg-hover); border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; transition:all 0.2s; font-size:0.75rem; font-weight:500; user-select:none;" 
+                                       onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
+                                       onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
+                                    <input type="checkbox" value="4" checked onchange="updateOverallDayFilter()" style="width:16px; height:16px; margin:0; cursor:pointer; accent-color:var(--primary);">
+                                    <span>Fr</span>
+                                </label>
+                                <label class="day-checkbox-compact" style="display:inline-flex; align-items:center; gap:6px; padding:6px 10px; background:var(--bg-hover); border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; transition:all 0.2s; font-size:0.75rem; font-weight:500; user-select:none;" 
+                                       onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
+                                       onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
+                                    <input type="checkbox" value="5" checked onchange="updateOverallDayFilter()" style="width:16px; height:16px; margin:0; cursor:pointer; accent-color:var(--primary);">
+                                    <span>Sa</span>
+                                </label>
+                                <label class="day-checkbox-compact" style="display:inline-flex; align-items:center; gap:6px; padding:6px 10px; background:var(--bg-hover); border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; transition:all 0.2s; font-size:0.75rem; font-weight:500; user-select:none;" 
+                                       onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
+                                       onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
+                                    <input type="checkbox" value="6" checked onchange="updateOverallDayFilter()" style="width:16px; height:16px; margin:0; cursor:pointer; accent-color:var(--primary);">
+                                    <span>So</span>
+                                </label>
+                                <div style="display:flex; gap:4px; margin-top:4px; width:100%;">
+                                    <button class="btn btn-sm btn-secondary" onclick="selectAllDays(); event.stopPropagation();" style="padding:4px 8px; font-size:0.7rem; flex:1;">Alle</button>
+                                    <button class="btn btn-sm btn-secondary" onclick="deselectAllDays(); event.stopPropagation();" style="padding:4px 8px; font-size:0.7rem; flex:1;">Keine</button>
+                                </div>
                             </div>
-                        </div>
-                        <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                            <label class="day-checkbox-label" style="display:inline-flex; align-items:center; gap:8px; padding:8px 14px; background:var(--bg-hover); border:2px solid var(--border); border-radius:var(--radius-md); cursor:pointer; transition:all 0.2s; font-size:0.85rem; font-weight:500; user-select:none;" 
-                                   onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
-                                   onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
-                                <input type="checkbox" value="0" checked onchange="updateOverallDayFilter()" style="width:18px; height:18px; margin:0; cursor:pointer; accent-color:var(--primary);">
-                                <span>Mo</span>
-                            </label>
-                            <label class="day-checkbox-label" style="display:inline-flex; align-items:center; gap:8px; padding:8px 14px; background:var(--bg-hover); border:2px solid var(--border); border-radius:var(--radius-md); cursor:pointer; transition:all 0.2s; font-size:0.85rem; font-weight:500; user-select:none;" 
-                                   onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
-                                   onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
-                                <input type="checkbox" value="1" checked onchange="updateOverallDayFilter()" style="width:18px; height:18px; margin:0; cursor:pointer; accent-color:var(--primary);">
-                                <span>Di</span>
-                            </label>
-                            <label class="day-checkbox-label" style="display:inline-flex; align-items:center; gap:8px; padding:8px 14px; background:var(--bg-hover); border:2px solid var(--border); border-radius:var(--radius-md); cursor:pointer; transition:all 0.2s; font-size:0.85rem; font-weight:500; user-select:none;" 
-                                   onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
-                                   onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
-                                <input type="checkbox" value="2" checked onchange="updateOverallDayFilter()" style="width:18px; height:18px; margin:0; cursor:pointer; accent-color:var(--primary);">
-                                <span>Mi</span>
-                            </label>
-                            <label class="day-checkbox-label" style="display:inline-flex; align-items:center; gap:8px; padding:8px 14px; background:var(--bg-hover); border:2px solid var(--border); border-radius:var(--radius-md); cursor:pointer; transition:all 0.2s; font-size:0.85rem; font-weight:500; user-select:none;" 
-                                   onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
-                                   onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
-                                <input type="checkbox" value="3" checked onchange="updateOverallDayFilter()" style="width:18px; height:18px; margin:0; cursor:pointer; accent-color:var(--primary);">
-                                <span>Do</span>
-                            </label>
-                            <label class="day-checkbox-label" style="display:inline-flex; align-items:center; gap:8px; padding:8px 14px; background:var(--bg-hover); border:2px solid var(--border); border-radius:var(--radius-md); cursor:pointer; transition:all 0.2s; font-size:0.85rem; font-weight:500; user-select:none;" 
-                                   onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
-                                   onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
-                                <input type="checkbox" value="4" checked onchange="updateOverallDayFilter()" style="width:18px; height:18px; margin:0; cursor:pointer; accent-color:var(--primary);">
-                                <span>Fr</span>
-                            </label>
-                            <label class="day-checkbox-label" style="display:inline-flex; align-items:center; gap:8px; padding:8px 14px; background:var(--bg-hover); border:2px solid var(--border); border-radius:var(--radius-md); cursor:pointer; transition:all 0.2s; font-size:0.85rem; font-weight:500; user-select:none;" 
-                                   onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
-                                   onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
-                                <input type="checkbox" value="5" checked onchange="updateOverallDayFilter()" style="width:18px; height:18px; margin:0; cursor:pointer; accent-color:var(--primary);">
-                                <span>Sa</span>
-                            </label>
-                            <label class="day-checkbox-label" style="display:inline-flex; align-items:center; gap:8px; padding:8px 14px; background:var(--bg-hover); border:2px solid var(--border); border-radius:var(--radius-md); cursor:pointer; transition:all 0.2s; font-size:0.85rem; font-weight:500; user-select:none;" 
-                                   onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
-                                   onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
-                                <input type="checkbox" value="6" checked onchange="updateOverallDayFilter()" style="width:18px; height:18px; margin:0; cursor:pointer; accent-color:var(--primary);">
-                                <span>So</span>
-                            </label>
                         </div>
                     </div>
                     
-                    <!-- Touren Filter -->
-                    <div style="flex:1; min-width:280px;">
-                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
-                            <label style="font-size:0.9rem; font-weight:700; color:var(--text-main); display:flex; align-items:center; gap:6px;">
-                                <span>🚐</span> Touren
-                            </label>
-                            <div style="display:flex; gap:6px;">
-                                <button class="btn btn-sm btn-secondary" onclick="selectAllTours()" style="padding:4px 10px; font-size:0.7rem;">Alle</button>
-                                <button class="btn btn-sm btn-secondary" onclick="deselectAllTours()" style="padding:4px 10px; font-size:0.7rem;">Keine</button>
+                    <!-- Touren Filter - Kompakt -->
+                    <div class="filter-group-compact">
+                        <button class="filter-group-toggle" onclick="toggleFilterGroup('tours')" id="filterToggleTours">
+                            <span>🚐</span>
+                            <span id="filterToursLabel">Alle Touren</span>
+                            <span class="filter-toggle-icon">▼</span>
+                        </button>
+                        <div class="filter-dropdown" id="filterDropdownTours">
+                            <div style="padding:8px;">
+                                <div id="overallTourFilterContainer" style="display:flex; gap:4px; flex-wrap:wrap;">
+                                    <!-- Wird dynamisch gefüllt -->
+                                </div>
+                                <div style="display:flex; gap:4px; margin-top:8px;">
+                                    <button class="btn btn-sm btn-secondary" onclick="selectAllTours(); event.stopPropagation();" style="padding:4px 8px; font-size:0.7rem; flex:1;">Alle</button>
+                                    <button class="btn btn-sm btn-secondary" onclick="deselectAllTours(); event.stopPropagation();" style="padding:4px 8px; font-size:0.7rem; flex:1;">Keine</button>
+                                </div>
                             </div>
                         </div>
-                        <div id="overallTourFilterContainer" style="display:flex; gap:6px; flex-wrap:wrap;">
-                            <!-- Wird dynamisch gefüllt -->
-                        </div>
                     </div>
-                </div>
-                
-                <!-- Konflikt-Info -->
-                <div id="overallConflictInfo" style="margin-top:16px; padding:12px; background:rgba(239, 68, 68, 0.1); border:1px solid var(--danger); border-radius:var(--radius-md); display:none;">
-                    <div style="display:flex; align-items:center; gap:8px; color:var(--danger); font-weight:600; font-size:0.85rem;">
-                        <span>⚠️</span>
-                        <span id="overallConflictCount">0</span> Überschneidungen gefunden
+                    
+                    <!-- Konflikt-Info - Kompakt -->
+                    <div id="overallConflictInfo" style="display:none; padding:6px 12px; background:rgba(239, 68, 68, 0.1); border:1px solid var(--danger); border-radius:var(--radius-sm);">
+                        <span style="color:var(--danger); font-weight:600; font-size:0.75rem;">
+                            ⚠️ <span id="overallConflictCount">0</span>
+                        </span>
                     </div>
                 </div>
             </div>
 
             <div style="flex-grow:1;"></div>
 
-            <div style="display:flex; gap:8px; align-items:center;">
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                <!-- Zoom Controls -->
                 <div class="view-switcher" style="margin-right:8px;">
                     <button class="view-btn" id="btnZoom15" onclick="setZoom(15)" title="15-Minuten-Raster">15m</button>
                     <button class="view-btn" id="btnZoom5" onclick="setZoom(5)" title="5-Minuten-Raster">5m</button>
-            </div>
-                <button class="btn btn-secondary icon-btn" onclick="undo()" title="Rückgängig (Strg+Z)" style="width:36px; height:36px; padding:0;">↶</button>
-                <button class="btn btn-secondary icon-btn" onclick="openOptimizationModal()" title="Touren optimieren" style="width:36px; height:36px; padding:0;">⚡</button>
-                <button class="btn btn-secondary icon-btn" onclick="exportToPDF()" title="PDF Export" style="width:36px; height:36px; padding:0;">📄</button>
-                <button class="btn btn-secondary icon-btn" onclick="printView()" title="Drucken" style="width:36px; height:36px; padding:0;">🖨</button>
-                <button class="btn btn-secondary icon-btn" onclick="exportCSV()" title="CSV Export" style="width:36px; height:36px; padding:0;">📥</button>
+                </div>
+                
+                <!-- Aktionen Gruppe -->
+                <div class="toolbar-group">
+                    <button class="btn btn-secondary icon-btn toolbar-group-btn" onclick="toggleToolbarGroup('actions')" title="Aktionen" style="width:36px; height:36px; padding:0;">⚙️</button>
+                    <div class="toolbar-dropdown" id="toolbarDropdownActions">
+                        <button class="toolbar-dropdown-item" onclick="undo(); closeToolbarGroups();" title="Rückgängig (Strg+Z)">
+                            <span>↶</span> Rückgängig
+                        </button>
+                        <button class="toolbar-dropdown-item" onclick="openOptimizationModal(); closeToolbarGroups();" title="Touren optimieren">
+                            <span>⚡</span> Optimieren
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Export Gruppe -->
+                <div class="toolbar-group">
+                    <button class="btn btn-secondary icon-btn toolbar-group-btn" onclick="toggleToolbarGroup('export')" title="Export" style="width:36px; height:36px; padding:0;">📥</button>
+                    <div class="toolbar-dropdown" id="toolbarDropdownExport">
+                        <button class="toolbar-dropdown-item" onclick="exportToPDF(); closeToolbarGroups();" title="PDF Export">
+                            <span>📄</span> PDF Export
+                        </button>
+                        <button class="toolbar-dropdown-item" onclick="exportCSV(); closeToolbarGroups();" title="CSV Export">
+                            <span>📊</span> CSV Export
+                        </button>
+                        <button class="toolbar-dropdown-item" onclick="printView(); closeToolbarGroups();" title="Drucken">
+                            <span>🖨</span> Drucken
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Hilfe -->
                 <button class="btn btn-secondary icon-btn" onclick="openModal('keyboardHelpModal')" title="Hilfe (F1)" style="width:36px; height:36px; padding:0;">❓</button>
             </div>
         </div>
@@ -3187,12 +3515,50 @@ Weber, Peter;Erle;social</code>
         }
 
         // Mobile Menu Toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('mainSidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('collapsed');
+                // Speichere Zustand in localStorage
+                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+            }
+        }
+
         function toggleMobileMenu() {
             const sidebar = document.querySelector('.sidebar');
             if (sidebar) {
                 sidebar.classList.toggle('open');
             }
         }
+
+        // Toolbar Groups
+        function toggleToolbarGroup(group) {
+            closeToolbarGroups();
+            const dropdown = document.getElementById(`toolbarDropdown${group.charAt(0).toUpperCase() + group.slice(1)}`);
+            if (dropdown) {
+                dropdown.classList.add('show');
+            }
+        }
+
+        function closeToolbarGroups() {
+            document.querySelectorAll('.toolbar-dropdown').forEach(dropdown => dropdown.classList.remove('show'));
+        }
+
+        // Close toolbar dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.toolbar-group')) {
+                closeToolbarGroups();
+            }
+        });
+
+        // Sidebar-Zustand beim Laden wiederherstellen
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.getElementById('mainSidebar');
+            const savedState = localStorage.getItem('sidebarCollapsed');
+            if (sidebar && savedState === 'true' && window.innerWidth > 768) {
+                sidebar.classList.add('collapsed');
+            }
+        });
         
         // Mobile Menu Button hinzufügen
         function addMobileMenuButton() {
@@ -4070,18 +4436,71 @@ Weber, Peter;Erle;social</code>
             }, 10);
         }
 
+        // --- NAVIGATION DROPDOWN ---
+        function toggleNavGroup(group) {
+            closeNavGroups();
+            const btn = document.getElementById(`navGroup${group.charAt(0).toUpperCase() + group.slice(1)}`);
+            const dropdown = document.getElementById(`navDropdown${group.charAt(0).toUpperCase() + group.slice(1)}`);
+            if (btn && dropdown) {
+                btn.classList.add('open');
+                dropdown.classList.add('show');
+            }
+        }
+
+        function closeNavGroups() {
+            document.querySelectorAll('.nav-group-btn').forEach(btn => btn.classList.remove('open'));
+            document.querySelectorAll('.nav-dropdown').forEach(dropdown => dropdown.classList.remove('show'));
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.nav-group')) {
+                closeNavGroups();
+            }
+        });
+
         // --- VIEW SWITCHING ---
         function switchView(view) {
             currentView = view;
-            document.querySelectorAll('.view-btn').forEach(b => {
-                if(!b.id.startsWith('btnZoom')) b.classList.remove('active');
+            
+            // Remove active from all navigation items
+            document.querySelectorAll('.nav-dropdown-item').forEach(item => item.classList.remove('active'));
+            document.querySelectorAll('.nav-group-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.remove('open');
             });
+            
+            // Set active state
             let btnId = 'btnViewWeek';
-            if(view === 'compare') btnId = 'btnViewCompare';
-            else if(view === 'overall') btnId = 'btnViewOverall';
-            else if(view === 'admin') btnId = 'btnViewAdmin';
-            else if(view === 'dashboard') btnId = 'btnViewDashboard';
-            document.getElementById(btnId)?.classList.add('active');
+            let groupBtnId = null;
+            if(view === 'compare') {
+                btnId = 'btnViewCompare';
+                groupBtnId = 'navGroupAnalysis';
+            } else if(view === 'overall') {
+                btnId = 'btnViewOverall';
+                groupBtnId = 'navGroupPlanning';
+            } else if(view === 'admin') {
+                btnId = 'btnViewAdmin';
+                groupBtnId = 'btnViewAdmin';
+            } else if(view === 'dashboard') {
+                btnId = 'btnViewDashboard';
+                groupBtnId = 'navGroupAnalysis';
+            } else if(view === 'week') {
+                btnId = 'btnViewWeek';
+                groupBtnId = 'navGroupPlanning';
+            }
+            
+            const item = document.getElementById(btnId);
+            if (item) {
+                item.classList.add('active');
+            }
+            
+            if (groupBtnId) {
+                const groupBtn = document.getElementById(groupBtnId);
+                if (groupBtn) {
+                    groupBtn.classList.add('active');
+                }
+            }
             
             document.getElementById('weekControls').style.display = view === 'week' ? 'flex' : 'none';
             document.getElementById('compareControls').style.display = view === 'compare' ? 'flex' : 'none';
@@ -7259,11 +7678,36 @@ Weber, Peter;Erle;social</code>
         }
 
         // Filter-Funktionen für Gesamtansicht
+        function toggleFilterGroup(group) {
+            const toggle = document.getElementById(`filterToggle${group.charAt(0).toUpperCase() + group.slice(1)}`);
+            const dropdown = document.getElementById(`filterDropdown${group.charAt(0).toUpperCase() + group.slice(1)}`);
+            if (toggle && dropdown) {
+                const isOpen = toggle.classList.contains('open');
+                closeFilterGroups();
+                if (!isOpen) {
+                    toggle.classList.add('open');
+                    dropdown.classList.add('show');
+                }
+            }
+        }
+
+        function closeFilterGroups() {
+            document.querySelectorAll('.filter-group-toggle').forEach(btn => btn.classList.remove('open'));
+            document.querySelectorAll('.filter-dropdown').forEach(dropdown => dropdown.classList.remove('show'));
+        }
+
+        // Close filter dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.filter-group-compact')) {
+                closeFilterGroups();
+            }
+        });
+
         function updateOverallDayFilter() {
-            const checkboxes = document.querySelectorAll('#overallControls .day-checkbox-label input[type="checkbox"]');
+            const checkboxes = document.querySelectorAll('#overallControls .day-checkbox-compact input[type="checkbox"]');
             overallDayFilter = [];
             checkboxes.forEach(cb => {
-                const label = cb.closest('.day-checkbox-label');
+                const label = cb.closest('.day-checkbox-compact');
                 if(cb.checked) {
                     overallDayFilter.push(parseInt(cb.value));
                     if(label) {
@@ -7279,12 +7723,13 @@ Weber, Peter;Erle;social</code>
                     }
                 }
             });
+            
             // Mindestens ein Tag muss ausgewählt sein
             if(overallDayFilter.length === 0) {
                 overallDayFilter = [0, 1, 2, 3, 4, 5, 6];
                 checkboxes.forEach(cb => {
                     cb.checked = true;
-                    const label = cb.closest('.day-checkbox-label');
+                    const label = cb.closest('.day-checkbox-compact');
                     if(label) {
                         label.style.borderColor = 'var(--primary)';
                         label.style.background = 'var(--primary-light)';
@@ -7292,14 +7737,18 @@ Weber, Peter;Erle;social</code>
                     }
                 });
             }
+            
+            // Update label
+            updateDayFilterLabel();
+            
             refreshView();
         }
         
         function selectAllDays() {
-            const checkboxes = document.querySelectorAll('#overallControls .day-checkbox-label input[type="checkbox"]');
+            const checkboxes = document.querySelectorAll('#overallControls .day-checkbox-compact input[type="checkbox"]');
             checkboxes.forEach(cb => {
                 cb.checked = true;
-                const label = cb.closest('.day-checkbox-label');
+                const label = cb.closest('.day-checkbox-compact');
                 if(label) {
                     label.style.borderColor = 'var(--primary)';
                     label.style.background = 'var(--primary-light)';
@@ -7310,10 +7759,10 @@ Weber, Peter;Erle;social</code>
         }
         
         function deselectAllDays() {
-            const checkboxes = document.querySelectorAll('#overallControls .day-checkbox-label input[type="checkbox"]');
+            const checkboxes = document.querySelectorAll('#overallControls .day-checkbox-compact input[type="checkbox"]');
             checkboxes.forEach(cb => {
                 cb.checked = false;
-                const label = cb.closest('.day-checkbox-label');
+                const label = cb.closest('.day-checkbox-compact');
                 if(label) {
                     label.style.borderColor = 'var(--border)';
                     label.style.background = 'var(--bg-hover)';
@@ -7355,7 +7804,8 @@ Weber, Peter;Erle;social</code>
                     white-space:nowrap;
                 `;
                 button.textContent = tour.name;
-                button.onclick = () => {
+                button.onclick = (e) => {
+                    e.stopPropagation();
                     if(overallTourFilter.includes(tour.id)) {
                         overallTourFilter = overallTourFilter.filter(id => id !== tour.id);
                         button.style.borderColor = 'var(--border)';
@@ -7379,6 +7829,7 @@ Weber, Peter;Erle;social</code>
                             }
                         });
                     }
+                    updateTourFilterLabel();
                     refreshView();
                 };
                 button.onmouseover = function() {
@@ -7395,6 +7846,7 @@ Weber, Peter;Erle;social</code>
                 };
                 container.appendChild(button);
             });
+            updateTourFilterLabel();
         }
 
         function updateOverallTourFilter() {
@@ -7402,6 +7854,31 @@ Weber, Peter;Erle;social</code>
             refreshView();
         }
         
+        function updateDayFilterLabel() {
+            const dayNamesShort = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+            const selectedDaysStr = overallDayFilter.map(i => dayNamesShort[i]).join(', ');
+            const labelEl = document.getElementById('filterDaysLabel');
+            if (labelEl) {
+                labelEl.textContent = overallDayFilter.length === 7 ? 'Alle Tage' : selectedDaysStr;
+            }
+        }
+
+        function updateTourFilterLabel() {
+            const labelEl = document.getElementById('filterToursLabel');
+            if (!labelEl || !appData.tours) return;
+            
+            if (overallTourFilter.length === 0 || overallTourFilter.length === appData.tours.length) {
+                labelEl.textContent = 'Alle Touren';
+            } else {
+                const selectedTours = appData.tours.filter(t => overallTourFilter.includes(t.id));
+                if (selectedTours.length === 1) {
+                    labelEl.textContent = selectedTours[0].name;
+                } else {
+                    labelEl.textContent = `${selectedTours.length} Touren`;
+                }
+            }
+        }
+
         function selectAllTours() {
             if(!appData.tours || appData.tours.length === 0) return;
             overallTourFilter = appData.tours.map(t => t.id);
@@ -7413,6 +7890,7 @@ Weber, Peter;Erle;social</code>
                     btn.style.color = 'var(--primary)';
                 });
             }
+            updateTourFilterLabel();
             refreshView();
         }
         
@@ -7430,6 +7908,8 @@ Weber, Peter;Erle;social</code>
             setTimeout(() => {
                 if(overallTourFilter.length === 0) {
                     selectAllTours();
+                } else {
+                    updateTourFilterLabel();
                 }
             }, 10);
         }
