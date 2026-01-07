@@ -144,8 +144,28 @@ function geocodeWithNominatim(query) {
         
         https.get(url, options, (res) => {
             // Prüfe Status-Code
+            if (res.statusCode === 403) {
+                let errorData = '';
+                res.on('data', (chunk) => {
+                    errorData += chunk.toString();
+                });
+                res.on('end', () => {
+                    console.error('Nominatim API HTTP 403 (Forbidden):', errorData.substring(0, 500));
+                    reject(new Error('Nominatim API blockiert Anfrage (HTTP 403). Mögliche Ursachen: Rate-Limiting überschritten oder User-Agent nicht akzeptiert.'));
+                });
+                return;
+            }
+            
             if (res.statusCode !== 200) {
-                return reject(new Error(`Nominatim API Fehler: HTTP ${res.statusCode}`));
+                let errorData = '';
+                res.on('data', (chunk) => {
+                    errorData += chunk.toString();
+                });
+                res.on('end', () => {
+                    console.error(`Nominatim API HTTP ${res.statusCode}:`, errorData.substring(0, 500));
+                    reject(new Error(`Nominatim API Fehler: HTTP ${res.statusCode}`));
+                });
+                return;
             }
             
             // Prüfe Content-Type
@@ -215,8 +235,28 @@ function reverseGeocodeWithNominatim(lat, lng) {
         
         https.get(url, options, (res) => {
             // Prüfe Status-Code
+            if (res.statusCode === 403) {
+                let errorData = '';
+                res.on('data', (chunk) => {
+                    errorData += chunk.toString();
+                });
+                res.on('end', () => {
+                    console.error('Nominatim API HTTP 403 (Forbidden):', errorData.substring(0, 500));
+                    reject(new Error('Nominatim API blockiert Anfrage (HTTP 403). Mögliche Ursachen: Rate-Limiting überschritten oder User-Agent nicht akzeptiert.'));
+                });
+                return;
+            }
+            
             if (res.statusCode !== 200) {
-                return reject(new Error(`Nominatim API Fehler: HTTP ${res.statusCode}`));
+                let errorData = '';
+                res.on('data', (chunk) => {
+                    errorData += chunk.toString();
+                });
+                res.on('end', () => {
+                    console.error(`Nominatim API HTTP ${res.statusCode}:`, errorData.substring(0, 500));
+                    reject(new Error(`Nominatim API Fehler: HTTP ${res.statusCode}`));
+                });
+                return;
             }
             
             // Prüfe Content-Type
