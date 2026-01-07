@@ -159,14 +159,17 @@ router.post('/variants/:id/duplicate', async (req, res) => {
         }));
 
         // Employees laden
-        const employeesResult = await client.query('SELECT id, name, weekly_hours, wage_group, transport, home_zone FROM employees WHERE variant_id = $1', [sourceVariantId]);
+        const employeesResult = await client.query('SELECT id, name, weekly_hours, wage_group, transport, home_zone, address, postal_code, extended_props FROM employees WHERE variant_id = $1', [sourceVariantId]);
         const employees = employeesResult.rows.map(row => ({
             id: row.id,
             name: row.name,
             weeklyHours: row.weekly_hours,
             wageGroup: row.wage_group,
             transport: row.transport,
-            homeZone: row.home_zone
+            homeZone: row.home_zone,
+            address: row.address || null,
+            postalCode: row.postal_code || null,
+            extendedProps: row.extended_props || {}
         }));
 
         // Tours laden
@@ -319,14 +322,17 @@ router.get('/data', async (req, res) => {
         }));
 
         // Employees laden
-        const employeesResult = await pool.query('SELECT id, name, weekly_hours, wage_group, transport, home_zone FROM employees WHERE variant_id = $1', [variantId]);
+        const employeesResult = await pool.query('SELECT id, name, weekly_hours, wage_group, transport, home_zone, address, postal_code, extended_props FROM employees WHERE variant_id = $1', [variantId]);
         const employees = employeesResult.rows.map(row => ({
             id: row.id,
             name: row.name,
             weeklyHours: row.weekly_hours,
             wageGroup: row.wage_group,
             transport: row.transport,
-            homeZone: row.home_zone
+            homeZone: row.home_zone,
+            address: row.address || null,
+            postalCode: row.postal_code || null,
+            extendedProps: row.extended_props || {}
         }));
 
         // Tours laden
@@ -438,8 +444,8 @@ router.put('/data', async (req, res) => {
         if (employees && Array.isArray(employees)) {
             for (const employee of employees) {
                 await client.query(
-                    'INSERT INTO employees (id, variant_id, name, weekly_hours, wage_group, transport, home_zone) VALUES ($1, $2, $3, $4, $5, $6, $7)',
-                    [employee.id, variantId, employee.name, employee.weeklyHours || null, employee.wageGroup || null, employee.transport || null, employee.homeZone || null]
+                    'INSERT INTO employees (id, variant_id, name, weekly_hours, wage_group, transport, home_zone, address, postal_code, extended_props) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
+                    [employee.id, variantId, employee.name, employee.weeklyHours || null, employee.wageGroup || null, employee.transport || null, employee.homeZone || null, employee.address || null, employee.postalCode || null, JSON.stringify(employee.extendedProps || {})]
                 );
             }
         }
@@ -504,7 +510,7 @@ router.get('/backup', async (req, res) => {
         // Lade alle Daten für diese Variante
         const eventsResult = await pool.query('SELECT id, title, start, "end", day_index, extended_props FROM events WHERE variant_id = $1', [variantId]);
         const poolResult = await pool.query('SELECT id, title, zone, address, postal_code, types, extended_props FROM pool WHERE variant_id = $1', [variantId]);
-        const employeesResult = await pool.query('SELECT id, name, weekly_hours, wage_group, transport, home_zone FROM employees WHERE variant_id = $1', [variantId]);
+        const employeesResult = await pool.query('SELECT id, name, weekly_hours, wage_group, transport, home_zone, address, postal_code, extended_props FROM employees WHERE variant_id = $1', [variantId]);
         const toursResult = await pool.query('SELECT id, name, employee_id, weekly_hours_limit, preferred_types FROM tours WHERE variant_id = $1', [variantId]);
         const wageSettingsResult = await pool.query('SELECT settings FROM wage_settings WHERE variant_id = $1 ORDER BY id DESC LIMIT 1', [variantId]);
         const favoritesResult = await pool.query('SELECT favorites FROM favorites WHERE variant_id = $1 ORDER BY id DESC LIMIT 1', [variantId]);
@@ -533,7 +539,10 @@ router.get('/backup', async (req, res) => {
                 weeklyHours: row.weekly_hours,
                 wageGroup: row.wage_group,
                 transport: row.transport,
-                homeZone: row.home_zone
+                homeZone: row.home_zone,
+                address: row.address || null,
+                postalCode: row.postal_code || null,
+                extendedProps: row.extended_props || {}
             })),
             tours: toursResult.rows.map(row => ({
                 id: row.id,

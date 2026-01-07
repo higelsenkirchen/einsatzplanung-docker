@@ -222,7 +222,7 @@ router.post('/tours', async (req, res) => {
         );
         
         const employeesResult = await pool.query(
-            'SELECT id, name, home_zone, transport, wage_group FROM employees WHERE variant_id = $1',
+            'SELECT id, name, home_zone, transport, wage_group, address, postal_code, extended_props FROM employees WHERE variant_id = $1',
             [variantId]
         );
         
@@ -252,7 +252,16 @@ router.post('/tours', async (req, res) => {
             weekly_hours_limit: row.weekly_hours_limit,
             preferred_types: row.preferred_types || null
         }));
-        const employees = employeesResult.rows;
+        const employees = employeesResult.rows.map(row => ({
+            id: row.id,
+            name: row.name,
+            home_zone: row.home_zone,
+            transport: row.transport,
+            wage_group: row.wage_group,
+            address: row.address || null,
+            postal_code: row.postal_code || null,
+            extended_props: row.extended_props || {}
+        }));
         const poolData = poolResult.rows;
         const wageSettings = wageSettingsResult.rows.length > 0 ? wageSettingsResult.rows[0].settings : null;
 
@@ -592,11 +601,29 @@ function adjustEventTimings(events, poolData, employee) {
     let lastEventEnd = parseTimeToMinutes(sortedEvents[0].end);
     let lastPoolId = sortedEvents[0].extendedProps?.poolId;
     
-    // Für das erste Event: Prüfe ob es von Home-Zone kommt
-    if (employee?.home_zone && sortedEvents[0].extendedProps?.poolId) {
+    // Für das erste Event: Prüfe ob es von Home-Zone/Koordinaten kommt
+    if (sortedEvents[0].extendedProps?.poolId) {
         const firstPool = poolData.find(p => p.id === sortedEvents[0].extendedProps?.poolId);
-        if (firstPool?.zone) {
-            const homeTravelTime = calculateTravelTime(null, sortedEvents[0].extendedProps?.poolId, poolData, employee.home_zone, firstPool.zone);
+        let homeTravelTime = 0;
+        
+        // Versuche zuerst Koordinaten zu verwenden
+        if (employee?.extended_props?.coordinates && firstPool?.extended_props?.coordinates) {
+            const empCoords = employee.extended_props.coordinates;
+            const poolCoords = firstPool.extended_props.coordinates;
+            if (empCoords.lat && empCoords.lng && poolCoords.lat && poolCoords.lng) {
+                const distKm = haversineDistance(empCoords.lat, empCoords.lng, poolCoords.lat, poolCoords.lng);
+                const distKmWithFactor = distKm * 1.4; // Straßenfaktor
+                const avgSpeedKmH = 25;
+                homeTravelTime = Math.max(5, Math.round((distKmWithFactor / avgSpeedKmH) * 60));
+            }
+        }
+        
+        // Fallback: Zone-basierte Berechnung
+        if (homeTravelTime === 0 && employee?.home_zone && firstPool?.zone) {
+            homeTravelTime = calculateTravelTime(null, sortedEvents[0].extendedProps?.poolId, poolData, employee.home_zone, firstPool.zone);
+        }
+        
+        if (homeTravelTime > 0) {
             const currentStart = parseTimeToMinutes(sortedEvents[0].start);
             const rawSuggestedStart = currentStart - homeTravelTime;
             // Runde auf nächst höheren 5-Minuten-Schritt
