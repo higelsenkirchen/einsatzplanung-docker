@@ -2517,6 +2517,9 @@
                     <select id="eventTourSelect" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);"></select>
                 </div>
             </div>
+            <div id="eventCoordinatesDisplay" style="display:none; margin-bottom:12px; padding:10px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm); font-size:0.9rem;">
+                <strong>📍 Koordinaten:</strong> <span id="eventCoordinatesText"></span>
+            </div>
             <div style="display:flex; gap:12px; margin-top:12px;">
                 <div style="flex:1; min-width:0;">
                     <label class="section-title" style="margin-bottom:6px; display:block;">🔄 Rhythmus</label>
@@ -5557,13 +5560,27 @@ Weber, Peter;Erle;social</code>
                 // Zone display (like in pool)
                 const zone = evt.extendedProps?.zone || 'Keine Zone';
                 const zoneColor = ZONE_COLORS[zone] || 'var(--primary)';
+                
+                // Prüfe ob Koordinaten vorhanden sind (aus Pool-Item)
+                const poolId = evt.extendedProps?.poolId;
+                let hasCoordinates = false;
+                if (poolId) {
+                    const poolItem = appData.pool?.find(p => p.id === poolId);
+                    if (poolItem) {
+                        const coordinates = poolItem.extendedProps?.coordinates || poolItem.extended_props?.coordinates;
+                        hasCoordinates = coordinates && coordinates.lat && coordinates.lng;
+                    }
+                }
+                const coordIcon = hasCoordinates ? '<span style="font-size:0.7rem;opacity:0.8;margin-left:4px;" title="Koordinaten vorhanden">📍</span>' : '';
+                
                 const zoneDisplay = `<div class="event-zone" style="color:var(--text-muted);display:flex;align-items:center;gap:4px;margin-top:2px;font-size:0.7rem;">
                     <span style="width:4px;height:4px;background:${zoneColor};border-radius:2px;display:inline-block;flex-shrink:0;"></span>
                     <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${getZoneWithPostalCode(zone)}</span>
+                    ${coordIcon}
                 </div>`;
                 
                 content.innerHTML = `
-                    <div class="event-title">${evt.title}</div>
+                    <div class="event-title">${evt.title}${hasCoordinates ? ' <span style="font-size:0.7rem;opacity:0.7;">📍</span>' : ''}</div>
                     <div class="event-time">${evt.start} - ${evt.end}</div>
                     <div class="event-badges">${typeBadges}</div>
                     ${zoneDisplay}
@@ -7166,7 +7183,26 @@ Weber, Peter;Erle;social</code>
                 entry.className = 'item-list-entry';
                 entry.style.cssText = 'display:flex; justify-content:space-between; align-items:center; padding:12px; border-bottom:1px solid var(--border-light);';
                 
-                const eventCount = appData.events.filter(e => e.extendedProps?.tour === tour.id && !e.extendedProps?.isTravel).length;
+                const tourEvents = appData.events.filter(e => e.extendedProps?.tour === tour.id && !e.extendedProps?.isTravel);
+                const eventCount = tourEvents.length;
+                
+                // Prüfe wie viele Events Koordinaten haben
+                let eventsWithCoords = 0;
+                tourEvents.forEach(evt => {
+                    const poolId = evt.extendedProps?.poolId;
+                    if (poolId) {
+                        const poolItem = appData.pool?.find(p => p.id === poolId);
+                        if (poolItem) {
+                            const coordinates = poolItem.extendedProps?.coordinates || poolItem.extended_props?.coordinates;
+                            if (coordinates && coordinates.lat && coordinates.lng) {
+                                eventsWithCoords++;
+                            }
+                        }
+                    }
+                });
+                const coordsInfo = eventsWithCoords > 0 
+                    ? `<span style="font-size:0.7rem; color:var(--text-muted);" title="${eventsWithCoords} von ${eventCount} Einsätzen haben Koordinaten">📍 ${eventsWithCoords}/${eventCount}</span>`
+                    : '';
                 
                 const preferredTypes = tour.preferredTypes || [];
                 const typesDisplay = preferredTypes.length > 0 
@@ -7184,6 +7220,7 @@ Weber, Peter;Erle;social</code>
                             <span style="font-size:0.7rem; color:var(--text-muted);">Typen:</span>
                             ${typesDisplay}
                         </div>
+                        ${coordsInfo}
                     </div>
                     <div style="display:flex; align-items:center; gap:10px;">
                         <span style="font-size:0.75rem; background:var(--primary-light); color:var(--primary); padding:2px 8px; border-radius:10px;">${eventCount} Einsätze</span>
@@ -8764,6 +8801,28 @@ Weber, Peter;Erle;social</code>
                 modal.dataset.fromPoolId = info.fromPoolId;
             } else {
                 delete modal.dataset.fromPoolId;
+            }
+            
+            // Zeige Koordinaten falls vorhanden (aus Pool-Item)
+            const poolId = ev ? ev.extendedProps?.poolId : (info && info.fromPoolId ? info.fromPoolId : null);
+            const coordinatesDisplay = document.getElementById('eventCoordinatesDisplay');
+            const coordinatesText = document.getElementById('eventCoordinatesText');
+            
+            if (poolId) {
+                const poolItem = appData.pool?.find(p => p.id === poolId);
+                if (poolItem) {
+                    const coordinates = poolItem.extendedProps?.coordinates || poolItem.extended_props?.coordinates;
+                    if (coordinates && coordinates.lat && coordinates.lng) {
+                        coordinatesText.textContent = `${coordinates.lat.toFixed(6)}°N, ${coordinates.lng.toFixed(6)}°E`;
+                        coordinatesDisplay.style.display = 'block';
+                    } else {
+                        coordinatesDisplay.style.display = 'none';
+                    }
+                } else {
+                    coordinatesDisplay.style.display = 'none';
+                }
+            } else {
+                coordinatesDisplay.style.display = 'none';
             }
 
             const defaultTour = document.getElementById('tourSelect') ? document.getElementById('tourSelect').value : ((appData.tours && appData.tours.length) ? appData.tours[0].id : 't1');
