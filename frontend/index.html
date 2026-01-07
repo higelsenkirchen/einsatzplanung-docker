@@ -4570,6 +4570,11 @@ Weber, Peter;Erle;social</code>
             }
         }
         
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:4572',message:'NACH switchView Definition',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'F'})}).catch(()=>{});
+        console.log('[DEBUG] NACH switchView Definition');
+        // #endregion
+        
         function undo() {
             if(undoStack.length === 0) {
                 if (typeof showToast === 'function') showToast('Nichts zum Rückgängigmachen', 'info');
@@ -5195,6 +5200,11 @@ Weber, Peter;Erle;social</code>
                 container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-light); font-size:0.8rem;">Keine Einträge</div>';
             }
         }
+        
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:5203',message:'Checkpoint Mitte (zwischen switchView und refreshView)',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'F'})}).catch(()=>{});
+        console.log('[DEBUG] Checkpoint Mitte');
+        // #endregion
         
         function toggleFavorite(id) {
             const item = appData.pool.find(p => p.id === id);
