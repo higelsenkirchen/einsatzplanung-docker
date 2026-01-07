@@ -892,9 +892,22 @@
             top: 2px;
             right: 4px;
             font-size: 0.6rem;
+        }
+
+        .week-event-row.is-fourweekly {
+            border-left: 3px solid #ec4899; /* Pink für 4-wöchentlich */
+            background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+        }
+
+        .week-event-row.is-fourweekly::before {
+            content: '4W';
+            position: absolute;
+            top: 2px;
+            right: 4px;
+            font-size: 0.6rem;
             font-weight: 700;
-            color: #8b5cf6;
-            background: rgba(139, 92, 246, 0.15);
+            color: #ec4899;
+            background: rgba(236, 72, 153, 0.15);
             padding: 1px 4px;
             border-radius: 3px;
         }
@@ -1611,6 +1624,154 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Mobile Optimierungen */
+        @media (max-width: 768px) {
+            /* Sidebar als Overlay */
+            .sidebar {
+                position: fixed;
+                left: -100%;
+                top: 0;
+                height: 100vh;
+                width: 280px;
+                z-index: 1000;
+                transition: left 0.3s ease;
+                border-right: 1px solid var(--border);
+            }
+            
+            .sidebar.open {
+                left: 0;
+            }
+            
+            /* Mobile Menu Button */
+            .mobile-menu-btn {
+                display: block;
+                position: fixed;
+                top: 10px;
+                left: 10px;
+                z-index: 1001;
+                background: var(--primary);
+                color: white;
+                border: none;
+                padding: 12px;
+                border-radius: var(--radius-md);
+                font-size: 1.2rem;
+                cursor: pointer;
+                box-shadow: var(--shadow-md);
+            }
+            
+            /* Hauptbereich anpassen */
+            .main-content {
+                margin-left: 0;
+                padding: 50px 10px 20px;
+            }
+            
+            /* Top Bar kompakter */
+            .top-bar {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+            }
+            
+            .view-switcher {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            
+            .view-btn {
+                font-size: 0.75rem;
+                padding: 6px 10px;
+                min-height: 44px;
+            }
+            
+            /* Wochentage vertikal statt horizontal */
+            .week-days-container {
+                flex-direction: column;
+            }
+            
+            .week-day-card {
+                width: 100%;
+                margin-bottom: 15px;
+            }
+            
+            /* Events größer für Touch */
+            .week-event-row {
+                min-height: 50px;
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+            
+            /* Modals vollbild auf Mobile */
+            .modal-content {
+                width: 95vw;
+                max-height: 90vh;
+                margin: 5vh auto;
+            }
+            
+            /* Buttons größer für Touch */
+            .btn {
+                min-height: 44px;
+                padding: 12px 16px;
+            }
+            
+            .btn.icon-btn {
+                min-width: 44px;
+                min-height: 44px;
+            }
+            
+            /* Pool-Items größer */
+            .pool-item {
+                min-height: 50px;
+                padding: 12px;
+            }
+            
+            /* Auth Section */
+            #authSection {
+                width: 100%;
+                justify-content: center;
+                margin: 10px 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            /* Noch kompakter für kleine Screens */
+            .view-btn {
+                font-size: 0.7rem;
+                padding: 5px 8px;
+            }
+            
+            .week-event-row {
+                font-size: 0.85rem;
+                padding: 8px;
+            }
+            
+            /* Text kleiner aber lesbar */
+            .event-title {
+                font-size: 0.9rem;
+            }
+            
+            .event-time {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Touch-Gesten für Mobile */
+        @media (hover: none) and (pointer: coarse) {
+            /* Größere Touch-Targets */
+            button, .btn, .pool-item, .week-event-row {
+                min-height: 44px;
+            }
+            
+            /* Keine Hover-Effekte auf Touch-Geräten */
+            .pool-item:hover {
+                transform: none;
+            }
+            
+            /* Swipe-Gesten für Navigation */
+            .week-day-card {
+                touch-action: pan-x pan-y;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1782,6 +1943,8 @@
             </div>
 
             <div style="flex-grow:1;"></div>
+            
+            <div id="authSection" style="display:flex; align-items:center; gap:8px; margin-right:10px;"></div>
 
             <div style="display:flex; gap:8px; align-items:center;">
                 <div class="view-switcher" style="margin-right:8px;">
@@ -1789,6 +1952,8 @@
                     <button class="view-btn" id="btnZoom5" onclick="setZoom(5)" title="5-Minuten-Raster">5m</button>
             </div>
                 <button class="btn btn-secondary icon-btn" onclick="undo()" title="Rückgängig (Strg+Z)" style="width:36px; height:36px; padding:0;">↶</button>
+                <button class="btn btn-secondary icon-btn" onclick="openOptimizationModal()" title="Touren optimieren" style="width:36px; height:36px; padding:0;">⚡</button>
+                <button class="btn btn-secondary icon-btn" onclick="exportToPDF()" title="PDF Export" style="width:36px; height:36px; padding:0;">📄</button>
                 <button class="btn btn-secondary icon-btn" onclick="printView()" title="Drucken" style="width:36px; height:36px; padding:0;">🖨</button>
                 <button class="btn btn-secondary icon-btn" onclick="exportCSV()" title="CSV Export" style="width:36px; height:36px; padding:0;">📥</button>
                 <button class="btn btn-secondary icon-btn" onclick="openModal('keyboardHelpModal')" title="Hilfe (F1)" style="width:36px; height:36px; padding:0;">❓</button>
@@ -1871,6 +2036,7 @@
                     <select id="eventRhythm" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
                         <option value="weekly">1-wöchentlich</option>
                         <option value="biweekly">2-wöchentlich</option>
+                        <option value="fourweekly">4-wöchentlich</option>
                     </select>
                 </div>
                 <div style="flex:1; min-width:0;">
@@ -2038,6 +2204,74 @@
             
             <div style="margin-top:24px; padding-top:16px; border-top:1px solid var(--border);">
                 <button class="btn btn-secondary" onclick="closeModal('customerModal')">✖️ Schließen</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal-overlay">
+        <div class="modal-content" style="max-width:400px;">
+            <button class="modal-close-btn" onclick="closeModal('loginModal')" title="Schließen">×</button>
+            <h3 style="margin-top:0;">🔐 Anmeldung</h3>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div style="margin-bottom:15px;">
+                    <label style="display:block; margin-bottom:5px; font-weight:600; color:var(--text-main);">Benutzername oder E-Mail:</label>
+                    <input type="text" id="loginUsername" required style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg-card); color:var(--text-main);">
+                </div>
+                <div style="margin-bottom:20px;">
+                    <label style="display:block; margin-bottom:5px; font-weight:600; color:var(--text-main);">Passwort:</label>
+                    <input type="password" id="loginPassword" required style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg-card); color:var(--text-main);">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;">Anmelden</button>
+            </form>
+            <div id="loginError" style="margin-top:15px; color:var(--danger); display:none; padding:10px; background:rgba(239, 68, 68, 0.1); border-radius:var(--radius-md);"></div>
+            <div id="setupSection" style="margin-top:20px; padding-top:20px; border-top:1px solid var(--border); display:none;">
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:10px;">Erster Start? Erstelle einen Admin-Benutzer:</p>
+                <form id="setupForm" onsubmit="handleSetup(event)">
+                    <div style="margin-bottom:10px;">
+                        <input type="text" id="setupUsername" placeholder="Benutzername" required style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg-card); color:var(--text-main);">
+                    </div>
+                    <div style="margin-bottom:10px;">
+                        <input type="email" id="setupEmail" placeholder="E-Mail" required style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg-card); color:var(--text-main);">
+                    </div>
+                    <div style="margin-bottom:10px;">
+                        <input type="password" id="setupPassword" placeholder="Passwort (min. 6 Zeichen)" required minlength="6" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--bg-card); color:var(--text-main);">
+                    </div>
+                    <button type="submit" class="btn btn-secondary" style="width:100%;">Admin erstellen</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Optimization Modal -->
+    <div id="optimizationModal" class="modal-overlay">
+        <div class="modal-content" style="max-width:600px;">
+            <button class="modal-close-btn" onclick="closeModal('optimizationModal')" title="Schließen">×</button>
+            <h3 style="margin-top:0;">⚡ Tourenoptimierung</h3>
+            <div style="margin-bottom:20px;">
+                <label style="display:block; margin-bottom:8px; font-weight:600;">Tag auswählen:</label>
+                <select id="optimizeDaySelect" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-md);">
+                    <option value="0">Montag</option>
+                    <option value="1">Dienstag</option>
+                    <option value="2">Mittwoch</option>
+                    <option value="3">Donnerstag</option>
+                    <option value="4">Freitag</option>
+                    <option value="5">Samstag</option>
+                    <option value="6">Sonntag</option>
+                </select>
+            </div>
+            <div style="margin-bottom:20px;">
+                <label style="display:block; margin-bottom:8px; font-weight:600;">Optimierungskriterium:</label>
+                <select id="optimizeForSelect" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-md);">
+                    <option value="time">Zeit minimieren</option>
+                    <option value="distance">Distanz minimieren</option>
+                    <option value="cost">Kosten minimieren</option>
+                </select>
+            </div>
+            <div id="optimizationResults" style="display:none; margin-bottom:20px; padding:15px; background:var(--bg-card); border-radius:var(--radius-md); border:1px solid var(--border);"></div>
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button class="btn btn-secondary" onclick="closeModal('optimizationModal')">Abbrechen</button>
+                <button class="btn btn-primary" onclick="executeOptimization()">⚡ Optimieren</button>
             </div>
         </div>
     </div>
@@ -2484,6 +2718,185 @@ Weber, Peter;Erle;social</code>
         // API Configuration
         const API_BASE_URL = window.location.origin;
         
+        // Authentication
+        let currentUser = null;
+        let authToken = null;
+        
+        // Token aus localStorage laden
+        function loadAuthToken() {
+            authToken = localStorage.getItem('authToken');
+            const userStr = localStorage.getItem('currentUser');
+            if (userStr) {
+                try {
+                    currentUser = JSON.parse(userStr);
+                } catch (e) {
+                    console.error('Fehler beim Laden des Benutzers:', e);
+                    clearAuthToken();
+                }
+            }
+        }
+        
+        // Token speichern
+        function saveAuthToken(token, user) {
+            authToken = token;
+            currentUser = user;
+            localStorage.setItem('authToken', token);
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            updateAuthUI();
+        }
+        
+        // Token löschen
+        function clearAuthToken() {
+            authToken = null;
+            currentUser = null;
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('currentUser');
+            updateAuthUI();
+        }
+        
+        // API-Call mit Token
+        async function apiCall(url, options = {}) {
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+            
+            if (authToken) {
+                headers['Authorization'] = `Bearer ${authToken}`;
+            }
+            
+            if (currentVariantId) {
+                headers['X-Variant-ID'] = currentVariantId.toString();
+            }
+            
+            const response = await fetch(`${API_BASE_URL}${url}`, {
+                ...options,
+                headers
+            });
+            
+            if (response.status === 401) {
+                clearAuthToken();
+                openModal('loginModal');
+                throw new Error('Nicht autorisiert');
+            }
+            
+            return response;
+        }
+        
+        // Login-Handler
+        async function handleLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    errorDiv.textContent = data.error || 'Anmeldung fehlgeschlagen';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+                
+                saveAuthToken(data.token, data.user);
+                closeModal('loginModal');
+                showToast('Erfolgreich angemeldet', 'success');
+                
+                // Daten neu laden
+                if (currentVariantId) {
+                    await loadFromAPI();
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Verbindungsfehler: ' + error.message;
+                errorDiv.style.display = 'block';
+            }
+        }
+        
+        // Setup-Handler (erster Admin)
+        async function handleSetup(event) {
+            event.preventDefault();
+            const username = document.getElementById('setupUsername').value;
+            const email = document.getElementById('setupEmail').value;
+            const password = document.getElementById('setupPassword').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/setup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    errorDiv.textContent = data.error || 'Setup fehlgeschlagen';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+                
+                saveAuthToken(data.token, data.user);
+                closeModal('loginModal');
+                showToast('Admin-Benutzer erfolgreich erstellt', 'success');
+                
+                if (currentVariantId) {
+                    await loadFromAPI();
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Verbindungsfehler: ' + error.message;
+                errorDiv.style.display = 'block';
+            }
+        }
+        
+        // Logout
+        function handleLogout() {
+            clearAuthToken();
+            showToast('Abgemeldet', 'info');
+            openModal('loginModal');
+        }
+        
+        // Prüfe ob Setup nötig ist
+        async function checkSetupNeeded() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/auth/users`);
+                if (response.status === 401 || response.status === 403) {
+                    // Keine Benutzer vorhanden - Setup anzeigen
+                    const setupSection = document.getElementById('setupSection');
+                    if (setupSection) {
+                        setupSection.style.display = 'block';
+                    }
+                }
+            } catch (error) {
+                // Fehler ignorieren
+            }
+        }
+        
+        // UI aktualisieren basierend auf Auth-Status
+        function updateAuthUI() {
+            const authSection = document.getElementById('authSection');
+            if (!authSection) return;
+            
+            if (currentUser) {
+                authSection.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                        <span style="font-size:0.85rem; color:var(--text-muted);">👤 ${currentUser.username} <span style="color:var(--text-light);">(${currentUser.role})</span></span>
+                        <button class="btn btn-secondary btn-sm" onclick="handleLogout()" style="padding:6px 12px; font-size:0.8rem;">Abmelden</button>
+                    </div>
+                `;
+            } else {
+                authSection.innerHTML = `
+                    <button class="btn btn-primary btn-sm" onclick="openModal('loginModal')" style="padding:6px 12px; font-size:0.8rem;">Anmelden</button>
+                `;
+            }
+        }
+        
         function openDatabase() {
             return new Promise((resolve, reject) => {
                 const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -2725,6 +3138,10 @@ Weber, Peter;Erle;social</code>
                     if(newRhythm === 'biweekly' && evtRhythm === 'biweekly') {
                         return; // Allow - they're on alternating weeks
                     }
+                    // Allow overlap if BOTH are fourweekly (different 4-week cycles)
+                    if(newRhythm === 'fourweekly' && evtRhythm === 'fourweekly') {
+                        return; // Allow - they're on different 4-week cycles
+                    }
                     conflicts.push(evt);
                 }
             });
@@ -2766,13 +3183,17 @@ Weber, Peter;Erle;social</code>
         }
 
         // ============================================
-        // DURATION CALCULATION (biweekly = half duration)
+        // DURATION CALCULATION (biweekly = half duration, fourweekly = quarter duration)
         // ============================================
         function getEventDuration(evt) {
             const duration = parseTimeToMinutes(evt.end) - parseTimeToMinutes(evt.start);
             // 2-wöchentliche Einsätze nur halb zählen
             if(evt.extendedProps?.rhythm === 'biweekly') {
                 return duration / 2;
+            }
+            // 4-wöchentliche Einsätze nur ein Viertel zählen
+            if(evt.extendedProps?.rhythm === 'fourweekly') {
+                return duration / 4;
             }
             return duration;
         }
@@ -2814,11 +3235,111 @@ Weber, Peter;Erle;social</code>
             showToast('Rückgängig gemacht', 'success');
         }
 
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('open');
+            }
+        }
+        
+        // Mobile Menu Button hinzufügen
+        function addMobileMenuButton() {
+            if (window.innerWidth <= 768) {
+                let menuBtn = document.getElementById('mobileMenuBtn');
+                if (!menuBtn) {
+                    menuBtn = document.createElement('button');
+                    menuBtn.id = 'mobileMenuBtn';
+                    menuBtn.className = 'mobile-menu-btn';
+                    menuBtn.innerHTML = '☰';
+                    menuBtn.onclick = toggleMobileMenu;
+                    document.body.appendChild(menuBtn);
+                }
+            } else {
+                const menuBtn = document.getElementById('mobileMenuBtn');
+                if (menuBtn) {
+                    menuBtn.remove();
+                }
+                const sidebar = document.querySelector('.sidebar');
+                if (sidebar) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        }
+        
+        // Touch-Gesten für Sidebar schließen
+        document.addEventListener('click', (e) => {
+            const sidebar = document.querySelector('.sidebar');
+            if (window.innerWidth <= 768 && sidebar && sidebar.classList.contains('open')) {
+                if (!sidebar.contains(e.target) && !e.target.closest('.mobile-menu-btn')) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
+        
+        // Swipe-Gesten für Events (optional)
+        let touchStartX = 0;
+        let touchStartY = 0;
+        
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        });
+        
+        document.addEventListener('touchend', (e) => {
+            if (!touchStartX || !touchStartY) return;
+            
+            const touchEndX = e.changedTouches[0].clientX;
+            const touchEndY = e.changedTouches[0].clientY;
+            
+            const diffX = touchStartX - touchEndX;
+            const diffY = touchStartY - touchEndY;
+            
+            // Horizontaler Swipe (links/rechts) - für zukünftige Navigation
+            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                // Könnte für Wochensprung verwendet werden
+            }
+            
+            touchStartX = 0;
+            touchStartY = 0;
+        });
+
         document.addEventListener('DOMContentLoaded', async () => {
             initTheme();
             populateZones();
             populatePoolZoneFilter();
             renderZoneLegend();
+            
+            // Auth initialisieren
+            loadAuthToken();
+            updateAuthUI();
+            await checkSetupNeeded();
+            
+            // Mobile Menu Button
+            addMobileMenuButton();
+            window.addEventListener('resize', addMobileMenuButton);
+            
+            // Prüfe ob eingeloggt
+            if (!authToken) {
+                // Automatisch Login-Modal öffnen nach kurzer Verzögerung
+                setTimeout(() => {
+                    if (!authToken) {
+                        openModal('loginModal');
+                    }
+                }, 500);
+            } else {
+                // Token validieren
+                try {
+                    const response = await apiCall('/api/auth/me');
+                    if (!response.ok) {
+                        clearAuthToken();
+                        openModal('loginModal');
+                    }
+                } catch (e) {
+                    clearAuthToken();
+                    openModal('loginModal');
+                }
+            }
             
             // Lade Varianten und setze Standard-Variante
             try {
@@ -4225,6 +4746,7 @@ Weber, Peter;Erle;social</code>
             row.setAttribute('data-event-id', evt.id);
             if(evt.extendedProps?.isTravel) row.classList.add('is-travel');
             if(evt.extendedProps?.rhythm === 'biweekly') row.classList.add('is-biweekly');
+            if(evt.extendedProps?.rhythm === 'fourweekly') row.classList.add('is-fourweekly');
             if(hasConflict) row.classList.add('has-conflict');
             
             // Unterstütze alle Überlappungspositionen
@@ -4654,11 +5176,8 @@ Weber, Peter;Erle;social</code>
             }
             
             try {
-                const response = await fetch(`${API_BASE_URL}/api/data?variant_id=${currentVariantId}`, {
+                const response = await apiCall(`/api/data?variant_id=${currentVariantId}`, {
                     method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
                     body: JSON.stringify(appData)
                 });
                 
@@ -5639,7 +6158,12 @@ Weber, Peter;Erle;social</code>
             realEvents.forEach(evt => {
                 const tour = appData.tours.find(t => t.id === evt.extendedProps?.tour);
                 const types = (evt.extendedProps?.types || []).join(', ');
-                const rhythm = evt.extendedProps?.rhythm === 'biweekly' ? '2-wöchentlich' : '1-wöchentlich';
+                let rhythm = '1-wöchentlich';
+                if(evt.extendedProps?.rhythm === 'biweekly') {
+                    rhythm = '2-wöchentlich';
+                } else if(evt.extendedProps?.rhythm === 'fourweekly') {
+                    rhythm = '4-wöchentlich';
+                }
                 
                 csv += `"${evt.title}";"${dayNames[evt.dayIndex]}";"${evt.start}";"${evt.end}";"${tour?.name || ''}";"${getZoneWithPostalCode(evt.extendedProps?.zone || '')}";"${types}";"${rhythm}"\n`;
             });
@@ -5654,6 +6178,124 @@ Weber, Peter;Erle;social</code>
         }
 
         // --- BACKUP EXPORT/IMPORT ---
+        // PDF Export
+        async function exportToPDF() {
+            if (!currentVariantId) {
+                showToast('Bitte wähle zuerst eine Variante aus', 'warning');
+                return;
+            }
+            
+            try {
+                showToast('PDF wird generiert...', 'info');
+                
+                const response = await apiCall(`/api/export/pdf?variant_id=${currentVariantId}&includeStats=true`);
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'PDF-Generierung fehlgeschlagen');
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `tourenplan-${currentVariantId}-${Date.now()}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                
+                showToast('PDF erfolgreich erstellt', 'success');
+            } catch (error) {
+                console.error('PDF-Export Fehler:', error);
+                showToast('Fehler beim PDF-Export: ' + error.message, 'error');
+            }
+        }
+        
+        // Optimierung
+        function openOptimizationModal() {
+            if (!currentVariantId) {
+                showToast('Bitte wähle zuerst eine Variante aus', 'warning');
+                return;
+            }
+            openModal('optimizationModal');
+        }
+        
+        async function executeOptimization() {
+            const dayIndex = parseInt(document.getElementById('optimizeDaySelect').value);
+            const optimizeFor = document.getElementById('optimizeForSelect').value;
+            
+            try {
+                showToast('Optimierung läuft...', 'info');
+                
+                const response = await apiCall('/api/optimize/tours', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        variant_id: currentVariantId,
+                        dayIndex: dayIndex,
+                        optimizeFor: optimizeFor
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Zeige Ergebnisse
+                    const resultsDiv = document.getElementById('optimizationResults');
+                    resultsDiv.style.display = 'block';
+                    resultsDiv.innerHTML = `
+                        <h4 style="margin-top:0; color:var(--success);">✓ Optimierung abgeschlossen</h4>
+                        <p><strong>Zugewiesene Events:</strong> ${result.statistics.assignedEvents} von ${result.statistics.totalEvents}</p>
+                        <p><strong>Nicht zugewiesen:</strong> ${result.statistics.unassignedEvents}</p>
+                        <p><strong>Verwendete Touren:</strong> ${result.statistics.toursUsed} von ${result.statistics.totalTours}</p>
+                        <h4 style="margin-top:15px; margin-bottom:10px;">Tour-Auslastung:</h4>
+                        <div style="max-height:200px; overflow-y:auto;">
+                            ${result.optimizedAssignments.tourWorkloads.filter(tw => tw.events.length > 0).map(tw => `
+                                <div style="padding:8px; margin:5px 0; background:var(--bg-body); border-radius:var(--radius-sm); font-size:0.85rem;">
+                                    <strong>${tw.tourName}</strong> (${tw.employeeName}): ${tw.totalHours} h (${tw.events.length} Events)
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div style="margin-top:15px; padding-top:15px; border-top:1px solid var(--border);">
+                            <button class="btn btn-primary" onclick="applyOptimization(${dayIndex}, '${JSON.stringify(result.optimizedAssignments.assignments).replace(/'/g, "\\'")}')" style="width:100%;">
+                                ✓ Optimierung anwenden
+                            </button>
+                        </div>
+                    `;
+                    
+                    showToast(`Optimierung abgeschlossen: ${result.statistics.assignedEvents} Events zugewiesen`, 'success');
+                } else {
+                    throw new Error('Optimierung fehlgeschlagen');
+                }
+            } catch (error) {
+                console.error('Optimierungsfehler:', error);
+                showToast('Fehler bei Optimierung: ' + error.message, 'error');
+            }
+        }
+        
+        async function applyOptimization(dayIndex, assignmentsJson) {
+            try {
+                const assignments = typeof assignmentsJson === 'string' ? JSON.parse(assignmentsJson) : assignmentsJson;
+                
+                // Wende Optimierung an
+                assignments.forEach(assignment => {
+                    const event = appData.events.find(e => e.id === assignment.eventId && e.dayIndex === dayIndex);
+                    if (event) {
+                        event.extendedProps = event.extendedProps || {};
+                        event.extendedProps.tour = assignment.tourId;
+                    }
+                });
+
+                await saveToAPI();
+                refreshView();
+                closeModal('optimizationModal');
+                showToast('Optimierung angewendet', 'success');
+            } catch (error) {
+                console.error('Fehler beim Anwenden der Optimierung:', error);
+                showToast('Fehler beim Anwenden der Optimierung', 'error');
+            }
+        }
+        
         async function exportAllData() {
             if (!currentVariantId) {
                 showToast('Keine Variante ausgewählt', 'error');
@@ -5662,7 +6304,7 @@ Weber, Peter;Erle;social</code>
             
             try {
                 // Hole Backup vom Server
-                const response = await fetch(`${API_BASE_URL}/api/backup?variant_id=${currentVariantId}`);
+                const response = await apiCall(`/api/backup?variant_id=${currentVariantId}`);
                 if(!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
@@ -5764,11 +6406,8 @@ Weber, Peter;Erle;social</code>
                 cleanupInvalidEvents();
                 
                 // Speichere über API
-                const response = await fetch(`${API_BASE_URL}/api/backup/restore`, {
+                const response = await apiCall('/api/backup/restore', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
                     body: JSON.stringify({ 
                         data: appData,
                         variant_id: currentVariantId
@@ -6759,7 +7398,7 @@ Weber, Peter;Erle;social</code>
             }
             
             try {
-                const response = await fetch(`${API_BASE_URL}/api/data?variant_id=${currentVariantId}`);
+                const response = await apiCall(`/api/data?variant_id=${currentVariantId}`);
                 if(!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
@@ -6783,7 +7422,7 @@ Weber, Peter;Erle;social</code>
         
         async function loadVariants() {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/variants`);
+                const response = await apiCall('/api/variants');
                 if(!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
@@ -6838,11 +7477,8 @@ Weber, Peter;Erle;social</code>
             if (!name || name.trim() === '') return;
             
             try {
-                const response = await fetch(`${API_BASE_URL}/api/variants`, {
+                const response = await apiCall('/api/variants', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
                     body: JSON.stringify({ name: name.trim() })
                 });
                 
@@ -6886,11 +7522,8 @@ Weber, Peter;Erle;social</code>
             }
             
             try {
-                const response = await fetch(`${API_BASE_URL}/api/variants/${sourceVariantId}/duplicate`, {
+                const response = await apiCall(`/api/variants/${sourceVariantId}/duplicate`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
                     body: JSON.stringify({ name: newName.trim() })
                 });
                 
