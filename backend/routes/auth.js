@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../db/connection');
-const { hashPassword, verifyPassword, createToken, authenticateToken, createAuditLog } = require('../middleware/auth');
+const { hashPassword, verifyPassword, createToken, authenticateToken, requireRole, createAuditLog } = require('../middleware/auth');
 
 // POST /api/auth/setup - Ersten Admin-Benutzer erstellen (nur wenn noch keine Benutzer existieren)
 router.post('/setup', async (req, res) => {
