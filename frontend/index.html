@@ -4812,47 +4812,7 @@ Weber, Peter;Erle;social</code>
             }
         }
         
-        // --- MODAL-FUNKTIONEN ---
-        // modalHandlers sollte global sein
-        if (typeof modalHandlers === 'undefined') {
-            window.modalHandlers = window.modalHandlers || {};
-        }
-        
-        function openModal(id){
-            const modal = document.getElementById(id);
-            if(modal) {
-                modal.style.display='flex';
-                
-                // Entferne alte Event-Listener, falls vorhanden
-                if(modalHandlers[id]) {
-                    document.removeEventListener('keydown', modalHandlers[id].escHandler);
-                }
-                
-                // Event-Listener für ESC-Taste hinzufügen
-                const escHandler = function(e) {
-                    if(e.key === 'Escape') {
-                        closeModal(id);
-                    }
-                };
-                document.addEventListener('keydown', escHandler);
-                
-                // Speichere den Handler (kein clickHandler mehr - Modals schließen nur über ESC oder X)
-                modalHandlers[id] = { escHandler };
-            }
-        }
-        
-        function closeModal(id){
-            const modal = document.getElementById(id);
-            if(modal) {
-                modal.style.display='none';
-                
-                // Entferne die Event-Listener
-                if(modalHandlers[id]) {
-                    document.removeEventListener('keydown', modalHandlers[id].escHandler);
-                    delete modalHandlers[id];
-                }
-            }
-        }
+        // --- MODAL-FUNKTIONEN werden weiter unten definiert (nach modalHandlers) ---
         
         function openPoolModal() {
             // Reset form for new item
