@@ -1,6 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const puppeteer = require('puppeteer');
+let puppeteer = null;
+try {
+    puppeteer = require('puppeteer');
+} catch (e) {
+    console.warn('Puppeteer nicht verfügbar - PDF-Export wird als HTML zurückgegeben');
+}
 const { pool } = require('../db/connection');
 const { authenticateToken, checkVariantPermission, createAuditLog } = require('../middleware/auth');
 
@@ -45,30 +50,48 @@ router.get('/pdf', authenticateToken, checkVariantPermission, async (req, res) =
         // HTML für PDF generieren
         const html = generatePDFHTML(events, tours, employees, variantName, weekStart, includeStats === 'true');
 
+        // Prüfe ob Puppeteer verfügbar ist
+        if (!puppeteer) {
+            // Fallback: HTML zurückgeben (kann im Browser als PDF gedruckt werden)
+            await createAuditLog(req.user.id, variantId, 'export', 'html', null, { variantName }, req.ip);
+            res.setHeader('Content-Type', 'text/html; charset=utf-8');
+            res.setHeader('Content-Disposition', `inline; filename="tourenplan-${variantName}-${Date.now()}.html"`);
+            return res.send(html);
+        }
+
         // PDF mit Puppeteer generieren
-        browser = await puppeteer.launch({
-            headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-        });
+        try {
+            browser = await puppeteer.launch({
+                headless: true,
+                args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+            });
 
-        const page = await browser.newPage();
-        await page.setContent(html, { waitUntil: 'networkidle0' });
-        
-        const pdf = await page.pdf({
-            format: 'A4',
-            printBackground: true,
-            margin: { top: '20mm', right: '15mm', bottom: '20mm', left: '15mm' }
-        });
+            const page = await browser.newPage();
+            await page.setContent(html, { waitUntil: 'networkidle0' });
+            
+            const pdf = await page.pdf({
+                format: 'A4',
+                printBackground: true,
+                margin: { top: '20mm', right: '15mm', bottom: '20mm', left: '15mm' }
+            });
 
-        await browser.close();
-        browser = null;
+            await browser.close();
+            browser = null;
 
-        // Audit Log
-        await createAuditLog(req.user.id, variantId, 'export', 'pdf', null, { variantName }, req.ip);
+            // Audit Log
+            await createAuditLog(req.user.id, variantId, 'export', 'pdf', null, { variantName }, req.ip);
 
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename="tourenplan-${variantName}-${Date.now()}.pdf"`);
-        res.send(pdf);
+            res.setHeader('Content-Type', 'application/pdf');
+            res.setHeader('Content-Disposition', `attachment; filename="tourenplan-${variantName}-${Date.now()}.pdf"`);
+            res.send(pdf);
+        } catch (puppeteerError) {
+            console.error('Puppeteer Fehler, Fallback zu HTML:', puppeteerError);
+            // Fallback zu HTML
+            await createAuditLog(req.user.id, variantId, 'export', 'html', null, { variantName, error: 'puppeteer_failed' }, req.ip);
+            res.setHeader('Content-Type', 'text/html; charset=utf-8');
+            res.setHeader('Content-Disposition', `inline; filename="tourenplan-${variantName}-${Date.now()}.html"`);
+            res.send(html);
+        }
     } catch (error) {
         if (browser) {
             await browser.close();
