@@ -99,12 +99,12 @@ CREATE INDEX IF NOT EXISTS idx_events_day_index ON events(day_index);
 CREATE INDEX IF NOT EXISTS idx_events_extended_props ON events USING GIN(extended_props);
 CREATE INDEX IF NOT EXISTS idx_pool_variant_id ON pool(variant_id);
 CREATE INDEX IF NOT EXISTS idx_pool_zone ON pool(zone);
-CREATE INDEX IF NOT EXISTS idx_pool_postal_code ON pool(postal_code);
+-- idx_pool_postal_code wird in Migration erstellt, nachdem Spalte hinzugefügt wurde
 CREATE INDEX IF NOT EXISTS idx_employees_variant_id ON employees(variant_id);
 CREATE INDEX IF NOT EXISTS idx_employees_home_zone ON employees(home_zone);
 CREATE INDEX IF NOT EXISTS idx_tours_variant_id ON tours(variant_id);
 CREATE INDEX IF NOT EXISTS idx_tours_employee_id ON tours(employee_id);
-CREATE INDEX IF NOT EXISTS idx_tours_preferred_types ON tours USING GIN(preferred_types);
+-- idx_tours_preferred_types wird in Migration erstellt, nachdem Spalte hinzugefügt wurde
 CREATE INDEX IF NOT EXISTS idx_wage_settings_variant_id ON wage_settings(variant_id);
 CREATE INDEX IF NOT EXISTS idx_favorites_variant_id ON favorites(variant_id);
 CREATE INDEX IF NOT EXISTS idx_backups_created_at ON backups(created_at DESC);

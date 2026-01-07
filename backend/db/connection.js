@@ -31,15 +31,62 @@ async function initializeDatabase() {
         
         // Teile Schema in einzelne Statements auf und führe sie einzeln aus
         // Das verhindert, dass ein Fehler alle vorherigen Statements rückgängig macht
-        const statements = schema
-            .split(';')
-            .map(s => s.trim())
-            .filter(s => {
-                // Filtere leere Statements und Kommentare
-                const cleaned = s.replace(/--.*$/gm, '').trim();
-                return cleaned.length > 0 && 
-                       !cleaned.match(/^\s*$/);
-            });
+        // Behandle Dollar-Quoted Strings korrekt (z.B. $$ ... $$)
+        const statements = [];
+        let currentStatement = '';
+        let inDollarQuote = false;
+        let dollarTag = '';
+        
+        for (let i = 0; i < schema.length; i++) {
+            const char = schema[i];
+            const nextChar = schema[i + 1];
+            
+            // Prüfe auf Dollar-Quote Start/Ende
+            if (char === '$' && !inDollarQuote) {
+                // Finde das Ende des Dollar-Tags
+                let tagEnd = i + 1;
+                while (tagEnd < schema.length && schema[tagEnd] !== '$') {
+                    tagEnd++;
+                }
+                if (tagEnd < schema.length) {
+                    dollarTag = schema.substring(i, tagEnd + 1);
+                    inDollarQuote = true;
+                    currentStatement += dollarTag;
+                    i = tagEnd;
+                    continue;
+                }
+            } else if (inDollarQuote && schema.substring(i).startsWith(dollarTag)) {
+                currentStatement += dollarTag;
+                i += dollarTag.length - 1;
+                inDollarQuote = false;
+                dollarTag = '';
+                continue;
+            }
+            
+            currentStatement += char;
+            
+            // Wenn wir nicht in einem Dollar-Quote sind und auf ; stoßen, beende Statement
+            if (!inDollarQuote && char === ';') {
+                const trimmed = currentStatement.trim();
+                if (trimmed.length > 0) {
+                    // Filtere leere Statements und Kommentare
+                    const cleaned = trimmed.replace(/--.*$/gm, '').trim();
+                    if (cleaned.length > 0 && !cleaned.match(/^\s*$/)) {
+                        statements.push(trimmed);
+                    }
+                }
+                currentStatement = '';
+            }
+        }
+        
+        // Füge letztes Statement hinzu falls vorhanden
+        if (currentStatement.trim().length > 0) {
+            const trimmed = currentStatement.trim();
+            const cleaned = trimmed.replace(/--.*$/gm, '').trim();
+            if (cleaned.length > 0 && !cleaned.match(/^\s*$/)) {
+                statements.push(trimmed);
+            }
+        }
         
         const client = await pool.connect();
         
