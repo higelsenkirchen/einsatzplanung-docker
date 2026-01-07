@@ -4,6 +4,7 @@ const cors = require('cors');
 const apiRoutes = require('./routes/api');
 const exportRoutes = require('./routes/export');
 const optimizationRoutes = require('./routes/optimization');
+const geocodingRoutes = require('./routes/geocoding');
 const { initializeDatabase } = require('./db/connection');
 
 const app = express();
