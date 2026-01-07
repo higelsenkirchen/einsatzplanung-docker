@@ -6,6 +6,19 @@ const { hashPassword, verifyPassword, createToken, authenticateToken, requireRol
 // POST /api/auth/setup - Ersten Admin-Benutzer erstellen (nur wenn noch keine Benutzer existieren)
 router.post('/setup', async (req, res) => {
     try {
+        // Prüfe ob users-Tabelle existiert
+        try {
+            await pool.query('SELECT 1 FROM users LIMIT 1');
+        } catch (tableError) {
+            if (tableError.code === '42P01') {
+                return res.status(500).json({ 
+                    error: 'Datenbankfehler: users-Tabelle existiert nicht. Bitte warten Sie, bis die Datenbank initialisiert wurde, oder starten Sie den Backend-Container neu.',
+                    details: 'Das Schema wird beim Start des Backend-Containers automatisch erstellt.'
+                });
+            }
+            throw tableError;
+        }
+
         // Prüfe ob bereits Benutzer existieren
         const userCheck = await pool.query('SELECT COUNT(*) as count FROM users');
         if (parseInt(userCheck.rows[0].count) > 0) {
@@ -18,10 +31,17 @@ router.post('/setup', async (req, res) => {
             return res.status(400).json({ error: 'Benutzername, E-Mail und Passwort (min. 6 Zeichen) sind erforderlich' });
         }
 
+        // Validiere E-Mail Format (einfach)
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ error: 'Ungültiges E-Mail-Format' });
+        }
+
         const passwordHash = await hashPassword(password);
+        
         const result = await pool.query(
             'INSERT INTO users (username, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING id, username, email, role',
-            [username, email, passwordHash, 'admin']
+            [username.trim(), email.trim().toLowerCase(), passwordHash, 'admin']
         );
 
         const token = createToken(result.rows[0]);
@@ -33,11 +53,23 @@ router.post('/setup', async (req, res) => {
             user: result.rows[0]
         });
     } catch (error) {
+        console.error('Fehler bei Setup:', error);
+        console.error('Error stack:', error.stack);
+        console.error('Error code:', error.code);
+        
         if (error.code === '23505') {
             res.status(409).json({ error: 'Benutzername oder E-Mail bereits vorhanden' });
+        } else if (error.code === '42P01') {
+            res.status(500).json({ 
+                error: 'Datenbankfehler: Tabelle existiert nicht',
+                details: 'Bitte warten Sie, bis die Datenbank initialisiert wurde.'
+            });
         } else {
-            console.error('Fehler bei Setup:', error);
-            res.status(500).json({ error: 'Fehler bei Setup', details: error.message });
+            res.status(500).json({ 
+                error: 'Fehler bei Setup', 
+                details: error.message,
+                code: error.code
+            });
         }
     }
 });
