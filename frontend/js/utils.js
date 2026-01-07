@@ -33,6 +33,16 @@ function getZoneFromPostalCode(postalCode) {
     if (!postalCode) return null;
     const normalizedPLZ = String(postalCode).trim();
     
+    // Spezielle PLZ-Zuordnungen (mehrere PLZ pro Zone)
+    const additionalPLZMapping = {
+        "45897": "Buer"  // 45897 gehört auch zu Buer (wie 45894)
+    };
+    
+    // Prüfe zuerst spezielle Zuordnungen
+    if (additionalPLZMapping[normalizedPLZ]) {
+        return additionalPLZMapping[normalizedPLZ];
+    }
+    
     for (const [zone, plz] of Object.entries(ZONE_POSTAL_CODES)) {
         if (plz && String(plz).trim() === normalizedPLZ) {
             return zone;
