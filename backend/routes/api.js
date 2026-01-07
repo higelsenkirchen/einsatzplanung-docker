@@ -167,12 +167,13 @@ router.post('/variants/:id/duplicate', async (req, res) => {
         }));
 
         // Tours laden
-        const toursResult = await client.query('SELECT id, name, employee_id, weekly_hours_limit FROM tours WHERE variant_id = $1', [sourceVariantId]);
+        const toursResult = await client.query('SELECT id, name, employee_id, weekly_hours_limit, preferred_types FROM tours WHERE variant_id = $1', [sourceVariantId]);
         const tours = toursResult.rows.map(row => ({
             id: row.id,
             name: row.name,
             employeeId: row.employee_id || null,
-            weeklyHoursLimit: row.weekly_hours_limit || null
+            weeklyHoursLimit: row.weekly_hours_limit || null,
+            preferredTypes: row.preferred_types || null
         }));
 
         // Wage Settings laden
@@ -237,8 +238,8 @@ router.post('/variants/:id/duplicate', async (req, res) => {
         if (tours && Array.isArray(tours)) {
             for (const tour of tours) {
                 await client.query(
-                    'INSERT INTO tours (id, variant_id, name, employee_id, weekly_hours_limit) VALUES ($1, $2, $3, $4, $5)',
-                    [tour.id, newVariantId, tour.name, tour.employeeId || null, tour.weeklyHoursLimit || null]
+                    'INSERT INTO tours (id, variant_id, name, employee_id, weekly_hours_limit, preferred_types) VALUES ($1, $2, $3, $4, $5, $6)',
+                    [tour.id, newVariantId, tour.name, tour.employeeId || null, tour.weeklyHoursLimit || null, tour.preferredTypes ? JSON.stringify(tour.preferredTypes) : null]
                 );
             }
         }
@@ -323,12 +324,13 @@ router.get('/data', async (req, res) => {
         }));
 
         // Tours laden
-        const toursResult = await pool.query('SELECT id, name, employee_id, weekly_hours_limit FROM tours WHERE variant_id = $1', [variantId]);
+        const toursResult = await pool.query('SELECT id, name, employee_id, weekly_hours_limit, preferred_types FROM tours WHERE variant_id = $1', [variantId]);
         const tours = toursResult.rows.map(row => ({
             id: row.id,
             name: row.name,
             employeeId: row.employee_id || null,
-            weeklyHoursLimit: row.weekly_hours_limit || null
+            weeklyHoursLimit: row.weekly_hours_limit || null,
+            preferredTypes: row.preferred_types || null
         }));
 
         // Wage Settings laden
@@ -427,8 +429,8 @@ router.put('/data', async (req, res) => {
         if (tours && Array.isArray(tours)) {
             for (const tour of tours) {
                 await client.query(
-                    'INSERT INTO tours (id, variant_id, name, employee_id, weekly_hours_limit) VALUES ($1, $2, $3, $4, $5)',
-                    [tour.id, variantId, tour.name, tour.employeeId || null, tour.weeklyHoursLimit || null]
+                    'INSERT INTO tours (id, variant_id, name, employee_id, weekly_hours_limit, preferred_types) VALUES ($1, $2, $3, $4, $5, $6)',
+                    [tour.id, variantId, tour.name, tour.employeeId || null, tour.weeklyHoursLimit || null, tour.preferredTypes ? JSON.stringify(tour.preferredTypes) : null]
                 );
             }
         }
@@ -483,7 +485,7 @@ router.get('/backup', async (req, res) => {
         const eventsResult = await pool.query('SELECT id, title, start, "end", day_index, extended_props FROM events WHERE variant_id = $1', [variantId]);
         const poolResult = await pool.query('SELECT id, title, zone, types FROM pool WHERE variant_id = $1', [variantId]);
         const employeesResult = await pool.query('SELECT id, name, weekly_hours, wage_group, transport, home_zone FROM employees WHERE variant_id = $1', [variantId]);
-        const toursResult = await pool.query('SELECT id, name, employee_id, weekly_hours_limit FROM tours WHERE variant_id = $1', [variantId]);
+        const toursResult = await pool.query('SELECT id, name, employee_id, weekly_hours_limit, preferred_types FROM tours WHERE variant_id = $1', [variantId]);
         const wageSettingsResult = await pool.query('SELECT settings FROM wage_settings WHERE variant_id = $1 ORDER BY id DESC LIMIT 1', [variantId]);
         const favoritesResult = await pool.query('SELECT favorites FROM favorites WHERE variant_id = $1 ORDER BY id DESC LIMIT 1', [variantId]);
 
@@ -514,7 +516,8 @@ router.get('/backup', async (req, res) => {
                 id: row.id,
                 name: row.name,
                 employeeId: row.employee_id,
-                weeklyHoursLimit: row.weekly_hours_limit
+                weeklyHoursLimit: row.weekly_hours_limit,
+                preferredTypes: row.preferred_types || null
             })),
             wageSettings: wageSettingsResult.rows.length > 0 ? wageSettingsResult.rows[0].settings : null,
             favorites: favoritesResult.rows.length > 0 ? favoritesResult.rows[0].favorites : []
@@ -614,8 +617,8 @@ router.post('/backup/restore', async (req, res) => {
         if (tours && Array.isArray(tours)) {
             for (const tour of tours) {
                 await client.query(
-                    'INSERT INTO tours (id, variant_id, name, employee_id, weekly_hours_limit) VALUES ($1, $2, $3, $4, $5)',
-                    [tour.id, targetVariantId, tour.name, tour.employeeId || null, tour.weeklyHoursLimit || null]
+                    'INSERT INTO tours (id, variant_id, name, employee_id, weekly_hours_limit, preferred_types) VALUES ($1, $2, $3, $4, $5, $6)',
+                    [tour.id, targetVariantId, tour.name, tour.employeeId || null, tour.weeklyHoursLimit || null, tour.preferredTypes ? JSON.stringify(tour.preferredTypes) : null]
                 );
             }
         }

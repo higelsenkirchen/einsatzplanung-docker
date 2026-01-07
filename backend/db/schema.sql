@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS tours (
     name VARCHAR(255) NOT NULL,
     employee_id VARCHAR(255),
     weekly_hours_limit INTEGER,
+    preferred_types JSONB DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id, variant_id)
@@ -100,6 +101,7 @@ CREATE INDEX IF NOT EXISTS idx_employees_variant_id ON employees(variant_id);
 CREATE INDEX IF NOT EXISTS idx_employees_home_zone ON employees(home_zone);
 CREATE INDEX IF NOT EXISTS idx_tours_variant_id ON tours(variant_id);
 CREATE INDEX IF NOT EXISTS idx_tours_employee_id ON tours(employee_id);
+CREATE INDEX IF NOT EXISTS idx_tours_preferred_types ON tours USING GIN(preferred_types);
 CREATE INDEX IF NOT EXISTS idx_wage_settings_variant_id ON wage_settings(variant_id);
 CREATE INDEX IF NOT EXISTS idx_favorites_variant_id ON favorites(variant_id);
 CREATE INDEX IF NOT EXISTS idx_backups_created_at ON backups(created_at DESC);

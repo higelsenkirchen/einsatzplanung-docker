@@ -2652,7 +2652,7 @@
 
     <!-- Optimization Modal -->
     <div id="optimizationModal" class="modal-overlay">
-        <div class="modal-content" style="max-width:600px;">
+        <div class="modal-content" style="max-width:700px;">
             <button class="modal-close-btn" onclick="closeModal('optimizationModal')" title="Schließen">×</button>
             <h3 style="margin-top:0;">⚡ Tourenoptimierung</h3>
             <div style="margin-bottom:20px;">
@@ -2674,6 +2674,16 @@
                     <option value="distance">Distanz minimieren</option>
                     <option value="cost">Kosten minimieren</option>
                 </select>
+            </div>
+            <div style="margin-bottom:20px;">
+                <label style="display:block; margin-bottom:8px; font-weight:600;">Leistungstyp-Trennung:</label>
+                <select id="optimizeTypeSeparation" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-md);">
+                    <option value="flexible">Flexibel (Vermischung erlaubt wenn Route besser)</option>
+                    <option value="strict">Strikt (keine Vermischung von Pflege/HW)</option>
+                </select>
+                <p style="margin:8px 0 0 0; font-size:0.85rem; color:var(--text-muted);">
+                    Bei strikter Trennung werden nur Events mit passendem Leistungstyp zugewiesen (basierend auf Tour-Einstellungen).
+                </p>
             </div>
             <div id="optimizationResults" style="display:none; margin-bottom:20px; padding:15px; background:var(--bg-card); border-radius:var(--radius-md); border:1px solid var(--border);"></div>
             <div style="display:flex; gap:10px; justify-content:flex-end;">
@@ -6648,6 +6658,7 @@ Weber, Peter;Erle;social</code>
             const tabs = [
                 { id: 'tours', label: '🚗 Touren' },
                 { id: 'employees', label: '👥 Team' },
+                { id: 'employeehours', label: '⏱️ Stunden' },
                 { id: 'wages', label: '💰 Löhne' },
                 { id: 'customers', label: '👤 Kunden' },
                 { id: 'events', label: '📅 Einsätze' },
@@ -6725,6 +6736,9 @@ Weber, Peter;Erle;social</code>
                 case 'employees':
                     renderAdminEmployees(content);
                     break;
+                case 'employeehours':
+                    renderEmployeeHoursDashboard();
+                    break;
                 case 'wages':
                     renderAdminWages(content);
                     break;
@@ -6750,12 +6764,20 @@ Weber, Peter;Erle;social</code>
                 
                 <div class="input-group" style="margin-bottom:24px;">
                     <label class="section-title">Neue Tour hinzufügen</label>
-                    <div style="display:flex; gap:8px;">
-                        <input id="newTourName" placeholder="🚗 Name der Tour..." style="flex:2;">
-                        <input id="newTourHoursLimit" type="number" placeholder="⏱️ Std/Woche" style="flex:1; min-width:80px;" min="0" max="168">
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <input id="newTourName" placeholder="🚗 Name der Tour..." style="flex:2; min-width:200px;">
+                        <input id="newTourHoursLimit" type="number" placeholder="⏱️ Std/Woche" style="flex:1; min-width:100px;" min="0" max="168">
                         <button class="btn btn-primary" style="width:auto; min-width:100px; height:44px;" onclick="addTour(); renderAdminTabContent('tours');">
                             <span style="font-size:1.1rem; font-weight:400;">+</span> Hinzufügen
                         </button>
+                    </div>
+                    <div style="margin-top:8px;">
+                        <label style="font-size:0.85rem; color:var(--text-muted); margin-bottom:4px; display:block;">Bevorzugte Leistungstypen (optional):</label>
+                        <div class="checkbox-group" style="display:flex; gap:12px; flex-wrap:wrap;">
+                            <label class="cb-item"><input type="checkbox" class="new-tour-type-cb" value="care"><div class="dot care"></div>Pflege</label>
+                            <label class="cb-item"><input type="checkbox" class="new-tour-type-cb" value="house"><div class="dot house"></div>HW</label>
+                            <label class="cb-item"><input type="checkbox" class="new-tour-type-cb" value="social"><div class="dot social"></div>Betr.</label>
+                        </div>
                     </div>
                 </div>
                 
@@ -6785,13 +6807,26 @@ Weber, Peter;Erle;social</code>
                 
                 const eventCount = appData.events.filter(e => e.extendedProps?.tour === tour.id && !e.extendedProps?.isTravel).length;
                 
+                const preferredTypes = tour.preferredTypes || [];
+                const typesDisplay = preferredTypes.length > 0 
+                    ? preferredTypes.map(t => {
+                        const labels = { care: 'Pflege', house: 'HW', social: 'Betr.' };
+                        return `<span style="font-size:0.7rem; background:var(--border-light); color:var(--text-muted); padding:2px 6px; border-radius:4px;">${labels[t] || t}</span>`;
+                    }).join('')
+                    : '<span style="font-size:0.7rem; color:var(--text-light);">Alle</span>';
+                
                 entry.innerHTML = `
-                    <div style="display:flex; align-items:center; gap:10px; flex:1;">
+                    <div style="display:flex; align-items:center; gap:10px; flex:1; flex-wrap:wrap;">
                         <span class="item-name" style="font-weight:600;">${tour.name}</span>
                         ${tour.weeklyHoursLimit ? `<span style="font-size:0.75rem; color:var(--text-muted);">⏱️ ${tour.weeklyHoursLimit} Std/Woche</span>` : ''}
+                        <div style="display:flex; align-items:center; gap:4px; margin-left:8px;">
+                            <span style="font-size:0.7rem; color:var(--text-muted);">Typen:</span>
+                            ${typesDisplay}
+                        </div>
                     </div>
                     <div style="display:flex; align-items:center; gap:10px;">
                         <span style="font-size:0.75rem; background:var(--primary-light); color:var(--primary); padding:2px 8px; border-radius:10px;">${eventCount} Einsätze</span>
+                        <button class="btn btn-sm btn-secondary" onclick="editTour('${tour.id}')" style="padding:4px 10px; font-size:0.75rem;">✏️</button>
                         <button class="btn btn-sm btn-danger" onclick="deleteTour('${tour.id}')" style="padding:4px 10px; font-size:0.75rem;">🗑️</button>
                     </div>
                 `;
@@ -7176,6 +7211,7 @@ Weber, Peter;Erle;social</code>
         async function executeOptimization() {
             const dayIndex = parseInt(document.getElementById('optimizeDaySelect').value);
             const optimizeFor = document.getElementById('optimizeForSelect').value;
+            const typeSeparation = document.getElementById('optimizeTypeSeparation')?.value || 'flexible';
             
             try {
                 showToast('Optimierung läuft...', 'info');
@@ -7185,26 +7221,56 @@ Weber, Peter;Erle;social</code>
                     body: JSON.stringify({
                         variant_id: currentVariantId,
                         dayIndex: dayIndex,
-                        optimizeFor: optimizeFor
+                        optimizeFor: optimizeFor,
+                        typeSeparation: typeSeparation
                     })
                 });
 
                 const result = await response.json();
 
                 if (result.success) {
+                    // Berechne Statistiken für Anzeige
+                    const totalEvents = result.statistics.totalEvents;
+                    const assignedEvents = result.statistics.assignedEvents;
+                    const unassignedEvents = result.statistics.unassignedEvents;
+                    const assignmentRate = totalEvents > 0 ? Math.round((assignedEvents / totalEvents) * 100) : 0;
+                    
+                    // Prüfe auf Warnungen
+                    const warnings = [];
+                    if (unassignedEvents > 0) {
+                        warnings.push(`${unassignedEvents} Event(s) konnten nicht zugewiesen werden`);
+                    }
+                    
                     // Zeige Ergebnisse
                     const resultsDiv = document.getElementById('optimizationResults');
                     resultsDiv.style.display = 'block';
                     resultsDiv.innerHTML = `
                         <h4 style="margin-top:0; color:var(--success);">✓ Optimierung abgeschlossen</h4>
-                        <p><strong>Zugewiesene Events:</strong> ${result.statistics.assignedEvents} von ${result.statistics.totalEvents}</p>
-                        <p><strong>Nicht zugewiesen:</strong> ${result.statistics.unassignedEvents}</p>
-                        <p><strong>Verwendete Touren:</strong> ${result.statistics.toursUsed} von ${result.statistics.totalTours}</p>
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:15px;">
+                            <div style="padding:12px; background:var(--bg-body); border-radius:var(--radius-sm);">
+                                <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:4px;">Zugewiesen</div>
+                                <div style="font-size:1.5rem; font-weight:700; color:var(--success);">${assignedEvents}</div>
+                                <div style="font-size:0.7rem; color:var(--text-muted);">von ${totalEvents} (${assignmentRate}%)</div>
+                            </div>
+                            <div style="padding:12px; background:var(--bg-body); border-radius:var(--radius-sm);">
+                                <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:4px;">Touren genutzt</div>
+                                <div style="font-size:1.5rem; font-weight:700; color:var(--primary);">${result.statistics.toursUsed}</div>
+                                <div style="font-size:0.7rem; color:var(--text-muted);">von ${result.statistics.totalTours}</div>
+                            </div>
+                        </div>
+                        ${warnings.length > 0 ? `
+                            <div style="padding:10px; margin-bottom:15px; background:rgba(245, 158, 11, 0.1); border-left:3px solid var(--warning); border-radius:var(--radius-sm);">
+                                <strong style="color:var(--warning);">⚠️ Warnungen:</strong>
+                                <ul style="margin:8px 0 0 0; padding-left:20px; color:var(--text-muted); font-size:0.85rem;">
+                                    ${warnings.map(w => `<li>${w}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
                         <h4 style="margin-top:15px; margin-bottom:10px;">Tour-Auslastung:</h4>
                         <div style="max-height:200px; overflow-y:auto;">
                             ${result.optimizedAssignments.tourWorkloads.filter(tw => tw.events.length > 0).map(tw => `
                                 <div style="padding:8px; margin:5px 0; background:var(--bg-body); border-radius:var(--radius-sm); font-size:0.85rem;">
-                                    <strong>${tw.tourName}</strong> (${tw.employeeName}): ${tw.totalHours} h (${tw.events.length} Events)
+                                    <strong>${tw.tourName}</strong> ${tw.employeeName !== 'Kein Mitarbeiter' ? `(${tw.employeeName})` : ''}: ${tw.totalHours} h (${tw.events.length} Event${tw.events.length !== 1 ? 's' : ''})
                                 </div>
                             `).join('')}
                         </div>
@@ -7215,7 +7281,7 @@ Weber, Peter;Erle;social</code>
                         </div>
                     `;
                     
-                    showToast(`Optimierung abgeschlossen: ${result.statistics.assignedEvents} Events zugewiesen`, 'success');
+                    showToast(`Optimierung abgeschlossen: ${assignedEvents} von ${totalEvents} Events zugewiesen`, 'success');
                 } else {
                     throw new Error('Optimierung fehlgeschlagen');
                 }
@@ -8930,14 +8996,55 @@ Weber, Peter;Erle;social</code>
             if(!n) return;
             const name = n.value.trim();
             const hoursLimit = h ? parseInt(h.value) || null : null;
+            
+            // Sammle bevorzugte Types
+            const preferredTypes = [];
+            document.querySelectorAll('.new-tour-type-cb:checked').forEach(cb => {
+                preferredTypes.push(cb.value);
+            });
+            
             if(name) {
                 if(!appData.tours) appData.tours = [];
-                appData.tours.push({id:'t'+generateId(), name:name, weeklyHoursLimit: hoursLimit});
+                appData.tours.push({
+                    id:'t'+generateId(), 
+                    name:name, 
+                    weeklyHoursLimit: hoursLimit,
+                    preferredTypes: preferredTypes.length > 0 ? preferredTypes : null
+                });
                 queueSave();
                 refreshUI();
                 n.value='';
                 if(h) h.value='';
+                document.querySelectorAll('.new-tour-type-cb').forEach(cb => cb.checked = false);
             }
+        }
+        
+        function editTour(tourId) {
+            const tour = appData.tours.find(t => t.id === tourId);
+            if(!tour) return;
+            
+            // Öffne Modal oder bearbeite direkt in der Liste
+            const newName = prompt('Tour-Name:', tour.name);
+            if(newName === null) return;
+            
+            const newHoursLimit = prompt('Wochenstunden-Limit (leer für kein Limit):', tour.weeklyHoursLimit || '');
+            const hoursLimit = newHoursLimit === null || newHoursLimit === '' ? null : parseInt(newHoursLimit);
+            
+            // Bevorzugte Types bearbeiten
+            const currentTypes = tour.preferredTypes || [];
+            const typeStr = prompt('Bevorzugte Leistungstypen (Komma-getrennt: care, house, social) oder leer für alle:', currentTypes.join(', '));
+            let preferredTypes = null;
+            if(typeStr && typeStr.trim()) {
+                preferredTypes = typeStr.split(',').map(t => t.trim()).filter(t => ['care', 'house', 'social'].includes(t));
+                if(preferredTypes.length === 0) preferredTypes = null;
+            }
+            
+            tour.name = newName.trim();
+            tour.weeklyHoursLimit = hoursLimit;
+            tour.preferredTypes = preferredTypes;
+            
+            queueSave();
+            renderAdminTabContent('tours');
         }
         function addEmployee(){
             const n = document.getElementById('newEmpName');
@@ -9223,6 +9330,148 @@ Weber, Peter;Erle;social</code>
                 type,
                 dayIndex
             };
+        }
+        
+        function calculateEmployeeHours(employeeId) {
+            if (!employeeId || !appData.employees || !appData.tours || !appData.events) {
+                return { currentHours: 0, targetHours: 0, difference: 0, percentage: 0 };
+            }
+            
+            const employee = appData.employees.find(e => e.id === employeeId);
+            if (!employee) {
+                return { currentHours: 0, targetHours: 0, difference: 0, percentage: 0 };
+            }
+            
+            // Finde alle Touren dieses Mitarbeiters
+            const employeeTours = appData.tours.filter(t => t.employeeId === employeeId);
+            
+            // Sammle alle Events aus diesen Touren über alle Tage
+            let totalMinutes = 0;
+            employeeTours.forEach(tour => {
+                const tourEvents = filterRealEvents(appData.events.filter(e => 
+                    e.extendedProps?.tour === tour.id
+                ));
+                
+                tourEvents.forEach(event => {
+                    totalMinutes += getEventDuration(event);
+                });
+            });
+            
+            const currentHours = totalMinutes / 60;
+            const targetHours = employee.weeklyHours || 40;
+            const difference = currentHours - targetHours;
+            const percentage = targetHours > 0 ? (currentHours / targetHours) * 100 : 0;
+            
+            return { currentHours, targetHours, difference, percentage };
+        }
+        
+        function renderEmployeeHoursDashboard() {
+            const container = document.getElementById('adminContent');
+            if (!container) return;
+            
+            if (!appData.employees || appData.employees.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding:20px;">Keine Mitarbeiter vorhanden</p>';
+                return;
+            }
+            
+            const employees = [...appData.employees];
+            
+            // Berechne Stunden für jeden Mitarbeiter
+            const employeeStats = employees.map(emp => {
+                const hours = calculateEmployeeHours(emp.id);
+                return {
+                    ...emp,
+                    ...hours
+                };
+            });
+            
+            // Sortiere nach Differenz (größte Abweichung zuerst)
+            employeeStats.sort((a, b) => Math.abs(b.difference) - Math.abs(a.difference));
+            
+            let html = `
+                <div style="margin-bottom:20px;">
+                    <div style="display:flex; gap:10px; align-items:center; margin-bottom:15px;">
+                        <input type="text" id="employeeHoursSearch" placeholder="🔍 Mitarbeiter suchen..." 
+                               style="flex:1; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm);" 
+                               oninput="filterEmployeeHours()">
+                        <select id="employeeHoursSort" onchange="renderEmployeeHoursDashboard()" 
+                                style="width:150px; padding:8px; border:1px solid var(--border); border-radius:var(--radius-sm);">
+                            <option value="difference">Nach Abweichung</option>
+                            <option value="name">Nach Name</option>
+                            <option value="percentage">Nach Auslastung</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table style="width:100%; border-collapse:collapse;">
+                        <thead>
+                            <tr style="background:var(--bg-card); border-bottom:2px solid var(--border);">
+                                <th style="padding:12px; text-align:left; font-weight:600;">Mitarbeiter</th>
+                                <th style="padding:12px; text-align:right; font-weight:600;">Aktuell</th>
+                                <th style="padding:12px; text-align:right; font-weight:600;">Soll</th>
+                                <th style="padding:12px; text-align:right; font-weight:600;">Differenz</th>
+                                <th style="padding:12px; text-align:right; font-weight:600;">Auslastung</th>
+                                <th style="padding:12px; text-align:center; font-weight:600;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employeeHoursTableBody">
+            `;
+            
+            employeeStats.forEach(stat => {
+                const statusColor = stat.percentage >= 80 && stat.percentage <= 100 ? 'var(--success)' :
+                                   (stat.percentage >= 60 && stat.percentage < 80) || (stat.percentage > 100 && stat.percentage <= 120) ? 'var(--warning)' :
+                                   'var(--danger)';
+                
+                const statusText = stat.percentage >= 80 && stat.percentage <= 100 ? '✓ Optimal' :
+                                  stat.percentage < 60 ? '⚠ Zu wenig' :
+                                  stat.percentage > 120 ? '⚠ Zu viel' :
+                                  '⚠ Anpassung nötig';
+                
+                const diffColor = stat.difference === 0 ? 'var(--text-muted)' :
+                                 stat.difference > 0 ? 'var(--danger)' : 'var(--warning)';
+                
+                html += `
+                    <tr style="border-bottom:1px solid var(--border);" class="employee-hours-row" data-name="${stat.name.toLowerCase()}">
+                        <td style="padding:12px; font-weight:500;">${stat.name}</td>
+                        <td style="padding:12px; text-align:right;">${stat.currentHours.toFixed(1)}h</td>
+                        <td style="padding:12px; text-align:right;">${stat.targetHours}h</td>
+                        <td style="padding:12px; text-align:right; color:${diffColor}; font-weight:600;">
+                            ${stat.difference > 0 ? '+' : ''}${stat.difference.toFixed(1)}h
+                        </td>
+                        <td style="padding:12px; text-align:right;">
+                            <div style="display:inline-block; width:60px; height:8px; background:var(--border-light); border-radius:4px; position:relative;">
+                                <div style="position:absolute; left:0; top:0; height:100%; width:${Math.min(stat.percentage, 150)}%; background:${statusColor}; border-radius:4px;"></div>
+                            </div>
+                            <span style="margin-left:8px; font-weight:600; color:${statusColor};">${stat.percentage.toFixed(0)}%</span>
+                        </td>
+                        <td style="padding:12px; text-align:center; color:${statusColor}; font-weight:600; font-size:0.85rem;">
+                            ${statusText}
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+        
+        function filterEmployeeHours() {
+            const searchTerm = document.getElementById('employeeHoursSearch')?.value.toLowerCase() || '';
+            const rows = document.querySelectorAll('.employee-hours-row');
+            
+            rows.forEach(row => {
+                const name = row.dataset.name || '';
+                if (name.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
         }
         
         function renderProfitabilityDashboard() {

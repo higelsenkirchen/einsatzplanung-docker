@@ -98,6 +98,9 @@ async function initializeDatabase() {
         
         // Migration: Bestehende Daten auf Standard-Variante setzen
         await migrateExistingDataToVariants();
+        
+        // Migration: preferred_types zu tours hinzufügen
+        await migrateToursPreferredTypes();
     } catch (error) {
         console.error('❌ Fehler beim Initialisieren des Schemas:', error);
         console.error('Error code:', error.code);
@@ -234,6 +237,43 @@ async function migrateExistingDataToVariants() {
         await client.query('ROLLBACK');
         // Fehler nicht werfen, da Migration optional ist
         console.log('ℹ️  Migration zu Varianten übersprungen:', error.message);
+    } finally {
+        client.release();
+    }
+}
+
+// Migration: Fügt preferred_types Spalte zu tours hinzu
+async function migrateToursPreferredTypes() {
+    const client = await pool.connect();
+    
+    try {
+        // Prüfe ob Spalte bereits existiert
+        const columnCheck = await client.query(`
+            SELECT column_name 
+            FROM information_schema.columns 
+            WHERE table_name = 'tours' AND column_name = 'preferred_types'
+        `);
+        
+        if (columnCheck.rows.length === 0) {
+            // Füge Spalte hinzu
+            await client.query(`
+                ALTER TABLE tours 
+                ADD COLUMN preferred_types JSONB DEFAULT NULL
+            `);
+            
+            // Füge Index hinzu
+            await client.query(`
+                CREATE INDEX IF NOT EXISTS idx_tours_preferred_types 
+                ON tours USING GIN(preferred_types)
+            `);
+            
+            console.log('✅ Migration: preferred_types zu tours hinzugefügt');
+        } else {
+            console.log('ℹ️  Spalte preferred_types existiert bereits');
+        }
+    } catch (error) {
+        // Fehler nicht werfen, da Migration optional ist
+        console.log('ℹ️  Migration preferred_types übersprungen:', error.message);
     } finally {
         client.release();
     }
