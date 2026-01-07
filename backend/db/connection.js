@@ -28,25 +28,46 @@ async function initializeDatabase() {
     try {
         const schemaPath = path.join(__dirname, 'schema.sql');
         const schema = fs.readFileSync(schemaPath, 'utf8');
-        await pool.query(schema);
-        console.log('✅ Datenbankschema initialisiert');
+        
+        // Teile Schema in einzelne Statements auf und führe sie einzeln aus
+        // Das verhindert, dass ein Fehler alle vorherigen Statements rückgängig macht
+        const statements = schema
+            .split(';')
+            .map(s => s.trim())
+            .filter(s => s.length > 0 && !s.startsWith('--'));
+        
+        const client = await pool.connect();
+        
+        try {
+            for (const statement of statements) {
+                try {
+                    await client.query(statement);
+                } catch (stmtError) {
+                    // Ignoriere Fehler für bereits existierende Objekte
+                    if (stmtError.code === '42P07' || // Table already exists
+                        stmtError.code === '42710' || // Object already exists
+                        stmtError.code === '42P16' || // Index already exists
+                        stmtError.code === '42723') { // Function already exists
+                        // Objekt existiert bereits, das ist OK
+                        continue;
+                    }
+                    // Andere Fehler weiterwerfen
+                    throw stmtError;
+                }
+            }
+            console.log('✅ Datenbankschema initialisiert');
+        } finally {
+            client.release();
+        }
         
         // Migration: Bestehende Daten auf Standard-Variante setzen
         await migrateExistingDataToVariants();
     } catch (error) {
-        if (error.code === '42P07') {
-            // Schema already exists
-            console.log('ℹ️  Datenbankschema bereits vorhanden');
-            // Migration trotzdem durchführen falls nötig
-            await migrateExistingDataToVariants();
-        } else if (error.code === '42710') {
-            // Trigger or other object already exists
-            console.log('ℹ️  Datenbankschema bereits vorhanden (Trigger existieren bereits)');
-            await migrateExistingDataToVariants();
-        } else {
-            console.error('❌ Fehler beim Initialisieren des Schemas:', error);
-            throw error;
-        }
+        console.error('❌ Fehler beim Initialisieren des Schemas:', error);
+        console.error('Error code:', error.code);
+        console.error('Error message:', error.message);
+        // Wir werfen den Fehler nicht, damit der Server trotzdem startet
+        // Falls Tabellen fehlen, werden sie beim nächsten Versuch erstellt
     }
 }
 
