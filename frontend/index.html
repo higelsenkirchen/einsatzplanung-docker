@@ -10946,11 +10946,11 @@ Weber, Peter;Erle;social</code>
                     
                     eventsToProcess.forEach(evt => {
                         if(!evt) return;
-                    
-                    const oldStartMin = parseTimeToMinutes(evt.start);
-                    const oldEndMin = parseTimeToMinutes(evt.end);
-                    const duration = oldEndMin - oldStartMin;
-                    
+                        
+                        const oldStartMin = parseTimeToMinutes(evt.start);
+                        const oldEndMin = parseTimeToMinutes(evt.end);
+                        const duration = oldEndMin - oldStartMin;
+                        
                         // Apply same time offset to all events
                         const newStartMin = Math.max(TIMELINE_START_HOUR * 60, Math.min((TIMELINE_END_HOUR - 1) * 60, oldStartMin + timeOffset));
                         const newEndMin = Math.min(TIMELINE_END_HOUR * 60, newStartMin + duration);
@@ -10975,13 +10975,13 @@ Weber, Peter;Erle;social</code>
                         } else {
                             // Move the existing event
                             evt.start = minutesToTime(newStartMin);
-                    evt.end = minutesToTime(newEndMin);
+                            evt.end = minutesToTime(newEndMin);
                             evt.dayIndex = newDayIndex;
-                    
-                    if(targetTourId) {
-                        if(!evt.extendedProps) evt.extendedProps = {};
-                        evt.extendedProps.tour = targetTourId;
-                    }
+                            
+                            if(targetTourId) {
+                                if(!evt.extendedProps) evt.extendedProps = {};
+                                evt.extendedProps.tour = targetTourId;
+                            }
                         }
                     });
                     
