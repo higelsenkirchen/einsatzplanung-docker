@@ -4510,13 +4510,50 @@ Weber, Peter;Erle;social</code>
                 eventsToMove.forEach(evt => {
                     if(!evt) return;
                     
-                    // Move event to pool
-                    appData.pool.push({
-                        id: generateId(), 
-                        title: evt.title,
-                        zone: evt.extendedProps?.zone || 'Alt-/Neustadt',
-                        types: evt.extendedProps?.types || ['other']
-                    });
+                    // Prüfe ob bereits ein Pool-Item mit poolId existiert
+                    const existingPoolId = evt.extendedProps?.poolId;
+                    let poolItem = null;
+                    
+                    if (existingPoolId) {
+                        poolItem = appData.pool.find(p => p.id === existingPoolId);
+                    }
+                    
+                    if (poolItem) {
+                        // Pool-Item existiert bereits - kein Duplikat erstellen
+                        // Aktualisiere ggf. Adresse/Koordinaten falls im Event vorhanden
+                        if (evt.extendedProps?.address && !poolItem.address) {
+                            poolItem.address = evt.extendedProps.address;
+                        }
+                        if (evt.extendedProps?.postalCode && !poolItem.postalCode) {
+                            poolItem.postalCode = evt.extendedProps.postalCode;
+                        }
+                        if (evt.extendedProps?.coordinates && !poolItem.extendedProps?.coordinates) {
+                            if (!poolItem.extendedProps) poolItem.extendedProps = {};
+                            poolItem.extendedProps.coordinates = evt.extendedProps.coordinates;
+                        }
+                    } else {
+                        // Neues Pool-Item erstellen mit Adresse/Koordinaten aus Event
+                        const newPoolItem = {
+                            id: existingPoolId || generateId(), 
+                            title: evt.title,
+                            zone: evt.extendedProps?.zone || 'Alt-/Neustadt',
+                            types: evt.extendedProps?.types || ['other']
+                        };
+                        
+                        // Übernehme Adresse/Koordinaten aus Event falls vorhanden
+                        if (evt.extendedProps?.address) {
+                            newPoolItem.address = evt.extendedProps.address;
+                        }
+                        if (evt.extendedProps?.postalCode) {
+                            newPoolItem.postalCode = evt.extendedProps.postalCode;
+                        }
+                        if (evt.extendedProps?.coordinates) {
+                            if (!newPoolItem.extendedProps) newPoolItem.extendedProps = {};
+                            newPoolItem.extendedProps.coordinates = evt.extendedProps.coordinates;
+                        }
+                        
+                        appData.pool.push(newPoolItem);
+                    }
                     
                     // Remove from events
                     appData.events = appData.events.filter(e => e.id !== evt.id);
@@ -6556,11 +6593,52 @@ Weber, Peter;Erle;social</code>
                 clearAllTooltips(); // Clear tooltips before removing elements
                 // Small delay to ensure browser processes tooltip removal
                 setTimeout(() => {
+                    // Prüfe ob bereits ein Pool-Item mit poolId existiert
+                    const existingPoolId = currentEvent.extendedProps?.poolId;
+                    let poolItem = null;
+                    
+                    if (existingPoolId) {
+                        poolItem = appData.pool.find(p => p.id === existingPoolId);
+                    }
+                    
+                    if (poolItem) {
+                        // Pool-Item existiert bereits - kein Duplikat erstellen
+                        // Aktualisiere ggf. Adresse/Koordinaten falls im Event vorhanden
+                        if (currentEvent.extendedProps?.address && !poolItem.address) {
+                            poolItem.address = currentEvent.extendedProps.address;
+                        }
+                        if (currentEvent.extendedProps?.postalCode && !poolItem.postalCode) {
+                            poolItem.postalCode = currentEvent.extendedProps.postalCode;
+                        }
+                        if (currentEvent.extendedProps?.coordinates && !poolItem.extendedProps?.coordinates) {
+                            if (!poolItem.extendedProps) poolItem.extendedProps = {};
+                            poolItem.extendedProps.coordinates = currentEvent.extendedProps.coordinates;
+                        }
+                    } else {
+                        // Neues Pool-Item erstellen mit Adresse/Koordinaten aus Event
+                        const newPoolItem = {
+                            id: existingPoolId || generateId(), 
+                            title: currentEvent.title,
+                            zone: currentEvent.extendedProps?.zone || 'Alt-/Neustadt',
+                            types: currentEvent.extendedProps?.types || ['other']
+                        };
+                        
+                        // Übernehme Adresse/Koordinaten aus Event falls vorhanden
+                        if (currentEvent.extendedProps?.address) {
+                            newPoolItem.address = currentEvent.extendedProps.address;
+                        }
+                        if (currentEvent.extendedProps?.postalCode) {
+                            newPoolItem.postalCode = currentEvent.extendedProps.postalCode;
+                        }
+                        if (currentEvent.extendedProps?.coordinates) {
+                            if (!newPoolItem.extendedProps) newPoolItem.extendedProps = {};
+                            newPoolItem.extendedProps.coordinates = currentEvent.extendedProps.coordinates;
+                        }
+                        
+                        appData.pool.push(newPoolItem);
+                    }
+                    
                     appData.events = appData.events.filter(e => e.id !== currentEvent.id);
-                    appData.pool.push({
-                        id: generateId(), title: currentEvent.title,
-                        zone: currentEvent.extendedProps.zone, types: currentEvent.extendedProps.types || ['other']
-                    });
                     queueSave(); 
                     closeModal('eventModal'); 
                     refreshView(); 
