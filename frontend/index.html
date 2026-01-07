@@ -4343,6 +4343,74 @@ Weber, Peter;Erle;social</code>
             display.style.display = 'none';
         }
         
+        function setZoom(level) {
+            zoomLevel = level;
+            document.getElementById('btnZoom15')?.classList.toggle('active', level === 15);
+            document.getElementById('btnZoom5')?.classList.toggle('active', level === 5);
+            if (typeof refreshView === 'function') refreshView();
+        }
+        
+        async function duplicateVariant(sourceVariantId, newName) {
+            if (!sourceVariantId) {
+                if (typeof showToast === 'function') showToast('Keine Variante zum Duplizieren ausgewählt', 'error');
+                return;
+            }
+            
+            if (!newName || newName.trim() === '') {
+                if (typeof showToast === 'function') showToast('Variantenname ist erforderlich', 'error');
+                return;
+            }
+            
+            try {
+                const response = await apiCall(`/api/variants/${sourceVariantId}/duplicate`, {
+                    method: 'POST',
+                    body: JSON.stringify({ name: newName.trim() })
+                });
+                
+                if(!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Fehler beim Duplizieren');
+                }
+                
+                const newVariant = await response.json();
+                variants.push(newVariant);
+                if (typeof updateVariantSelect === 'function') updateVariantSelect();
+                
+                // Wechsle zur neuen Variante
+                currentVariantId = newVariant.id;
+                const select = document.getElementById('variantSelect');
+                if (select) select.value = newVariant.id;
+                
+                // Lade Daten der neuen Variante
+                await loadFromAPI();
+                if (typeof refreshUI === 'function') refreshUI();
+                if (typeof updatePatientList === 'function') updatePatientList();
+                
+                if (typeof showToast === 'function') showToast('Variante erfolgreich dupliziert', 'success');
+            } catch(e) {
+                console.error('Fehler beim Duplizieren der Variante:', e);
+                if (typeof showToast === 'function') showToast(e.message || 'Fehler beim Duplizieren der Variante', 'error');
+            }
+        }
+        
+        function handleDuplicateVariant(sourceVariantId) {
+            if (!sourceVariantId) {
+                if (typeof showToast === 'function') showToast('Keine Variante zum Duplizieren ausgewählt', 'error');
+                return;
+            }
+            
+            const sourceVariant = variants.find(v => v.id === sourceVariantId);
+            const sourceName = sourceVariant ? sourceVariant.name : 'Variante';
+            const defaultName = `${sourceName} (Kopie)`;
+            
+            if (typeof showInputModal === 'function') {
+                showInputModal('Variante duplizieren', 'Name der neuen Variante:', defaultName, (newName) => {
+                    if (!newName || newName.trim() === '') return;
+                    duplicateVariant(sourceVariantId, newName.trim());
+                });
+            }
+        }
+        
         async function loadFromAPI(){
             if (!currentVariantId) {
                 console.warn('Keine Variante ausgewählt');
@@ -5169,16 +5237,11 @@ Weber, Peter;Erle;social</code>
             }
         }
         
-        function setZoom(level) {
-            zoomLevel = level;
-            document.getElementById('btnZoom15')?.classList.toggle('active', level === 15);
-            document.getElementById('btnZoom5')?.classList.toggle('active', level === 5);
-            refreshView();
-        }
+        // setZoom wurde bereits oben definiert
 
         // Initialize zoom buttons
         document.addEventListener('DOMContentLoaded', () => {
-            setZoom(15); // Default to 15min
+            if (typeof setZoom === 'function') setZoom(15); // Default to 15min
         });
 
         // --- STANDARD LOGIC ---
@@ -9612,63 +9675,7 @@ Weber, Peter;Erle;social</code>
             });
         }
         
-        async function duplicateVariant(sourceVariantId, newName) {
-            if (!sourceVariantId) {
-                showToast('Keine Variante zum Duplizieren ausgewählt', 'error');
-                return;
-            }
-            
-            if (!newName || newName.trim() === '') {
-                showToast('Variantenname ist erforderlich', 'error');
-                return;
-            }
-            
-            try {
-                const response = await apiCall(`/api/variants/${sourceVariantId}/duplicate`, {
-                    method: 'POST',
-                    body: JSON.stringify({ name: newName.trim() })
-                });
-                
-                if(!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.error || 'Fehler beim Duplizieren');
-                }
-                
-                const newVariant = await response.json();
-                variants.push(newVariant);
-                updateVariantSelect();
-                
-                // Wechsle zur neuen Variante
-                currentVariantId = newVariant.id;
-                document.getElementById('variantSelect').value = newVariant.id;
-                
-                // Lade Daten der neuen Variante
-                await loadFromAPI();
-                refreshUI();
-                updatePatientList();
-                
-                showToast('Variante erfolgreich dupliziert', 'success');
-            } catch(e) {
-                console.error('Fehler beim Duplizieren der Variante:', e);
-                showToast(e.message || 'Fehler beim Duplizieren der Variante', 'error');
-            }
-        }
-        
-        function handleDuplicateVariant(sourceVariantId) {
-            if (!sourceVariantId) {
-                showToast('Keine Variante zum Duplizieren ausgewählt', 'error');
-                return;
-            }
-            
-            const sourceVariant = variants.find(v => v.id === sourceVariantId);
-            const sourceName = sourceVariant ? sourceVariant.name : 'Variante';
-            const defaultName = `${sourceName} (Kopie)`;
-            
-            showInputModal('Variante duplizieren', 'Name der neuen Variante:', defaultName, (newName) => {
-                if (!newName || newName.trim() === '') return;
-                duplicateVariant(sourceVariantId, newName.trim());
-            });
-        }
+        // duplicateVariant und handleDuplicateVariant wurden bereits oben definiert
         
         function showVariantContextMenu(event, variantId) {
             if (!variantId) return;
