@@ -3139,14 +3139,6 @@ Weber, Peter;Erle;social</code>
     </script>
     
     <script>
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:3142',message:'SCRIPT START - Hoisting Test',data:{refreshViewType:typeof refreshView,switchViewType:typeof switchView,testFuncType:typeof testHoistingFunc},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A'})}).catch(()=>{});
-        console.log('[DEBUG] SCRIPT START - refreshView hoisted?:', typeof refreshView === 'function', 'switchView hoisted?:', typeof switchView === 'function', 'testFunc hoisted?:', typeof testHoistingFunc === 'function');
-        // #endregion
-        
-        // TEST: Einfache Funktion am Anfang definieren
-        function testHoistingFunc() { return 'test'; }
-        
         const CITY_ZONES = ["Alt-/Neustadt", "Beckhausen", "Bismarck", "Buer", "Bulmke-Hüllen", "Erle", "Feldmark", "Hassel", "Heßler", "Horst", "Resser Mark", "Resse", "Rotthausen", "Schalke", "Scholven", "Ückendorf", "Außerhalb"];
         
         // Postleitzahlen für Gelsenkirchen Stadtteile
@@ -3895,10 +3887,7 @@ Weber, Peter;Erle;social</code>
         });
 
         document.addEventListener('DOMContentLoaded', async () => {
-            // #region agent log
-            console.log('[DEBUG] DOMContentLoaded START');
-            // #endregion
-            initTheme();
+        initTheme();
             populateZones();
             populatePoolZoneFilter();
             renderZoneLegend();
@@ -3941,20 +3930,10 @@ Weber, Peter;Erle;social</code>
             
             await loadTemplatesFromStorage();
             await loadFilterPresetsFromStorage();
-            
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:3937',message:'Vor refreshUI in DOMContentLoaded',data:{refreshViewType:typeof refreshView,switchViewType:typeof switchView},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'E'})}).catch(()=>{});
-            console.log('[DEBUG] Vor refreshUI, switchView verfügbar:', typeof switchView === 'function', 'refreshView verfügbar:', typeof refreshView === 'function');
-            // #endregion
-            
-            refreshUI(); // Hier wird renderPool() aufgerufen
+        refreshUI(); // Hier wird renderPool() aufgerufen
             if (typeof updatePatientList === 'function') updatePatientList();
             if (typeof renderFilterPresetSelect === 'function') renderFilterPresetSelect();
-            
-            // #region agent log
-            console.log('[DEBUG] DOMContentLoaded ENDE (switchView wird später aufgerufen, wenn refreshView definiert ist)');
-            // #endregion
-            // HINWEIS: switchView wird im späteren DOMContentLoaded Handler aufgerufen,
+        // HINWEIS: switchView wird im späteren DOMContentLoaded Handler aufgerufen,
             // nachdem refreshView definiert wurde (siehe weiter unten im Code)
         });
         
@@ -4481,10 +4460,7 @@ Weber, Peter;Erle;social</code>
         }
         
         function switchView(view) {
-            // #region agent log
-            console.log('[DEBUG] switchView aufgerufen mit:', view);
-            // #endregion
-            currentView = view;
+        currentView = view;
             
             // Remove active from all navigation items
             document.querySelectorAll('.nav-dropdown-item').forEach(item => item.classList.remove('active'));
@@ -4574,12 +4550,6 @@ Weber, Peter;Erle;social</code>
                 }
             }
         }
-        
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:4572',message:'NACH switchView Definition',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'F'})}).catch(()=>{});
-        console.log('[DEBUG] NACH switchView Definition');
-        // #endregion
-        
         function undo() {
             if(undoStack.length === 0) {
                 if (typeof showToast === 'function') showToast('Nichts zum Rückgängigmachen', 'info');
@@ -5203,16 +5173,6 @@ Weber, Peter;Erle;social</code>
             }
         }
         
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:5203',message:'Checkpoint Mitte (zwischen switchView und refreshView)',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'F'})}).catch(()=>{});
-        console.log('[DEBUG] Checkpoint Mitte');
-        // #endregion
-        
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:5208',message:'DIREKT nach Checkpoint Mitte',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H'})}).catch(()=>{});
-        console.log('[DEBUG] DIREKT nach Checkpoint Mitte');
-        // #endregion
-        
         function toggleFavorite(id) {
             const item = appData.pool.find(p => p.id === id);
             if(item) {
@@ -5222,12 +5182,6 @@ Weber, Peter;Erle;social</code>
                 showToast(item.favorite ? `"${item.title}" als Favorit markiert` : `"${item.title}" aus Favoriten entfernt`, 'info');
             }
         }
-        
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:5223',message:'Nach toggleFavorite',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H'})}).catch(()=>{});
-        console.log('[DEBUG] Nach toggleFavorite');
-        // #endregion
-        
         // --- FILTER PRESETS ---
         function getFilterPresets() {
             return filterPresetCache || [];
@@ -5443,12 +5397,6 @@ Weber, Peter;Erle;social</code>
                 );
             }
         }
-        
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:5433',message:'Checkpoint bei deleteAllEvents',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'G'})}).catch(()=>{});
-        console.log('[DEBUG] Checkpoint bei deleteAllEvents');
-        // #endregion
-        
         function deleteAllEvents() {
             const eventCount = appData.events.filter(e => !e.extendedProps?.isTravel).length;
             const travelCount = appData.events.filter(e => e.extendedProps?.isTravel).length;
@@ -5611,12 +5559,6 @@ Weber, Peter;Erle;social</code>
 
         // --- NAVIGATION DROPDOWN ---
         // toggleNavGroup, closeNavGroups, switchView wurden bereits oben definiert
-        
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:5594',message:'Checkpoint kurz vor refreshView',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'G'})}).catch(()=>{});
-        console.log('[DEBUG] Checkpoint kurz vor refreshView');
-        // #endregion
-
         // Close dropdowns when clicking outside
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.nav-group')) {
@@ -5631,18 +5573,10 @@ Weber, Peter;Erle;social</code>
         // Initialize zoom buttons and view
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof setZoom === 'function') setZoom(15); // Default to 15min
-            
-            // #region agent log
-            console.log('[DEBUG] Zweiter DOMContentLoaded - refreshView verfügbar:', typeof refreshView === 'function');
-            // #endregion
-            
-            // Stelle sicher, dass die View initialisiert wird (refreshView ist jetzt definiert)
+        // Stelle sicher, dass die View initialisiert wird (refreshView ist jetzt definiert)
             setTimeout(() => {
                 if (typeof switchView === 'function') {
-                    // #region agent log
-                    console.log('[DEBUG] Verzögerter switchView Aufruf');
-                    // #endregion
-                    switchView(currentView || 'week');
+        switchView(currentView || 'week');
                 } else if (typeof refreshView === 'function') {
                     refreshView();
                 }
@@ -5650,20 +5584,9 @@ Weber, Peter;Erle;social</code>
         });
 
         // --- STANDARD LOGIC ---
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:5614',message:'VOR refreshView Definition',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A-B'})}).catch(()=>{});
-        console.log('[DEBUG] VOR refreshView Definition');
-        // #endregion
         function refreshView() {
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:5618',message:'refreshView aufgerufen',data:{currentView,hasAppData:!!appData,eventsCount:appData?.events?.length},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'E'})}).catch(()=>{});
-            console.log('[DEBUG] refreshView aufgerufen', { currentView, hasAppData: !!appData, eventsCount: appData?.events?.length });
-            // #endregion
-            const container = document.getElementById('weekView');
-            // #region agent log
-            console.log('[DEBUG] weekView container:', { found: !!container, id: container?.id });
-            // #endregion
-            if(!container) return;
+        const container = document.getElementById('weekView');
+        if(!container) return;
             
             container.innerHTML = ''; // Clear container
 
@@ -5678,26 +5601,15 @@ Weber, Peter;Erle;social</code>
             }
 
             if(currentView === 'week') {
-                // #region agent log
-                console.log('[DEBUG] currentView ist week, rendere WeekBoard');
-                // #endregion
-                const tourSelect = document.getElementById('tourSelect');
+        const tourSelect = document.getElementById('tourSelect');
                 const selectedTour = tourSelect ? tourSelect.value : null;
-                // #region agent log
-                console.log('[DEBUG] Tour-Auswahl:', { selectedTour, hasTourSelect: !!tourSelect });
-                // #endregion
-
-                // Filter events by tour (no date filtering - static week)
+        // Filter events by tour (no date filtering - static week)
                 const eventsForTour = (appData.events || []).filter(evt => {
                     if(!evt || evt.dayIndex === undefined) return false;
                     if(selectedTour && (!evt.extendedProps || evt.extendedProps.tour !== selectedTour)) return false;
                     return true;
                 });
-                // #region agent log
-                console.log('[DEBUG] Gefilterte Events:', { count: eventsForTour.length, events: eventsForTour.slice(0, 3) });
-                // #endregion
-
-                // Auto-calculate travel times (with tour ID for commute calculation)
+        // Auto-calculate travel times (with tour ID for commute calculation)
                 const withTravel = injectTravelTimes(eventsForTour, selectedTour);
 
                 renderWeekBoard(container, withTravel);
@@ -6207,22 +6119,11 @@ Weber, Peter;Erle;social</code>
         }
 
         function renderWeekBoard(container, events) {
-            // #region agent log
-            console.log('[DEBUG] renderWeekBoard aufgerufen', { 
-                hasContainer: !!container, 
-                eventsCount: events?.length,
-                TIMELINE_HOURS: typeof TIMELINE_HOURS !== 'undefined' ? TIMELINE_HOURS : 'UNDEFINED'
-            });
-            // #endregion
-            const dayNames = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
+        const dayNames = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
             const pxPerMin = getPixelsPerMinute();
             const hourHeight = 60 * pxPerMin;
             const totalHeight = TIMELINE_HOURS * hourHeight;
-            // #region agent log
-            console.log('[DEBUG] renderWeekBoard Variablen:', { pxPerMin, hourHeight, totalHeight });
-            // #endregion
-            
-            // Get selected tour for filtering
+        // Get selected tour for filtering
             const tourSelect = document.getElementById('tourSelect');
             const selectedTour = tourSelect ? tourSelect.value : null;
             
@@ -11091,33 +10992,17 @@ Weber, Peter;Erle;social</code>
             });
         }
         
-        // #region agent log
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:11052',message:'Script-Ende erreicht',data:{refreshViewType:typeof refreshView,switchViewType:typeof switchView},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'A-E'})}).catch(()=>{});
-        // #endregion
-        console.log('[DEBUG] Script-Ende erreicht, refreshView verfügbar:', typeof refreshView === 'function');
-        // #endregion
-        
         // Initialisiere View am Ende des Scripts (wenn DOM bereits geladen)
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            // #region agent log
-            console.log('[DEBUG] DOM bereits geladen, initialisiere View direkt');
-            // #endregion
-            setTimeout(() => {
+        setTimeout(() => {
                 if (typeof switchView === 'function' && typeof refreshView === 'function') {
-                    // #region agent log
-                    console.log('[DEBUG] Rufe switchView auf');
-                    // #endregion
-                    switchView(currentView || 'week');
+        switchView(currentView || 'week');
                 }
             }, 50);
         } else {
             // Falls DOM noch nicht geladen, warte darauf
             document.addEventListener('DOMContentLoaded', () => {
-                // #region agent log
-                console.log('[DEBUG] DOMContentLoaded am Script-Ende');
-                // #endregion
-                setTimeout(() => {
+        setTimeout(() => {
                     if (typeof switchView === 'function' && typeof refreshView === 'function') {
                         switchView(currentView || 'week');
                     }
