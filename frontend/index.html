@@ -5206,6 +5206,11 @@ Weber, Peter;Erle;social</code>
         console.log('[DEBUG] Checkpoint Mitte');
         // #endregion
         
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:5208',message:'DIREKT nach Checkpoint Mitte',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H'})}).catch(()=>{});
+        console.log('[DEBUG] DIREKT nach Checkpoint Mitte');
+        // #endregion
+        
         function toggleFavorite(id) {
             const item = appData.pool.find(p => p.id === id);
             if(item) {
@@ -5215,6 +5220,11 @@ Weber, Peter;Erle;social</code>
                 showToast(item.favorite ? `"${item.title}" als Favorit markiert` : `"${item.title}" aus Favoriten entfernt`, 'info');
             }
         }
+        
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:5223',message:'Nach toggleFavorite',data:{},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H'})}).catch(()=>{});
+        console.log('[DEBUG] Nach toggleFavorite');
+        // #endregion
         
         // --- FILTER PRESETS ---
         function getFilterPresets() {
