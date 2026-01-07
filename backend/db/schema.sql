@@ -118,24 +118,31 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+DROP TRIGGER IF EXISTS update_events_updated_at ON events;
 CREATE TRIGGER update_events_updated_at BEFORE UPDATE ON events
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_pool_updated_at ON pool;
 CREATE TRIGGER update_pool_updated_at BEFORE UPDATE ON pool
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_employees_updated_at ON employees;
 CREATE TRIGGER update_employees_updated_at BEFORE UPDATE ON employees
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_tours_updated_at ON tours;
 CREATE TRIGGER update_tours_updated_at BEFORE UPDATE ON tours
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_wage_settings_updated_at ON wage_settings;
 CREATE TRIGGER update_wage_settings_updated_at BEFORE UPDATE ON wage_settings
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_favorites_updated_at ON favorites;
 CREATE TRIGGER update_favorites_updated_at BEFORE UPDATE ON favorites
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_variants_updated_at ON variants;
 CREATE TRIGGER update_variants_updated_at BEFORE UPDATE ON variants
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 

@@ -120,7 +120,8 @@ async function initializeDatabase() {
                         stmtError.code === '42710' || // Object already exists
                         stmtError.code === '42P16' || // Index already exists
                         stmtError.code === '42723' || // Function already exists
-                        stmtError.code === '42P17') { // Constraint already exists
+                        stmtError.code === '42P17' || // Constraint already exists
+                        stmtError.code === '42704') { // Trigger already exists
                         skipCount++;
                         // Log nur bei wichtigen Objekten
                         if (statement.toUpperCase().includes('CREATE TABLE')) {
