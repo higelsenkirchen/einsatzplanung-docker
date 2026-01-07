@@ -1108,6 +1108,17 @@
             from { opacity: 0; transform: scale(0.95); }
             to { opacity: 1; transform: scale(1); }
         }
+        
+        /* Day Checkbox Labels - Checked State */
+        .day-checkbox-label input[type="checkbox"]:checked + span {
+            font-weight: 600;
+        }
+        
+        .day-checkbox-label:has(input[type="checkbox"]:checked) {
+            border-color: var(--primary) !important;
+            background: var(--primary-light) !important;
+            color: var(--primary) !important;
+        }
 
         .context-menu-item {
             padding: 10px 16px;
@@ -1928,36 +1939,88 @@
                 </select>
             </div>
 
-            <div id="overallControls" style="display:none; align-items:center; gap:10px; flex-wrap:wrap;">
-                <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">TAGE:</label>
-                <div style="display:flex; gap:4px; flex-wrap:wrap;">
-                    <label style="display:flex; align-items:center; gap:4px; font-size:0.75rem; cursor:pointer;">
-                        <input type="checkbox" value="0" checked onchange="updateOverallDayFilter()" style="margin:0; cursor:pointer;"> Mo
-                    </label>
-                    <label style="display:flex; align-items:center; gap:4px; font-size:0.75rem; cursor:pointer;">
-                        <input type="checkbox" value="1" checked onchange="updateOverallDayFilter()" style="margin:0; cursor:pointer;"> Di
-                    </label>
-                    <label style="display:flex; align-items:center; gap:4px; font-size:0.75rem; cursor:pointer;">
-                        <input type="checkbox" value="2" checked onchange="updateOverallDayFilter()" style="margin:0; cursor:pointer;"> Mi
-                    </label>
-                    <label style="display:flex; align-items:center; gap:4px; font-size:0.75rem; cursor:pointer;">
-                        <input type="checkbox" value="3" checked onchange="updateOverallDayFilter()" style="margin:0; cursor:pointer;"> Do
-                    </label>
-                    <label style="display:flex; align-items:center; gap:4px; font-size:0.75rem; cursor:pointer;">
-                        <input type="checkbox" value="4" checked onchange="updateOverallDayFilter()" style="margin:0; cursor:pointer;"> Fr
-                    </label>
-                    <label style="display:flex; align-items:center; gap:4px; font-size:0.75rem; cursor:pointer;">
-                        <input type="checkbox" value="5" checked onchange="updateOverallDayFilter()" style="margin:0; cursor:pointer;"> Sa
-                    </label>
-                    <label style="display:flex; align-items:center; gap:4px; font-size:0.75rem; cursor:pointer;">
-                        <input type="checkbox" value="6" checked onchange="updateOverallDayFilter()" style="margin:0; cursor:pointer;"> So
-                    </label>
+            <div id="overallControls" style="display:none; background:var(--bg-card); padding:16px; border-radius:var(--radius-lg); border:1px solid var(--border); margin-bottom:16px;">
+                <div style="display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start;">
+                    <!-- Tage Filter -->
+                    <div style="flex:1; min-width:280px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                            <label style="font-size:0.9rem; font-weight:700; color:var(--text-main); display:flex; align-items:center; gap:6px;">
+                                <span>📅</span> Wochentage
+                            </label>
+                            <div style="display:flex; gap:6px;">
+                                <button class="btn btn-sm btn-secondary" onclick="selectAllDays()" style="padding:4px 10px; font-size:0.7rem;">Alle</button>
+                                <button class="btn btn-sm btn-secondary" onclick="deselectAllDays()" style="padding:4px 10px; font-size:0.7rem;">Keine</button>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                            <label class="day-checkbox-label" style="display:inline-flex; align-items:center; gap:8px; padding:8px 14px; background:var(--bg-hover); border:2px solid var(--border); border-radius:var(--radius-md); cursor:pointer; transition:all 0.2s; font-size:0.85rem; font-weight:500; user-select:none;" 
+                                   onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
+                                   onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
+                                <input type="checkbox" value="0" checked onchange="updateOverallDayFilter()" style="width:18px; height:18px; margin:0; cursor:pointer; accent-color:var(--primary);">
+                                <span>Mo</span>
+                            </label>
+                            <label class="day-checkbox-label" style="display:inline-flex; align-items:center; gap:8px; padding:8px 14px; background:var(--bg-hover); border:2px solid var(--border); border-radius:var(--radius-md); cursor:pointer; transition:all 0.2s; font-size:0.85rem; font-weight:500; user-select:none;" 
+                                   onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
+                                   onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
+                                <input type="checkbox" value="1" checked onchange="updateOverallDayFilter()" style="width:18px; height:18px; margin:0; cursor:pointer; accent-color:var(--primary);">
+                                <span>Di</span>
+                            </label>
+                            <label class="day-checkbox-label" style="display:inline-flex; align-items:center; gap:8px; padding:8px 14px; background:var(--bg-hover); border:2px solid var(--border); border-radius:var(--radius-md); cursor:pointer; transition:all 0.2s; font-size:0.85rem; font-weight:500; user-select:none;" 
+                                   onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
+                                   onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
+                                <input type="checkbox" value="2" checked onchange="updateOverallDayFilter()" style="width:18px; height:18px; margin:0; cursor:pointer; accent-color:var(--primary);">
+                                <span>Mi</span>
+                            </label>
+                            <label class="day-checkbox-label" style="display:inline-flex; align-items:center; gap:8px; padding:8px 14px; background:var(--bg-hover); border:2px solid var(--border); border-radius:var(--radius-md); cursor:pointer; transition:all 0.2s; font-size:0.85rem; font-weight:500; user-select:none;" 
+                                   onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
+                                   onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
+                                <input type="checkbox" value="3" checked onchange="updateOverallDayFilter()" style="width:18px; height:18px; margin:0; cursor:pointer; accent-color:var(--primary);">
+                                <span>Do</span>
+                            </label>
+                            <label class="day-checkbox-label" style="display:inline-flex; align-items:center; gap:8px; padding:8px 14px; background:var(--bg-hover); border:2px solid var(--border); border-radius:var(--radius-md); cursor:pointer; transition:all 0.2s; font-size:0.85rem; font-weight:500; user-select:none;" 
+                                   onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
+                                   onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
+                                <input type="checkbox" value="4" checked onchange="updateOverallDayFilter()" style="width:18px; height:18px; margin:0; cursor:pointer; accent-color:var(--primary);">
+                                <span>Fr</span>
+                            </label>
+                            <label class="day-checkbox-label" style="display:inline-flex; align-items:center; gap:8px; padding:8px 14px; background:var(--bg-hover); border:2px solid var(--border); border-radius:var(--radius-md); cursor:pointer; transition:all 0.2s; font-size:0.85rem; font-weight:500; user-select:none;" 
+                                   onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
+                                   onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
+                                <input type="checkbox" value="5" checked onchange="updateOverallDayFilter()" style="width:18px; height:18px; margin:0; cursor:pointer; accent-color:var(--primary);">
+                                <span>Sa</span>
+                            </label>
+                            <label class="day-checkbox-label" style="display:inline-flex; align-items:center; gap:8px; padding:8px 14px; background:var(--bg-hover); border:2px solid var(--border); border-radius:var(--radius-md); cursor:pointer; transition:all 0.2s; font-size:0.85rem; font-weight:500; user-select:none;" 
+                                   onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
+                                   onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
+                                <input type="checkbox" value="6" checked onchange="updateOverallDayFilter()" style="width:18px; height:18px; margin:0; cursor:pointer; accent-color:var(--primary);">
+                                <span>So</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Touren Filter -->
+                    <div style="flex:1; min-width:280px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                            <label style="font-size:0.9rem; font-weight:700; color:var(--text-main); display:flex; align-items:center; gap:6px;">
+                                <span>🚐</span> Touren
+                            </label>
+                            <div style="display:flex; gap:6px;">
+                                <button class="btn btn-sm btn-secondary" onclick="selectAllTours()" style="padding:4px 10px; font-size:0.7rem;">Alle</button>
+                                <button class="btn btn-sm btn-secondary" onclick="deselectAllTours()" style="padding:4px 10px; font-size:0.7rem;">Keine</button>
+                            </div>
+                        </div>
+                        <div id="overallTourFilterContainer" style="display:flex; gap:6px; flex-wrap:wrap;">
+                            <!-- Wird dynamisch gefüllt -->
+                        </div>
+                    </div>
                 </div>
-                <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-left:10px;">TOUREN:</label>
-                <select id="overallTourFilter" multiple size="3" onchange="updateOverallTourFilter()" style="width:200px; margin:0; padding:4px; font-size:0.75rem; cursor:pointer;">
-                </select>
-                <div id="overallConflictInfo" style="font-size:0.75rem; color:var(--warning); font-weight:600; padding:4px 8px; background:rgba(239, 68, 68, 0.1); border-radius:var(--radius-sm); display:none;">
-                    <span id="overallConflictCount">0</span> Überschneidungen
+                
+                <!-- Konflikt-Info -->
+                <div id="overallConflictInfo" style="margin-top:16px; padding:12px; background:rgba(239, 68, 68, 0.1); border:1px solid var(--danger); border-radius:var(--radius-md); display:none;">
+                    <div style="display:flex; align-items:center; gap:8px; color:var(--danger); font-weight:600; font-size:0.85rem;">
+                        <span>⚠️</span>
+                        <span id="overallConflictCount">0</span> Überschneidungen gefunden
+                    </div>
                 </div>
             </div>
 
@@ -4254,6 +4317,10 @@ Weber, Peter;Erle;social</code>
                 overallControls.style.display = view === 'overall' ? 'flex' : 'none';
                 if(view === 'overall') {
                     populateOverallTourFilter();
+                    // Aktualisiere Checkbox-Styles für Tage nach kurzer Verzögerung
+                    setTimeout(() => {
+                        updateOverallDayFilter();
+                    }, 100);
                 }
             }
             
@@ -7392,43 +7459,178 @@ Weber, Peter;Erle;social</code>
 
         // Filter-Funktionen für Gesamtansicht
         function updateOverallDayFilter() {
-            const checkboxes = document.querySelectorAll('#overallControls input[type="checkbox"]');
+            const checkboxes = document.querySelectorAll('#overallControls .day-checkbox-label input[type="checkbox"]');
             overallDayFilter = [];
             checkboxes.forEach(cb => {
+                const label = cb.closest('.day-checkbox-label');
                 if(cb.checked) {
                     overallDayFilter.push(parseInt(cb.value));
+                    if(label) {
+                        label.style.borderColor = 'var(--primary)';
+                        label.style.background = 'var(--primary-light)';
+                        label.style.color = 'var(--primary)';
+                    }
+                } else {
+                    if(label) {
+                        label.style.borderColor = 'var(--border)';
+                        label.style.background = 'var(--bg-hover)';
+                        label.style.color = 'var(--text-main)';
+                    }
                 }
             });
             // Mindestens ein Tag muss ausgewählt sein
             if(overallDayFilter.length === 0) {
                 overallDayFilter = [0, 1, 2, 3, 4, 5, 6];
-                checkboxes.forEach(cb => cb.checked = true);
+                checkboxes.forEach(cb => {
+                    cb.checked = true;
+                    const label = cb.closest('.day-checkbox-label');
+                    if(label) {
+                        label.style.borderColor = 'var(--primary)';
+                        label.style.background = 'var(--primary-light)';
+                        label.style.color = 'var(--primary)';
+                    }
+                });
             }
             refreshView();
         }
+        
+        function selectAllDays() {
+            const checkboxes = document.querySelectorAll('#overallControls .day-checkbox-label input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                cb.checked = true;
+                const label = cb.closest('.day-checkbox-label');
+                if(label) {
+                    label.style.borderColor = 'var(--primary)';
+                    label.style.background = 'var(--primary-light)';
+                    label.style.color = 'var(--primary)';
+                }
+            });
+            updateOverallDayFilter();
+        }
+        
+        function deselectAllDays() {
+            const checkboxes = document.querySelectorAll('#overallControls .day-checkbox-label input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                cb.checked = false;
+                const label = cb.closest('.day-checkbox-label');
+                if(label) {
+                    label.style.borderColor = 'var(--border)';
+                    label.style.background = 'var(--bg-hover)';
+                    label.style.color = 'var(--text-main)';
+                }
+            });
+            // Verhindere, dass alle abgewählt werden (updateOverallDayFilter setzt dann alle wieder)
+            setTimeout(() => {
+                if(overallDayFilter.length === 0) {
+                    selectAllDays();
+                }
+            }, 10);
+        }
 
         function populateOverallTourFilter() {
-            const select = document.getElementById('overallTourFilter');
-            if(!select) return;
-            select.innerHTML = '';
-            if(!appData.tours || appData.tours.length === 0) return;
+            const container = document.getElementById('overallTourFilterContainer');
+            if(!container) return;
+            container.innerHTML = '';
+            if(!appData.tours || appData.tours.length === 0) {
+                container.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; padding:8px;">Keine Touren vorhanden</div>';
+                return;
+            }
+            
             appData.tours.forEach(tour => {
-                const option = document.createElement('option');
-                option.value = tour.id;
-                option.textContent = tour.name;
-                // Alle Touren standardmäßig ausgewählt (wenn Filter leer)
-                if(overallTourFilter.length === 0 || overallTourFilter.includes(tour.id)) {
-                    option.selected = true;
-                }
-                select.appendChild(option);
+                const isSelected = overallTourFilter.length === 0 || overallTourFilter.includes(tour.id);
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'btn btn-sm';
+                button.style.cssText = `
+                    padding:8px 14px;
+                    border:2px solid ${isSelected ? 'var(--primary)' : 'var(--border)'};
+                    background:${isSelected ? 'var(--primary-light)' : 'var(--bg-hover)'};
+                    color:${isSelected ? 'var(--primary)' : 'var(--text-main)'};
+                    font-size:0.85rem;
+                    font-weight:500;
+                    border-radius:var(--radius-md);
+                    cursor:pointer;
+                    transition:all 0.2s;
+                    white-space:nowrap;
+                `;
+                button.textContent = tour.name;
+                button.onclick = () => {
+                    if(overallTourFilter.includes(tour.id)) {
+                        overallTourFilter = overallTourFilter.filter(id => id !== tour.id);
+                        button.style.borderColor = 'var(--border)';
+                        button.style.background = 'var(--bg-hover)';
+                        button.style.color = 'var(--text-main)';
+                    } else {
+                        overallTourFilter.push(tour.id);
+                        button.style.borderColor = 'var(--primary)';
+                        button.style.background = 'var(--primary-light)';
+                        button.style.color = 'var(--primary)';
+                    }
+                    // Wenn keine Tour ausgewählt, zeige alle
+                    if(overallTourFilter.length === 0) {
+                        overallTourFilter = appData.tours.map(t => t.id);
+                        appData.tours.forEach(t => {
+                            const btn = Array.from(container.children).find(b => b.textContent === t.name);
+                            if(btn) {
+                                btn.style.borderColor = 'var(--primary)';
+                                btn.style.background = 'var(--primary-light)';
+                                btn.style.color = 'var(--primary)';
+                            }
+                        });
+                    }
+                    refreshView();
+                };
+                button.onmouseover = function() {
+                    if(!overallTourFilter.includes(tour.id)) {
+                        this.style.borderColor = 'var(--primary)';
+                        this.style.background = 'var(--primary-light)';
+                    }
+                };
+                button.onmouseout = function() {
+                    if(!overallTourFilter.includes(tour.id)) {
+                        this.style.borderColor = 'var(--border)';
+                        this.style.background = 'var(--bg-hover)';
+                    }
+                };
+                container.appendChild(button);
             });
         }
 
         function updateOverallTourFilter() {
-            const select = document.getElementById('overallTourFilter');
-            if(!select) return;
-            overallTourFilter = Array.from(select.selectedOptions).map(opt => opt.value);
+            // Wird jetzt direkt in populateOverallTourFilter() Button-Handlers behandelt
             refreshView();
+        }
+        
+        function selectAllTours() {
+            if(!appData.tours || appData.tours.length === 0) return;
+            overallTourFilter = appData.tours.map(t => t.id);
+            const container = document.getElementById('overallTourFilterContainer');
+            if(container) {
+                Array.from(container.children).forEach(btn => {
+                    btn.style.borderColor = 'var(--primary)';
+                    btn.style.background = 'var(--primary-light)';
+                    btn.style.color = 'var(--primary)';
+                });
+            }
+            refreshView();
+        }
+        
+        function deselectAllTours() {
+            overallTourFilter = [];
+            const container = document.getElementById('overallTourFilterContainer');
+            if(container) {
+                Array.from(container.children).forEach(btn => {
+                    btn.style.borderColor = 'var(--border)';
+                    btn.style.background = 'var(--bg-hover)';
+                    btn.style.color = 'var(--text-main)';
+                });
+            }
+            // Verhindere, dass alle abgewählt werden (zeige dann alle)
+            setTimeout(() => {
+                if(overallTourFilter.length === 0) {
+                    selectAllTours();
+                }
+            }, 10);
         }
 
         function updateOverallConflictCount(events) {
