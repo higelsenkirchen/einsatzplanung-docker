@@ -2,6 +2,186 @@ const express = require('express');
 const router = express.Router();
 const { pool } = require('../db/connection');
 
+// GET /api/optimize/potential - Analysiert Optimierungspotential
+router.get('/potential', async (req, res) => {
+    try {
+        const variantId = req.query.variant_id || req.query.variantId;
+        
+        if (!variantId) {
+            return res.status(400).json({ error: 'variant_id erforderlich' });
+        }
+
+        // Lade alle Events der Woche
+        const eventsResult = await pool.query(
+            `SELECT id, title, start, "end", day_index, extended_props 
+             FROM events 
+             WHERE variant_id = $1 
+             AND (extended_props->>'isTravel' IS NULL OR extended_props->>'isTravel' = 'false')`,
+            [variantId]
+        );
+        
+        const toursResult = await pool.query(
+            'SELECT id, name, employee_id FROM tours WHERE variant_id = $1',
+            [variantId]
+        );
+        
+        const poolResult = await pool.query(
+            'SELECT id, title, zone FROM pool WHERE variant_id = $1',
+            [variantId]
+        );
+
+        const events = eventsResult.rows.map(row => ({
+            id: row.id,
+            title: row.title,
+            start: row.start,
+            end: row.end,
+            dayIndex: row.day_index,
+            extendedProps: row.extended_props
+        }));
+
+        const tours = toursResult.rows;
+        const poolData = poolResult.rows;
+
+        // Analysiere Optimierungspotential
+        const potential = analyzeOptimizationPotential(events, tours, poolData);
+
+        res.json({
+            success: true,
+            potential
+        });
+    } catch (error) {
+        console.error('Fehler bei Potential-Analyse:', error);
+        res.status(500).json({ error: 'Fehler bei Potential-Analyse', details: error.message });
+    }
+});
+
+// Analysiert das Optimierungspotential
+function analyzeOptimizationPotential(events, tours, poolData) {
+    const realEvents = events.filter(e => !e.extendedProps?.isTravel);
+    
+    if (realEvents.length === 0) {
+        return {
+            hasPotential: false,
+            issues: [],
+            recommendations: []
+        };
+    }
+
+    const issues = [];
+    const recommendations = [];
+    let totalPotentialSavings = 0;
+
+    // Analysiere pro Tag
+    for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+        const dayEvents = realEvents.filter(e => e.dayIndex === dayIndex);
+        if (dayEvents.length === 0) continue;
+
+        // Prüfe auf unzugewiesene Events
+        const unassignedEvents = dayEvents.filter(e => !e.extendedProps?.tour);
+        if (unassignedEvents.length > 0) {
+            issues.push({
+                type: 'unassigned',
+                dayIndex,
+                count: unassignedEvents.length,
+                message: `${unassignedEvents.length} unzugewiesene Event(s) am ${getDayName(dayIndex)}`
+            });
+        }
+
+        // Prüfe auf große Zeitlücken zwischen Events in Touren
+        const eventsByTour = {};
+        dayEvents.forEach(event => {
+            const tourId = event.extendedProps?.tour;
+            if (tourId) {
+                if (!eventsByTour[tourId]) eventsByTour[tourId] = [];
+                eventsByTour[tourId].push(event);
+            }
+        });
+
+        Object.keys(eventsByTour).forEach(tourId => {
+            const tourEvents = eventsByTour[tourId].sort((a, b) => {
+                return parseTimeToMinutes(a.start) - parseTimeToMinutes(b.start);
+            });
+
+            for (let i = 0; i < tourEvents.length - 1; i++) {
+                const current = tourEvents[i];
+                const next = tourEvents[i + 1];
+                const currentEnd = parseTimeToMinutes(current.end);
+                const nextStart = parseTimeToMinutes(next.start);
+                const gap = nextStart - currentEnd;
+
+                if (gap > 30) {
+                    // Berechne realistische Fahrzeit
+                    const currentPool = poolData.find(p => p.id === current.extendedProps?.poolId);
+                    const nextPool = poolData.find(p => p.id === next.extendedProps?.poolId);
+                    
+                    if (currentPool && nextPool) {
+                        const travelTime = calculateTravelTime(
+                            current.extendedProps?.poolId,
+                            next.extendedProps?.poolId,
+                            poolData
+                        );
+                        const excessGap = gap - travelTime;
+                        
+                        if (excessGap > 15) {
+                            issues.push({
+                                type: 'large_gap',
+                                dayIndex,
+                                tourId,
+                                gap: excessGap,
+                                message: `Große Zeitlücke (${Math.round(excessGap)}min) am ${getDayName(dayIndex)}`
+                            });
+                            totalPotentialSavings += excessGap;
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Prüfe auf unausgewogene Tour-Auslastung
+    const tourUsage = {};
+    tours.forEach(tour => {
+        tourUsage[tour.id] = {
+            tourId: tour.id,
+            tourName: tour.name,
+            eventCount: 0,
+            days: new Set()
+        };
+    });
+
+    realEvents.forEach(event => {
+        const tourId = event.extendedProps?.tour;
+        if (tourId && tourUsage[tourId]) {
+            tourUsage[tourId].eventCount++;
+            tourUsage[tourId].days.add(event.dayIndex);
+        }
+    });
+
+    const emptyTours = Object.values(tourUsage).filter(t => t.eventCount === 0);
+    if (emptyTours.length > 0) {
+        recommendations.push({
+            type: 'empty_tours',
+            count: emptyTours.length,
+            message: `${emptyTours.length} ungenutzte Tour(s) vorhanden`
+        });
+    }
+
+    return {
+        hasPotential: issues.length > 0 || recommendations.length > 0,
+        issues,
+        recommendations,
+        totalPotentialSavings: Math.round(totalPotentialSavings),
+        summary: issues.length > 0 
+            ? `${issues.length} Optimierungsmöglichkeit(en) gefunden`
+            : 'Keine Optimierungsmöglichkeiten gefunden'
+    };
+}
+
+function getDayName(dayIndex) {
+    const days = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
+    return days[dayIndex] || 'Tag';
+}
+
 // POST /api/optimize/tours - Automatische Tourenoptimierung
 router.post('/tours', async (req, res) => {
     try {
@@ -418,7 +598,9 @@ function adjustEventTimings(events, poolData, employee) {
         if (firstPool?.zone) {
             const homeTravelTime = calculateTravelTime(null, sortedEvents[0].extendedProps?.poolId, poolData, employee.home_zone, firstPool.zone);
             const currentStart = parseTimeToMinutes(sortedEvents[0].start);
-            const suggestedStart = currentStart - homeTravelTime;
+            const rawSuggestedStart = currentStart - homeTravelTime;
+            // Runde auf nächst höheren 5-Minuten-Schritt
+            const suggestedStart = Math.ceil(rawSuggestedStart / 5) * 5;
             // Setze Startzeit nur wenn sie realistisch ist (nicht zu früh)
             if (suggestedStart >= 0 && suggestedStart < currentStart) {
                 sortedEvents[0].start = minutesToTime(suggestedStart);
@@ -438,7 +620,9 @@ function adjustEventTimings(events, poolData, employee) {
             const travelTime = calculateTravelTime(lastPoolId, currentPoolId, poolData);
             
             // Neue Startzeit = Ende des letzten Events + Fahrzeit
-            const newStart = lastEventEnd + travelTime;
+            // Runde auf nächst höheren 5-Minuten-Schritt
+            const rawNewStart = lastEventEnd + travelTime;
+            const newStart = Math.ceil(rawNewStart / 5) * 5;
             const currentStart = parseTimeToMinutes(currentEvent.start);
             const eventDuration = parseTimeToMinutes(currentEvent.end) - currentStart;
             

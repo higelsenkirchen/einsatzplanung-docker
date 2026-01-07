@@ -2359,6 +2359,14 @@
                         </div>
                     </div>
                     
+                    <!-- Optimierung -->
+                    <div class="nav-group" style="margin-top:10px;">
+                        <button class="nav-group-btn" id="btnOptimization" onclick="openOptimizationModal()" style="background:linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%); color:white; font-weight:600;">
+                            ⚡ Optimierung
+                            <span id="optimizationBadge" style="display:none; margin-left:8px; padding:2px 8px; background:rgba(255,255,255,0.3); border-radius:12px; font-size:0.75rem; font-weight:700;"></span>
+                        </button>
+                    </div>
+                    
                     <!-- Verwaltung -->
                     <div class="nav-group">
                         <button class="nav-group-btn" id="btnViewAdmin" onclick="switchView('admin')">⚙️ Verwaltung</button>
@@ -8954,11 +8962,21 @@ Weber, Peter;Erle;social</code>
                 fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8839',message:'before refreshView',data:{currentView},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
                 // #endregion
                 refreshView();
+                
+                // Prüfe Optimierungspotential erneut nach Anwendung
+                if (typeof checkOptimizationPotential === 'function') {
+                    setTimeout(checkOptimizationPotential, 500);
+                }
                 // #region agent log
                 fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8839',message:'after refreshView',timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
                 // #endregion
                 closeModal('optimizationModal');
                 showToast('Optimierung angewendet', 'success');
+                
+                // Prüfe Optimierungspotential erneut nach Anwendung
+                if (typeof checkOptimizationPotential === 'function') {
+                    setTimeout(checkOptimizationPotential, 500);
+                }
             } catch (error) {
                 // #region agent log
                 fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8842',message:'error in applyOptimization',data:{errorMessage:error.message,errorStack:error.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
@@ -9985,6 +10003,11 @@ Weber, Peter;Erle;social</code>
                 cleanupInvalidEvents();
                 
                 console.log('Daten erfolgreich vom Server geladen');
+                
+                // Starte Monitoring des Optimierungspotentials nach dem Laden
+                if (typeof startOptimizationPotentialMonitoring === 'function') {
+                    startOptimizationPotentialMonitoring();
+                }
             } catch(e) {
                 console.error('Fehler beim Laden vom Server:', e);
                 throw e;
@@ -11016,10 +11039,66 @@ Weber, Peter;Erle;social</code>
             }
         }
         
+        let optimizationPotentialCheckInterval = null;
+        
+        async function checkOptimizationPotential() {
+            if (!currentVariantId) return;
+            
+            try {
+                const response = await apiCall(`/api/optimize/potential?variant_id=${currentVariantId}`);
+                const result = await response.json();
+                
+                if (result.success && result.potential) {
+                    const badge = document.getElementById('optimizationBadge');
+                    if (badge) {
+                        if (result.potential.hasPotential) {
+                            badge.style.display = 'inline-block';
+                            const issueCount = result.potential.issues.length;
+                            badge.textContent = issueCount > 0 ? `${issueCount}` : '!';
+                            badge.title = result.potential.summary;
+                            
+                            // Farbe basierend auf Anzahl der Issues
+                            if (issueCount >= 5) {
+                                badge.style.background = 'rgba(239, 68, 68, 0.3)'; // Rot
+                            } else if (issueCount >= 3) {
+                                badge.style.background = 'rgba(245, 158, 11, 0.3)'; // Orange
+                            } else {
+                                badge.style.background = 'rgba(34, 197, 94, 0.3)'; // Grün
+                            }
+                        } else {
+                            badge.style.display = 'none';
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Fehler beim Prüfen des Optimierungspotentials:', error);
+            }
+        }
+        
+        function startOptimizationPotentialMonitoring() {
+            // Prüfe sofort
+            checkOptimizationPotential();
+            
+            // Prüfe alle 30 Sekunden
+            if (optimizationPotentialCheckInterval) {
+                clearInterval(optimizationPotentialCheckInterval);
+            }
+            optimizationPotentialCheckInterval = setInterval(checkOptimizationPotential, 30000);
+        }
+        
+        function stopOptimizationPotentialMonitoring() {
+            if (optimizationPotentialCheckInterval) {
+                clearInterval(optimizationPotentialCheckInterval);
+                optimizationPotentialCheckInterval = null;
+            }
+        }
+        
         function openOptimizationModal() {
             openModal('optimizationModal');
             // Initialisiere Scope-Auswahl
             updateOptimizeScope();
+            // Prüfe Potential erneut
+            checkOptimizationPotential();
         }
         
         function openModal(id){
