@@ -156,7 +156,7 @@ function optimizeTours(events, tours, employees, poolData, wageSettings, optimiz
                 let score = 0;
                 
                 if (optimizeFor === 'time') {
-                    // Minimiere Gesamtzeit
+                    // Minimiere zusätzliche Zeit (nicht Gesamtzeit)
                     if (workload.events.length > 0) {
                         const lastEvent = workload.events[workload.events.length - 1];
                         const lastEventEnd = parseTimeToMinutes(lastEvent.end);
@@ -171,12 +171,16 @@ function optimizeTours(events, tours, employees, poolData, wageSettings, optimiz
                         if (gap < 0) {
                             score = Infinity;
                         } else {
-                            score = workload.totalMinutes + travelTime + eventDuration;
+                            // Score ist die zusätzliche Zeit (travelTime + eventDuration)
+                            // plus eine kleine Strafe für große Zeitlücken
+                            const timeGapPenalty = gap > 60 ? gap / 10 : 0; // Strafe für große Lücken
+                            score = travelTime + eventDuration + timeGapPenalty;
                         }
                     } else {
                         // Erste Event der Tour - von Home Zone
                         const homeTravelTime = employee?.home_zone === zone ? 5 : 15; // Schätzung
-                        score = homeTravelTime + eventDuration;
+                        // Für leere Touren: höherer Score, damit belegte Touren bevorzugt werden
+                        score = homeTravelTime + eventDuration + 30; // +30 Minuten Strafe für neue Tour
                     }
                 } else if (optimizeFor === 'distance') {
                     // Minimiere Distanz
