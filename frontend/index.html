@@ -6605,13 +6605,26 @@ Weber, Peter;Erle;social</code>
                         else delete e.extendedProps.tag;
                         
                         // Behalte poolId falls vorhanden (für Adresse/Koordinaten)
-                        if (e.extendedProps.poolId) {
-                            // poolId bleibt erhalten
-                        } else {
-                            // Prüfe ob poolId im Modal gesetzt ist (beim Bearbeiten nach Pool-Drop)
-                            const modal = document.getElementById('eventModal');
-                            if (modal && modal.dataset.fromPoolId) {
-                                e.extendedProps.poolId = modal.dataset.fromPoolId;
+                        const modal = document.getElementById('eventModal');
+                        if (modal && modal.dataset.fromPoolId) {
+                            e.extendedProps.poolId = modal.dataset.fromPoolId;
+                            
+                            // Speichere auch Adresse/Koordinaten direkt im Event als Fallback
+                            const poolItem = appData.pool?.find(p => p.id === modal.dataset.fromPoolId);
+                            if (poolItem) {
+                                if (poolItem.address) e.extendedProps.address = poolItem.address;
+                                if (poolItem.postalCode) e.extendedProps.postalCode = poolItem.postalCode;
+                                const coordinates = poolItem.extendedProps?.coordinates || poolItem.extended_props?.coordinates;
+                                if (coordinates) e.extendedProps.coordinates = coordinates;
+                            }
+                        } else if (e.extendedProps.poolId) {
+                            // poolId bleibt erhalten - aktualisiere Adresse/Koordinaten aus Pool
+                            const poolItem = appData.pool?.find(p => p.id === e.extendedProps.poolId);
+                            if (poolItem) {
+                                if (poolItem.address) e.extendedProps.address = poolItem.address;
+                                if (poolItem.postalCode) e.extendedProps.postalCode = poolItem.postalCode;
+                                const coordinates = poolItem.extendedProps?.coordinates || poolItem.extended_props?.coordinates;
+                                if (coordinates) e.extendedProps.coordinates = coordinates;
                             }
                         }
                         
@@ -6657,6 +6670,15 @@ Weber, Peter;Erle;social</code>
                         // Speichere poolId falls vorhanden (für Adresse/Koordinaten)
                         if(m.dataset.fromPoolId) {
                             newEvent.extendedProps.poolId = m.dataset.fromPoolId;
+                            
+                            // Speichere auch Adresse/Koordinaten direkt im Event als Fallback
+                            const poolItem = appData.pool?.find(p => p.id === m.dataset.fromPoolId);
+                            if (poolItem) {
+                                if (poolItem.address) newEvent.extendedProps.address = poolItem.address;
+                                if (poolItem.postalCode) newEvent.extendedProps.postalCode = poolItem.postalCode;
+                                const coordinates = poolItem.extendedProps?.coordinates || poolItem.extended_props?.coordinates;
+                                if (coordinates) newEvent.extendedProps.coordinates = coordinates;
+                            }
                         }
                         
                         saveUndoState(); // Save state before changes
@@ -6681,11 +6703,8 @@ Weber, Peter;Erle;social</code>
                             appData.events.push(repeatEvent);
                         });
                         
-                        // Remove from pool only if actually scheduling (has start time)
-                        if(m.dataset.fromPoolId && m.dataset.start) {
-                            appData.pool = appData.pool.filter(p => p.id !== m.dataset.fromPoolId);
-                            renderPool();
-                        }
+                        // Pool-Item bleibt im Pool (kann mehrfach geplant werden)
+                        // Kein Entfernen aus dem Pool mehr - ermöglicht mehrfache Planung
                     }
                     // Clear repeat checkboxes
                     document.querySelectorAll('.repeat-cb').forEach(cb => cb.checked = false);
@@ -8856,8 +8875,27 @@ Weber, Peter;Erle;social</code>
                         coordinatesDisplay.style.display = 'none';
                     }
                 } else {
-                    addressDisplay.style.display = 'none';
-                    coordinatesDisplay.style.display = 'none';
+                    // Pool-Item nicht gefunden - verwende Fallback aus Event extendedProps
+                    const eventAddress = ev?.extendedProps?.address;
+                    const eventPostalCode = ev?.extendedProps?.postalCode;
+                    const eventCoordinates = ev?.extendedProps?.coordinates;
+                    
+                    if (eventAddress || eventPostalCode) {
+                        let addressParts = [];
+                        if (eventAddress) addressParts.push(eventAddress);
+                        if (eventPostalCode) addressParts.push(eventPostalCode);
+                        addressText.textContent = addressParts.join(', ');
+                        addressDisplay.style.display = 'block';
+                    } else {
+                        addressDisplay.style.display = 'none';
+                    }
+                    
+                    if (eventCoordinates && eventCoordinates.lat && eventCoordinates.lng) {
+                        coordinatesText.textContent = `${eventCoordinates.lat.toFixed(6)}°N, ${eventCoordinates.lng.toFixed(6)}°E`;
+                        coordinatesDisplay.style.display = 'block';
+                    } else {
+                        coordinatesDisplay.style.display = 'none';
+                    }
                 }
             } else {
                 addressDisplay.style.display = 'none';
