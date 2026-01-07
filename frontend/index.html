@@ -3886,6 +3886,9 @@ Weber, Peter;Erle;social</code>
         });
 
         document.addEventListener('DOMContentLoaded', async () => {
+            // #region agent log
+            console.log('[DEBUG] DOMContentLoaded START');
+            // #endregion
             initTheme();
             populateZones();
             populatePoolZoneFilter();
@@ -3930,16 +3933,31 @@ Weber, Peter;Erle;social</code>
             await loadTemplatesFromStorage();
             await loadFilterPresetsFromStorage();
             
+            // #region agent log
+            console.log('[DEBUG] Vor refreshUI, switchView verfügbar:', typeof switchView === 'function', 'refreshView verfügbar:', typeof refreshView === 'function');
+            // #endregion
+            
             refreshUI(); // Hier wird renderPool() aufgerufen
             if (typeof updatePatientList === 'function') updatePatientList();
             if (typeof renderFilterPresetSelect === 'function') renderFilterPresetSelect();
             
+            // #region agent log
+            console.log('[DEBUG] Vor switchView Aufruf, currentView:', currentView);
+            // #endregion
+            
             // Stelle sicher, dass die View initialisiert wird
             if (typeof switchView === 'function') {
+                // #region agent log
+                console.log('[DEBUG] switchView wird aufgerufen mit:', currentView || 'week');
+                // #endregion
                 switchView(currentView || 'week');
             } else if (typeof refreshView === 'function') {
                 refreshView();
             }
+            
+            // #region agent log
+            console.log('[DEBUG] DOMContentLoaded ENDE');
+            // #endregion
         });
         
         async function loadTemplatesFromStorage() {
@@ -4465,6 +4483,9 @@ Weber, Peter;Erle;social</code>
         }
         
         function switchView(view) {
+            // #region agent log
+            console.log('[DEBUG] switchView aufgerufen mit:', view);
+            // #endregion
             currentView = view;
             
             // Remove active from all navigation items
