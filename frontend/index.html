@@ -4394,7 +4394,8 @@ Weber, Peter;Erle;social</code>
             if (typeof updateTourEmployeeDisplay === 'function') updateTourEmployeeDisplay();
             if (typeof renderPool === 'function') renderPool();
             if (typeof refreshView === 'function') refreshView();
-            renderList('employeeList', appData.employees || [], 
+            if (typeof renderList === 'function') {
+                renderList('employeeList', appData.employees || [], 
                 id => {
                     appData.employees = appData.employees.filter(e => e.id !== id);
                     queueSave();
@@ -4409,7 +4410,7 @@ Weber, Peter;Erle;social</code>
                     }
                 }
             );
-            renderList('tourList', appData.tours || [], 
+                renderList('tourList', appData.tours || [], 
                 id => {
                     if(appData.tours.length <= 1) {
                         showAlertModal('Fehler', 'Mindestens eine Tour muss vorhanden sein.', 'error');
@@ -4428,6 +4429,7 @@ Weber, Peter;Erle;social</code>
                     }
                 }
             );
+            }
         }
         
         // --- ZONE LEGEND ---
