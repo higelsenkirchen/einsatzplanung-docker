@@ -104,11 +104,31 @@ function geocodeWithNominatim(query) {
         
         const options = {
             headers: {
-                'User-Agent': 'Einsatzplanung-App/1.0 (contact@example.com)' // Nominatim erfordert User-Agent
+                'User-Agent': 'Einsatzplanung-App/1.0 (contact@example.com)', // Nominatim erfordert User-Agent
+                'Accept': 'application/json'
             }
         };
         
         https.get(url, options, (res) => {
+            // Prüfe Status-Code
+            if (res.statusCode !== 200) {
+                return reject(new Error(`Nominatim API Fehler: HTTP ${res.statusCode}`));
+            }
+            
+            // Prüfe Content-Type
+            const contentType = res.headers['content-type'] || '';
+            if (!contentType.includes('application/json')) {
+                let errorData = '';
+                res.on('data', (chunk) => {
+                    errorData += chunk.toString();
+                });
+                res.on('end', () => {
+                    console.error('Nominatim API hat HTML statt JSON zurückgegeben:', errorData.substring(0, 200));
+                    reject(new Error(`Nominatim API hat ungültigen Content-Type zurückgegeben: ${contentType}`));
+                });
+                return;
+            }
+            
             let data = '';
             
             res.on('data', (chunk) => {
@@ -117,6 +137,17 @@ function geocodeWithNominatim(query) {
             
             res.on('end', () => {
                 try {
+                    // Prüfe ob Daten leer sind
+                    if (!data || data.trim().length === 0) {
+                        return resolve(null);
+                    }
+                    
+                    // Prüfe ob es HTML ist (beginnt mit <)
+                    if (data.trim().startsWith('<')) {
+                        console.error('Nominatim API hat HTML zurückgegeben:', data.substring(0, 200));
+                        return reject(new Error('Nominatim API hat HTML statt JSON zurückgegeben'));
+                    }
+                    
                     const results = JSON.parse(data);
                     if (results && results.length > 0) {
                         resolve(results[0]);
@@ -124,7 +155,9 @@ function geocodeWithNominatim(query) {
                         resolve(null);
                     }
                 } catch (error) {
-                    reject(error);
+                    console.error('JSON Parse Fehler:', error.message);
+                    console.error('Daten:', data.substring(0, 200));
+                    reject(new Error(`JSON Parse Fehler: ${error.message}`));
                 }
             });
         }).on('error', (error) => {
@@ -140,11 +173,31 @@ function reverseGeocodeWithNominatim(lat, lng) {
         
         const options = {
             headers: {
-                'User-Agent': 'Einsatzplanung-App/1.0 (contact@example.com)'
+                'User-Agent': 'Einsatzplanung-App/1.0 (contact@example.com)',
+                'Accept': 'application/json'
             }
         };
         
         https.get(url, options, (res) => {
+            // Prüfe Status-Code
+            if (res.statusCode !== 200) {
+                return reject(new Error(`Nominatim API Fehler: HTTP ${res.statusCode}`));
+            }
+            
+            // Prüfe Content-Type
+            const contentType = res.headers['content-type'] || '';
+            if (!contentType.includes('application/json')) {
+                let errorData = '';
+                res.on('data', (chunk) => {
+                    errorData += chunk.toString();
+                });
+                res.on('end', () => {
+                    console.error('Nominatim API hat HTML statt JSON zurückgegeben:', errorData.substring(0, 200));
+                    reject(new Error(`Nominatim API hat ungültigen Content-Type zurückgegeben: ${contentType}`));
+                });
+                return;
+            }
+            
             let data = '';
             
             res.on('data', (chunk) => {
@@ -153,6 +206,17 @@ function reverseGeocodeWithNominatim(lat, lng) {
             
             res.on('end', () => {
                 try {
+                    // Prüfe ob Daten leer sind
+                    if (!data || data.trim().length === 0) {
+                        return resolve(null);
+                    }
+                    
+                    // Prüfe ob es HTML ist (beginnt mit <)
+                    if (data.trim().startsWith('<')) {
+                        console.error('Nominatim API hat HTML zurückgegeben:', data.substring(0, 200));
+                        return reject(new Error('Nominatim API hat HTML statt JSON zurückgegeben'));
+                    }
+                    
                     const result = JSON.parse(data);
                     if (result && result.display_name) {
                         resolve(result);
@@ -160,7 +224,9 @@ function reverseGeocodeWithNominatim(lat, lng) {
                         resolve(null);
                     }
                 } catch (error) {
-                    reject(error);
+                    console.error('JSON Parse Fehler:', error.message);
+                    console.error('Daten:', data.substring(0, 200));
+                    reject(new Error(`JSON Parse Fehler: ${error.message}`));
                 }
             });
         }).on('error', (error) => {
