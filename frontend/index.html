@@ -3924,6 +3924,13 @@ Weber, Peter;Erle;social</code>
             refreshUI(); // Hier wird renderPool() aufgerufen
             if (typeof updatePatientList === 'function') updatePatientList();
             if (typeof renderFilterPresetSelect === 'function') renderFilterPresetSelect();
+            
+            // Stelle sicher, dass die View initialisiert wird
+            if (typeof switchView === 'function') {
+                switchView(currentView || 'week');
+            } else if (typeof refreshView === 'function') {
+                refreshView();
+            }
         });
         
         async function loadTemplatesFromStorage() {
