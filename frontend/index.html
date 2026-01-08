@@ -5349,6 +5349,9 @@ Weber, Peter;Erle;social</code>
             const ts=document.getElementById('tourSelect'); 
             const ets=document.getElementById('eventTourSelect'); 
             if(!ts || !ets) return;
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H3',location:'frontend/index.html:refreshUI',message:'refreshUI entry',data:{currentView:typeof currentView!=='undefined'?currentView:null,currentAdminTab:typeof currentAdminTab!=='undefined'?currentAdminTab:null,employeesCount:Array.isArray(appData?.employees)?appData.employees.length:null},timestamp:Date.now()})}).catch(()=>{});
+            // #endregion agent log
             ts.innerHTML=''; 
             ets.innerHTML='';
             if(!appData.tours || appData.tours.length === 0) {
@@ -5369,6 +5372,9 @@ Weber, Peter;Erle;social</code>
             if (typeof refreshView === 'function') refreshView();
             // Wenn Team-Tab aktiv ist, verwende renderEmployeeList() statt renderList()
             if (currentView === 'admin' && currentAdminTab === 'employees' && typeof renderEmployeeList === 'function') {
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H3',location:'frontend/index.html:refreshUI',message:'refreshUI chooses renderEmployeeList branch',data:{employeesCount:Array.isArray(appData?.employees)?appData.employees.length:null},timestamp:Date.now()})}).catch(()=>{});
+                // #endregion agent log
                 renderEmployeeList();
             } else if (typeof renderList === 'function') {
                 renderList('employeeList', appData.employees || [], 
@@ -8750,14 +8756,41 @@ Weber, Peter;Erle;social</code>
                     <div id="employeeList" class="item-list"></div>
                 </div>
             `;
-            populateWageGroupSelect();
-            populateHomeZoneSelect();
-            renderEmployeeList();
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H1',location:'frontend/index.html:renderAdminEmployees',message:'renderAdminEmployees after template',data:{employeesCount:Array.isArray(appData?.employees)?appData.employees.length:null,hasEmployeeListEl:!!document.getElementById('employeeList'),hasNewEmpHomeZone:!!document.getElementById('newEmpHomeZone'),hasNewEmpWageGroup:!!document.getElementById('newEmpWageGroup'),hasNewEmpAddress:!!document.getElementById('newEmpAddress'),hasNewEmpPostalCode:!!document.getElementById('newEmpPostalCode'),typeofPopulateHomeZoneSelect:typeof window.populateHomeZoneSelect,typeofPopulateHomeZoneSelects:typeof window.populateHomeZoneSelects,typeofPopulateWageGroupSelect:typeof window.populateWageGroupSelect},timestamp:Date.now()})}).catch(()=>{});
+            // #endregion agent log
+            try {
+                populateWageGroupSelect();
+            } catch (e) {
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H2',location:'frontend/index.html:renderAdminEmployees',message:'populateWageGroupSelect threw',data:{error:String(e?.message||e)},timestamp:Date.now()})}).catch(()=>{});
+                // #endregion agent log
+                throw e;
+            }
+            try {
+                populateHomeZoneSelect();
+            } catch (e) {
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H1',location:'frontend/index.html:renderAdminEmployees',message:'populateHomeZoneSelect threw',data:{error:String(e?.message||e)},timestamp:Date.now()})}).catch(()=>{});
+                // #endregion agent log
+                throw e;
+            }
+            try {
+                renderEmployeeList();
+            } catch (e) {
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H4',location:'frontend/index.html:renderAdminEmployees',message:'renderEmployeeList threw',data:{error:String(e?.message||e)},timestamp:Date.now()})}).catch(()=>{});
+                // #endregion agent log
+                throw e;
+            }
         }
         
         function renderEmployeeList() {
             const container = document.getElementById('employeeList');
             if (!container || !appData.employees) return;
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H4',location:'frontend/index.html:renderEmployeeList',message:'renderEmployeeList entry',data:{containerExists:!!container,employeesCount:Array.isArray(appData?.employees)?appData.employees.length:null,firstEmployeeHasName:!!(appData?.employees?.[0] && Object.prototype.hasOwnProperty.call(appData.employees[0],'name')),firstEmployeeKeys:appData?.employees?.[0]?Object.keys(appData.employees[0]).slice(0,10):[]},timestamp:Date.now()})}).catch(()=>{});
+            // #endregion agent log
             
             container.innerHTML = '';
             
