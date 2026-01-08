@@ -8761,7 +8761,8 @@ Weber, Peter;Erle;social</code>
             fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H1',location:'frontend/index.html:renderAdminEmployees',message:'renderAdminEmployees after template',data:{employeesCount:Array.isArray(appData?.employees)?appData.employees.length:null,hasEmployeeListEl:!!document.getElementById('employeeList'),hasNewEmpHomeZone:!!document.getElementById('newEmpHomeZone'),hasNewEmpWageGroup:!!document.getElementById('newEmpWageGroup'),hasNewEmpAddress:!!document.getElementById('newEmpAddress'),hasNewEmpPostalCode:!!document.getElementById('newEmpPostalCode'),typeofPopulateHomeZoneSelect:typeof window.populateHomeZoneSelect,typeofPopulateHomeZoneSelects:typeof window.populateHomeZoneSelects,typeofPopulateWageGroupSelect:typeof window.populateWageGroupSelect},timestamp:Date.now()})}).catch(()=>{});
             // #endregion agent log
             try {
-                populateWageGroupSelect();
+                if (typeof ensureWageSettings === 'function') ensureWageSettings();
+                if (typeof updateEmployeeWageGroupSelects === 'function') updateEmployeeWageGroupSelects();
             } catch (e) {
                 // #region agent log
                 fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H2',location:'frontend/index.html:renderAdminEmployees',message:'populateWageGroupSelect threw',data:{error:String(e?.message||e)},timestamp:Date.now()})}).catch(()=>{});
@@ -8769,7 +8770,7 @@ Weber, Peter;Erle;social</code>
                 throw e;
             }
             try {
-                populateHomeZoneSelect();
+                if (typeof populateHomeZoneSelects === 'function') populateHomeZoneSelects();
             } catch (e) {
                 // #region agent log
                 fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'pre-fix',hypothesisId:'H1',location:'frontend/index.html:renderAdminEmployees',message:'populateHomeZoneSelect threw',data:{error:String(e?.message||e)},timestamp:Date.now()})}).catch(()=>{});
