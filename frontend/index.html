@@ -4676,6 +4676,10 @@ Weber, Peter;Erle;social</code>
         }
         
         function switchView(view) {
+        const prevView = currentView;
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:switchView',message:'switchView called',data:{view,prevView,hasBtnViewAdmin:!!document.getElementById('btnViewAdmin')},timestamp:Date.now(),sessionId:'debug-session',runId:(window.__agentRunId||'run1'),hypothesisId:'H1'})}).catch(()=>{});
+        // #endregion
         currentView = view;
             
             // Remove active from all navigation items
@@ -5988,6 +5992,9 @@ Weber, Peter;Erle;social</code>
         function refreshView() {
         const container = document.getElementById('weekView');
         if(!container) return;
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:refreshView',message:'refreshView entry',data:{currentView,currentAdminTab,hasBtnViewAdmin:!!document.getElementById('btnViewAdmin')},timestamp:Date.now(),sessionId:'debug-session',runId:(window.__agentRunId||'run1'),hypothesisId:'H1'})}).catch(()=>{});
+            // #endregion
             
             container.innerHTML = ''; // Clear container
 
@@ -5997,6 +6004,9 @@ Weber, Peter;Erle;social</code>
             }
             
             if(currentView === 'admin') {
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:refreshView',message:'admin branch taken',data:{currentAdminTab},timestamp:Date.now(),sessionId:'debug-session',runId:(window.__agentRunId||'run1'),hypothesisId:'H1'})}).catch(()=>{});
+                // #endregion
                 renderAdminView(container);
                 return;
             }
@@ -8290,6 +8300,9 @@ Weber, Peter;Erle;social</code>
         }
 
         function renderAdminView(container) {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:renderAdminView',message:'renderAdminView called',data:{currentAdminTab},timestamp:Date.now(),sessionId:'debug-session',runId:(window.__agentRunId||'run1'),hypothesisId:'H1'})}).catch(()=>{});
+            // #endregion
             // Reset container styles
             container.style.gridTemplateColumns = '1fr';
             container.style.display = 'block';
@@ -8364,6 +8377,9 @@ Weber, Peter;Erle;social</code>
         function renderAdminTabContent(tabId) {
             const content = document.getElementById('adminContent');
             if(!content) return;
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:renderAdminTabContent',message:'renderAdminTabContent called',data:{tabId},timestamp:Date.now(),sessionId:'debug-session',runId:(window.__agentRunId||'run1'),hypothesisId:'H1'})}).catch(()=>{});
+            // #endregion
             
             // Update tab buttons
             document.querySelectorAll('.admin-tab-btn').forEach(btn => {
@@ -11051,6 +11067,9 @@ Weber, Peter;Erle;social</code>
         // --- WAGE SETTINGS FUNCTIONS ---
         function openWageSettings() {
             // Öffne Admin-Ansicht mit Löhne-Tab
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:openWageSettings',message:'openWageSettings forces admin',data:{targetTab:'wages'},timestamp:Date.now(),sessionId:'debug-session',runId:(window.__agentRunId||'run1'),hypothesisId:'H4'})}).catch(()=>{});
+            // #endregion
             currentAdminTab = 'wages';
             switchView('admin');
         }
@@ -12221,6 +12240,10 @@ Weber, Peter;Erle;social</code>
         }
         
         // Initialisiere View am Ende des Scripts (wenn DOM bereits geladen)
+        // #region agent log
+        window.__agentRunId = window.__agentRunId || 'admin-leftovers-pre';
+        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:boot',message:'frontend boot',data:{readyState:document.readyState,hasBtnViewAdmin:!!document.getElementById('btnViewAdmin')},timestamp:Date.now(),sessionId:'debug-session',runId:(window.__agentRunId||'run1'),hypothesisId:'H2'})}).catch(()=>{});
+        // #endregion
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
         setTimeout(() => {
                 if (typeof switchView === 'function' && typeof refreshView === 'function') {
