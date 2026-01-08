@@ -2809,19 +2809,19 @@
                 <div style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr auto; gap:8px; align-items:end;">
                     <div>
                         <label style="font-size:0.75rem; color:var(--text-muted);">Name</label>
-                        <input id="newEmpName" placeholder="👤 Name...">
+                        <input id="newEmpNameModal" placeholder="👤 Name...">
                     </div>
                     <div>
                         <label style="font-size:0.75rem; color:var(--text-muted);">Std/Woche</label>
-                        <input id="newEmpHours" type="number" placeholder="40" min="0" max="60" value="40">
+                        <input id="newEmpHoursModal" type="number" placeholder="40" min="0" max="60" value="40">
                     </div>
                     <div>
                         <label style="font-size:0.75rem; color:var(--text-muted);">Lohngruppe</label>
-                        <select id="newEmpWageGroup"></select>
+                        <select id="newEmpWageGroupModal"></select>
                     </div>
                     <div>
                         <label style="font-size:0.75rem; color:var(--text-muted);">Transport</label>
-                        <select id="newEmpTransport">
+                        <select id="newEmpTransportModal">
                             <option value="car">🚘 PKW</option>
                             <option value="public">🚌 Öffis</option>
                         </select>
@@ -2830,9 +2830,9 @@
                 <div style="display:grid; grid-template-columns:1fr auto; gap:8px; margin-top:8px; align-items:end;">
                     <div>
                         <label style="font-size:0.75rem; color:var(--text-muted);">🏠 Wohnort (Zone)</label>
-                        <select id="newEmpHomeZone"></select>
+                        <select id="newEmpHomeZoneModal"></select>
                     </div>
-                    <button class="btn btn-primary" style="height:44px; min-width:100px;" onclick="addEmployee()" title="Hinzufügen">
+                    <button class="btn btn-primary" style="height:44px; min-width:100px;" onclick="addEmployee('modal')" title="Hinzufügen">
                         <span style="font-size:1.1rem; font-weight:400;">+</span> Hinzufügen
                     </button>
                 </div>
@@ -2841,26 +2841,26 @@
                     <div style="display:grid; grid-template-columns:2fr 1fr; gap:8px; margin-bottom:8px;">
                         <div>
                             <label style="font-size:0.75rem; color:var(--text-muted);">Straße + Hausnummer</label>
-                            <input id="newEmpAddress" placeholder="Musterstraße 123">
+                            <input id="newEmpAddressModal" placeholder="Musterstraße 123">
                         </div>
                         <div>
                             <label style="font-size:0.75rem; color:var(--text-muted);">Postleitzahl</label>
-                            <input id="newEmpPostalCode" placeholder="45879" maxlength="10">
+                            <input id="newEmpPostalCodeModal" placeholder="45879" maxlength="10">
                         </div>
                     </div>
                     <div style="display:flex; gap:10px;">
-                        <button class="btn btn-secondary" onclick="geocodeEmployeeAddress()" id="geocodeEmpBtn" style="flex:1;">🔍 Koordinaten ermitteln</button>
-                        <button class="btn btn-secondary" onclick="openManualEmployeeCoordinatesModal()" style="flex:1;">✏️ Manuell eingeben</button>
+                        <button class="btn btn-secondary" onclick="geocodeEmployeeAddress('modal')" id="geocodeEmpBtnModal" style="flex:1;">🔍 Koordinaten ermitteln</button>
+                        <button class="btn btn-secondary" onclick="openManualEmployeeCoordinatesModal('modal')" style="flex:1;">✏️ Manuell eingeben</button>
                     </div>
-                    <div id="employeeCoordinatesDisplay" style="display:none; margin-top:10px; padding:10px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm); font-size:0.9rem;">
-                        <strong>Koordinaten:</strong> <span id="employeeCoordinatesText"></span>
+                    <div id="employeeCoordinatesDisplayModal" style="display:none; margin-top:10px; padding:10px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm); font-size:0.9rem;">
+                        <strong>Koordinaten:</strong> <span id="employeeCoordinatesTextModal"></span>
                     </div>
                 </div>
             </div>
             
             <div style="margin-top:24px;">
                 <label class="section-title">Teammitglieder</label>
-                <div id="employeeList" class="item-list"></div>
+                <div id="employeeListModal" class="item-list"></div>
             </div>
             
             <div style="margin-top:24px; padding-top:16px; border-top:1px solid var(--border);">
@@ -8750,6 +8750,26 @@ Weber, Peter;Erle;social</code>
                             <span style="font-size:1.1rem; font-weight:400;">+</span> Hinzufügen
                         </button>
                     </div>
+                    <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border);">
+                        <label class="section-title" style="font-size:0.9rem; margin-bottom:8px;">📍 Adresse (optional, für präzise An-/Abfahrt-Berechnung)</label>
+                        <div style="display:grid; grid-template-columns:2fr 1fr; gap:8px; margin-bottom:8px;">
+                            <div>
+                                <label style="font-size:0.75rem; color:var(--text-muted);">Straße + Hausnummer</label>
+                                <input id="newEmpAddress" placeholder="Musterstraße 123">
+                            </div>
+                            <div>
+                                <label style="font-size:0.75rem; color:var(--text-muted);">Postleitzahl</label>
+                                <input id="newEmpPostalCode" placeholder="45879" maxlength="10">
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:10px;">
+                            <button class="btn btn-secondary" onclick="geocodeEmployeeAddress('admin')" id="geocodeEmpBtn" style="flex:1;">🔍 Koordinaten ermitteln</button>
+                            <button class="btn btn-secondary" onclick="openManualEmployeeCoordinatesModal('admin')" style="flex:1;">✏️ Manuell eingeben</button>
+                        </div>
+                        <div id="employeeCoordinatesDisplay" style="display:none; margin-top:10px; padding:10px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm); font-size:0.9rem;">
+                            <strong>Koordinaten:</strong> <span id="employeeCoordinatesText"></span>
+                        </div>
+                    </div>
                 </div>
                 
                 <div>
@@ -10913,14 +10933,15 @@ Weber, Peter;Erle;social</code>
             });
         }
         
-        function addEmployee(){
-            const n = document.getElementById('newEmpName');
-            const h = document.getElementById('newEmpHours');
-            const wg = document.getElementById('newEmpWageGroup');
-            const t = document.getElementById('newEmpTransport');
-            const hz = document.getElementById('newEmpHomeZone');
-            const addr = document.getElementById('newEmpAddress');
-            const pc = document.getElementById('newEmpPostalCode');
+        function addEmployee(source){
+            const useModal = source === 'modal';
+            const n = document.getElementById(useModal ? 'newEmpNameModal' : 'newEmpName');
+            const h = document.getElementById(useModal ? 'newEmpHoursModal' : 'newEmpHours');
+            const wg = document.getElementById(useModal ? 'newEmpWageGroupModal' : 'newEmpWageGroup');
+            const t = document.getElementById(useModal ? 'newEmpTransportModal' : 'newEmpTransport');
+            const hz = document.getElementById(useModal ? 'newEmpHomeZoneModal' : 'newEmpHomeZone');
+            const addr = document.getElementById(useModal ? 'newEmpAddressModal' : 'newEmpAddress');
+            const pc = document.getElementById(useModal ? 'newEmpPostalCodeModal' : 'newEmpPostalCode');
             if(!n) return;
             const name = n.value.trim();
             const hours = h ? (parseInt(h.value) || 40) : 40;
@@ -10933,9 +10954,10 @@ Weber, Peter;Erle;social</code>
             // Lade temporäre Koordinaten falls vorhanden
             const modal = document.getElementById('employeeModal');
             let coordinates = null;
-            if (modal && modal.dataset.tempCoordinates) {
+            const tempKey = useModal ? 'tempCoordinates' : 'tempCoordinatesAdmin';
+            if (modal && modal.dataset[tempKey]) {
                 try {
-                    coordinates = JSON.parse(modal.dataset.tempCoordinates);
+                    coordinates = JSON.parse(modal.dataset[tempKey]);
                 } catch (e) {
                     // Ignoriere Fehler
                 }
@@ -10969,18 +10991,19 @@ Weber, Peter;Erle;social</code>
                 if(h) h.value = '40';
                 if(addr) addr.value = '';
                 if(pc) pc.value = '';
-                if(modal) delete modal.dataset.tempCoordinates;
-                const coordsDisplay = document.getElementById('employeeCoordinatesDisplay');
+                if(modal) delete modal.dataset[tempKey];
+                const coordsDisplay = document.getElementById(useModal ? 'employeeCoordinatesDisplayModal' : 'employeeCoordinatesDisplay');
                 if(coordsDisplay) coordsDisplay.style.display = 'none';
             }
         }
         
-        async function geocodeEmployeeAddress() {
-            const addressInput = document.getElementById('newEmpAddress');
-            const postalCodeInput = document.getElementById('newEmpPostalCode');
-            const btn = document.getElementById('geocodeEmpBtn');
-            const display = document.getElementById('employeeCoordinatesDisplay');
-            const text = document.getElementById('employeeCoordinatesText');
+        async function geocodeEmployeeAddress(source) {
+            const useModal = source === 'modal';
+            const addressInput = document.getElementById(useModal ? 'newEmpAddressModal' : 'newEmpAddress');
+            const postalCodeInput = document.getElementById(useModal ? 'newEmpPostalCodeModal' : 'newEmpPostalCode');
+            const btn = document.getElementById(useModal ? 'geocodeEmpBtnModal' : 'geocodeEmpBtn');
+            const display = document.getElementById(useModal ? 'employeeCoordinatesDisplayModal' : 'employeeCoordinatesDisplay');
+            const text = document.getElementById(useModal ? 'employeeCoordinatesTextModal' : 'employeeCoordinatesText');
             const modal = document.getElementById('employeeModal');
             
             if (!addressInput && !postalCodeInput) {
@@ -11022,7 +11045,8 @@ Weber, Peter;Erle;social</code>
                     
                     // Speichere temporär im Modal
                     if (modal) {
-                        modal.dataset.tempCoordinates = JSON.stringify(coordinates);
+                        const tempKey = useModal ? 'tempCoordinates' : 'tempCoordinatesAdmin';
+                        modal.dataset[tempKey] = JSON.stringify(coordinates);
                     }
                     
                     // Zeige Koordinaten
@@ -11046,10 +11070,12 @@ Weber, Peter;Erle;social</code>
             }
         }
         
-        function openManualEmployeeCoordinatesModal() {
+        function openManualEmployeeCoordinatesModal(source) {
             const modal = document.getElementById('employeeModal');
             if (!modal) return;
-            const tempCoords = modal.dataset.tempCoordinates;
+            const useModal = source === 'modal';
+            const tempKey = useModal ? 'tempCoordinates' : 'tempCoordinatesAdmin';
+            const tempCoords = modal.dataset[tempKey];
             if (tempCoords) {
                 try {
                     const coords = JSON.parse(tempCoords);
@@ -11060,6 +11086,10 @@ Weber, Peter;Erle;social</code>
                 } catch (e) {
                     // Ignoriere Fehler
                 }
+            }
+            const coordsModal = document.getElementById('manualEmployeeCoordinatesModal');
+            if (coordsModal) {
+                coordsModal.dataset.source = useModal ? 'modal' : 'admin';
             }
             openModal('manualEmployeeCoordinatesModal');
         }
@@ -11112,12 +11142,15 @@ Weber, Peter;Erle;social</code>
                 // Neuer Mitarbeiter: Speichere temporär im employeeModal
                 const modal = document.getElementById('employeeModal');
                 if (modal) {
-                    modal.dataset.tempCoordinates = JSON.stringify(coordinates);
+                    const source = coordsModal?.dataset?.source === 'modal' ? 'modal' : 'admin';
+                    const tempKey = source === 'modal' ? 'tempCoordinates' : 'tempCoordinatesAdmin';
+                    modal.dataset[tempKey] = JSON.stringify(coordinates);
                 }
                 
                 // Zeige Koordinaten
-                const display = document.getElementById('employeeCoordinatesDisplay');
-                const text = document.getElementById('employeeCoordinatesText');
+                const source = coordsModal?.dataset?.source === 'modal' ? 'modal' : 'admin';
+                const display = document.getElementById(source === 'modal' ? 'employeeCoordinatesDisplayModal' : 'employeeCoordinatesDisplay');
+                const text = document.getElementById(source === 'modal' ? 'employeeCoordinatesTextModal' : 'employeeCoordinatesText');
                 if (display) display.style.display = 'block';
                 if (text) {
                     text.textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
@@ -11130,7 +11163,7 @@ Weber, Peter;Erle;social</code>
         
         // Populate home zone selects
         function populateHomeZoneSelects() {
-            const selects = document.querySelectorAll('#newEmpHomeZone, .emp-home-zone-select');
+            const selects = document.querySelectorAll('#newEmpHomeZone, #newEmpHomeZoneModal, .emp-home-zone-select');
             selects.forEach(sel => {
                 const currentVal = sel.value;
                 sel.innerHTML = '<option value="">-- Wohnort wählen --</option>';
@@ -11271,7 +11304,7 @@ Weber, Peter;Erle;social</code>
         }
         
         function updateEmployeeWageGroupSelects() {
-            const selects = document.querySelectorAll('#newEmpWageGroup, .emp-wage-group-select');
+            const selects = document.querySelectorAll('#newEmpWageGroup, #newEmpWageGroupModal, .emp-wage-group-select');
             const groups = appData.wageSettings?.wageGroups || DEFAULT_WAGE_SETTINGS.wageGroups;
             
             selects.forEach(sel => {
