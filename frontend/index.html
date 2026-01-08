@@ -2613,6 +2613,70 @@
         </div>
     </div>
 
+    <!-- Mitarbeiter bearbeiten (vollständig) -->
+    <div id="employeeEditModal" class="modal-overlay">
+        <div class="modal-content" style="width:760px;">
+            <button class="modal-close-btn" onclick="closeModal('employeeEditModal')" title="Schließen">×</button>
+            <h3 style="margin-top:0;">👤 Mitarbeiter:in bearbeiten</h3>
+            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:20px;">Name, Stunden, Lohngruppe, Transport, Wohnort und Adresse bearbeiten.</p>
+            
+            <div class="input-group" style="margin-bottom:16px;">
+                <label class="section-title">Stammdaten</label>
+                <div style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:8px; align-items:end;">
+                    <div>
+                        <label style="font-size:0.75rem; color:var(--text-muted);">Name</label>
+                        <input id="editEmpName" placeholder="Name">
+                    </div>
+                    <div>
+                        <label style="font-size:0.75rem; color:var(--text-muted);">Std/Woche</label>
+                        <input id="editEmpHours" type="number" min="0" max="60" value="40">
+                    </div>
+                    <div>
+                        <label style="font-size:0.75rem; color:var(--text-muted);">Lohngruppe</label>
+                        <select id="editEmpWageGroup"></select>
+                    </div>
+                    <div>
+                        <label style="font-size:0.75rem; color:var(--text-muted);">Transport</label>
+                        <select id="editEmpTransport">
+                            <option value="car">🚘 PKW</option>
+                            <option value="public">🚌 Öffis</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="margin-top:10px;">
+                    <label style="font-size:0.75rem; color:var(--text-muted);">🏠 Wohnort (Zone)</label>
+                    <select id="editEmpHomeZone"></select>
+                </div>
+            </div>
+            
+            <div class="input-group" style="margin-bottom:16px;">
+                <label class="section-title" style="font-size:0.9rem; margin-bottom:8px;">📍 Adresse (optional)</label>
+                <div style="display:grid; grid-template-columns:2fr 1fr; gap:8px; margin-bottom:8px;">
+                    <div>
+                        <label style="font-size:0.75rem; color:var(--text-muted);">Straße + Hausnummer</label>
+                        <input id="editEmpAddress2" placeholder="Musterstraße 123">
+                    </div>
+                    <div>
+                        <label style="font-size:0.75rem; color:var(--text-muted);">Postleitzahl</label>
+                        <input id="editEmpPostalCode2" placeholder="45879" maxlength="10">
+                    </div>
+                </div>
+                <div style="display:flex; gap:10px; margin-bottom:8px;">
+                    <button class="btn btn-secondary" id="editEmpGeocodeBtn" onclick="geocodeEmployeeAddressEmployeeEditModal()" style="flex:1;">🔍 Koordinaten ermitteln</button>
+                    <button class="btn btn-secondary" onclick="openManualEmployeeCoordinatesEmployeeEditModal()" style="flex:1;">✏️ Manuell</button>
+                </div>
+                <div id="editEmpCoordinatesDisplay2" style="display:none; padding:10px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm); font-size:0.9rem;">
+                    <strong>Koordinaten:</strong> <span id="editEmpCoordinatesText2"></span>
+                </div>
+            </div>
+            
+            <div style="display:flex; gap:10px; justify-content:flex-end;">
+                <button class="btn btn-secondary" onclick="closeModal('employeeEditModal')">❌ Abbrechen</button>
+                <button class="btn btn-primary" onclick="saveEmployeeEditModal()">✅ Speichern</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Pool Import Modal -->
     <div id="poolImportModal" class="modal-overlay">
         <div class="modal-content" style="max-width:700px;">
@@ -8835,14 +8899,14 @@ Weber, Peter;Erle;social</code>
                 
                 entry.innerHTML = `
                     <div style="display:flex; align-items:center; gap:10px; flex:1; flex-wrap:wrap;">
-                        <span class="item-name" style="font-weight:600; cursor:pointer;" onclick="editEmployee('${emp.id}')">${emp.name}</span>
+                        <span class="item-name" style="font-weight:600; cursor:pointer;" onclick="openEmployeeEditModal('${emp.id}')">${emp.name}</span>
                         ${emp.homeZone ? `<span style="font-size:0.75rem; color:var(--text-muted);">🏠 ${emp.homeZone}</span>` : ''}
                         ${hasAddress ? `<span style="font-size:0.7rem; color:var(--text-muted);">📍 ${emp.address || ''} ${emp.postalCode || ''}</span>` : ''}
                         ${coordsInfo}
                         <span style="font-size:0.75rem; background:var(--primary-light); color:var(--primary); padding:2px 8px; border-radius:10px;">${emp.weeklyHours || 40} Std/Woche</span>
                     </div>
                     <div style="display:flex; align-items:center; gap:10px;">
-                        <button class="btn btn-sm btn-secondary" onclick="editEmployee('${emp.id}')" style="padding:4px 10px; font-size:0.75rem;">✏️</button>
+                        <button class="btn btn-sm btn-secondary" onclick="openEmployeeEditModal('${emp.id}')" style="padding:4px 10px; font-size:0.75rem;">✏️</button>
                         <button class="btn btn-sm btn-danger" onclick="deleteEmployee('${emp.id}')" style="padding:4px 10px; font-size:0.75rem;">🗑️</button>
                     </div>
                 `;
@@ -8856,6 +8920,10 @@ Weber, Peter;Erle;social</code>
             // #region agent log
             fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'edit-emp-pre',hypothesisId:'E1',location:'frontend/index.html:editEmployee',message:'editEmployee opened',data:{hasHomeZone:!!emp.homeZone,hasAddress:!!emp.address,hasPostal:!!emp.postalCode,hasWageGroup:!!emp.wageGroup,hasTransport:!!emp.transport,hasWeeklyHours:typeof emp.weeklyHours==='number'},timestamp:Date.now()})}).catch(()=>{});
             // #endregion agent log
+
+            // Neuer Editor (vollständiges Modal)
+            openEmployeeEditModal(employeeId);
+            return;
             
             // Zeige Modal mit Edit-Feldern
             showInputModal('Mitarbeiter bearbeiten', 
@@ -8944,11 +9012,196 @@ Weber, Peter;Erle;social</code>
                 }
             }, 100);
         }
+
+        // ===== Mitarbeiter bearbeiten (vollständiges Modal) =====
+        function openEmployeeEditModal(employeeId) {
+            const emp = appData.employees?.find(e => e.id === employeeId);
+            if (!emp) return;
+            const modal = document.getElementById('employeeEditModal');
+            if (!modal) return;
+            
+            modal.dataset.employeeId = employeeId;
+            delete modal.dataset.tempCoordinates;
+            
+            const nameEl = document.getElementById('editEmpName');
+            const hoursEl = document.getElementById('editEmpHours');
+            const wageEl = document.getElementById('editEmpWageGroup');
+            const transportEl = document.getElementById('editEmpTransport');
+            const zoneEl = document.getElementById('editEmpHomeZone');
+            const addrEl = document.getElementById('editEmpAddress2');
+            const pcEl = document.getElementById('editEmpPostalCode2');
+            const coordsBox = document.getElementById('editEmpCoordinatesDisplay2');
+            const coordsText = document.getElementById('editEmpCoordinatesText2');
+            
+            if (nameEl) nameEl.value = emp.name || '';
+            if (hoursEl) hoursEl.value = String(emp.weeklyHours ?? 40);
+            if (transportEl) transportEl.value = emp.transport || 'car';
+            if (addrEl) addrEl.value = emp.address || '';
+            if (pcEl) pcEl.value = emp.postalCode || '';
+            
+            // Wage groups
+            if (typeof ensureWageSettings === 'function') ensureWageSettings();
+            const groups = appData.wageSettings?.wageGroups || DEFAULT_WAGE_SETTINGS.wageGroups;
+            if (wageEl) {
+                wageEl.innerHTML = groups.map(g => `<option value="${g.id}">${g.name} (${g.hourlyRate.toFixed(2)}€/h)</option>`).join('');
+                wageEl.value = emp.wageGroup || groups[0]?.id || 'hilfskraft';
+            }
+            
+            // Zones
+            if (zoneEl) {
+                const current = emp.homeZone || '';
+                zoneEl.innerHTML = '<option value="">-- Wohnort wählen --</option>' + CITY_ZONES.map(z => `<option value="${z}">${getZoneWithPostalCode(z)}</option>`).join('');
+                zoneEl.value = current;
+            }
+            
+            // Coordinates display
+            const coords = emp.extendedProps?.coordinates;
+            if (coords && typeof coords.lat === 'number' && typeof coords.lng === 'number') {
+                modal.dataset.tempCoordinates = JSON.stringify(coords);
+                if (coordsBox) coordsBox.style.display = 'block';
+                if (coordsText) coordsText.textContent = `${coords.lat.toFixed(6)}, ${coords.lng.toFixed(6)}`;
+            } else {
+                if (coordsBox) coordsBox.style.display = 'none';
+                if (coordsText) coordsText.textContent = '';
+            }
+            
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'edit-emp-pre',hypothesisId:'E2',location:'frontend/index.html:openEmployeeEditModal',message:'employeeEditModal opened',data:{hasModal:!!modal,hasFields:!!(nameEl&&hoursEl&&wageEl&&transportEl&&zoneEl&&addrEl&&pcEl),hasCoords:!!coords},timestamp:Date.now()})}).catch(()=>{});
+            // #endregion agent log
+            
+            openModal('employeeEditModal');
+        }
+        
+        function saveEmployeeEditModal() {
+            const modal = document.getElementById('employeeEditModal');
+            const employeeId = modal?.dataset?.employeeId;
+            const emp = appData.employees?.find(e => e.id === employeeId);
+            if (!modal || !emp) return;
+            
+            const name = document.getElementById('editEmpName')?.value?.trim() || '';
+            if (!name) {
+                showToast('Name darf nicht leer sein', 'error');
+                return;
+            }
+            
+            const hoursRaw = document.getElementById('editEmpHours')?.value;
+            const hours = hoursRaw === '' || hoursRaw === null || hoursRaw === undefined ? 40 : (parseInt(hoursRaw) || 40);
+            const wageGroup = document.getElementById('editEmpWageGroup')?.value || emp.wageGroup || 'hilfskraft';
+            const transport = document.getElementById('editEmpTransport')?.value || emp.transport || 'car';
+            const homeZone = document.getElementById('editEmpHomeZone')?.value || '';
+            const address = document.getElementById('editEmpAddress2')?.value?.trim() || null;
+            const postalCode = document.getElementById('editEmpPostalCode2')?.value?.trim() || null;
+            
+            emp.name = name;
+            emp.weeklyHours = hours;
+            emp.wageGroup = wageGroup;
+            emp.transport = transport;
+            emp.homeZone = homeZone;
+            emp.address = address;
+            emp.postalCode = postalCode;
+            
+            const tmp = modal.dataset.tempCoordinates;
+            if (tmp) {
+                try {
+                    emp.extendedProps = emp.extendedProps || {};
+                    emp.extendedProps.coordinates = JSON.parse(tmp);
+                } catch (_) {}
+            }
+            
+            queueSave();
+            if (typeof renderEmployeeList === 'function') renderEmployeeList();
+            closeModal('employeeEditModal');
+            showToast('Mitarbeiter aktualisiert', 'success');
+            
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'edit-emp-pre',hypothesisId:'E2',location:'frontend/index.html:saveEmployeeEditModal',message:'employeeEditModal saved',data:{employeeId:employeeId||null,hasAddress:!!address,hasPostal:!!postalCode,hasHomeZone:!!homeZone,transport,wageGroup,weeklyHours:hours},timestamp:Date.now()})}).catch(()=>{});
+            // #endregion agent log
+        }
+        
+        async function geocodeEmployeeAddressEmployeeEditModal() {
+            const modal = document.getElementById('employeeEditModal');
+            const addressInput = document.getElementById('editEmpAddress2');
+            const postalInput = document.getElementById('editEmpPostalCode2');
+            const btn = document.getElementById('editEmpGeocodeBtn');
+            const display = document.getElementById('editEmpCoordinatesDisplay2');
+            const text = document.getElementById('editEmpCoordinatesText2');
+            
+            const address = addressInput ? addressInput.value.trim() : '';
+            const postalCode = postalInput ? postalInput.value.trim() : '';
+            if (!address && !postalCode) {
+                showToast('Bitte Adresse oder Postleitzahl eingeben', 'warning');
+                return;
+            }
+            
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'geocode-empedit-pre',hypothesisId:'G5',location:'frontend/index.html:geocodeEmployeeAddressEmployeeEditModal',message:'employeeEdit geocode will fetch',data:{addressLen:address.length,postalLen:postalCode.length},timestamp:Date.now()})}).catch(()=>{});
+            // #endregion agent log
+            
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = '⏳ Ermittle...';
+            }
+            
+            try {
+                const response = await fetch('/api/geocoding/geocode', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ address, postalCode, city: 'Gelsenkirchen' })
+                });
+                const data = await response.json();
+                
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'geocode-empedit-pre',hypothesisId:'G5',location:'frontend/index.html:geocodeEmployeeAddressEmployeeEditModal',message:'employeeEdit geocode response',data:{status:response.status,success:!!data?.success,hasLat:typeof data?.latitude==='number',hasLng:typeof data?.longitude==='number',hasError:!!data?.error},timestamp:Date.now()})}).catch(()=>{});
+                // #endregion agent log
+                
+                if (data.success) {
+                    const coordinates = { lat: data.latitude, lng: data.longitude };
+                    if (modal) modal.dataset.tempCoordinates = JSON.stringify(coordinates);
+                    if (display) display.style.display = 'block';
+                    if (text) text.textContent = `${coordinates.lat.toFixed(6)}, ${coordinates.lng.toFixed(6)}`;
+                    showToast('Koordinaten erfolgreich ermittelt', 'success');
+                } else {
+                    showToast('Koordinaten konnten nicht ermittelt werden: ' + (data.error || 'Unbekannter Fehler'), 'error');
+                }
+            } catch (e) {
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'geocode-empedit-pre',hypothesisId:'G5',location:'frontend/index.html:geocodeEmployeeAddressEmployeeEditModal',message:'employeeEdit geocode threw',data:{error:String(e?.message||e)},timestamp:Date.now()})}).catch(()=>{});
+                // #endregion agent log
+                showToast('Fehler beim Ermitteln der Koordinaten', 'error');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = '🔍 Koordinaten ermitteln';
+                }
+            }
+        }
+        
+        function openManualEmployeeCoordinatesEmployeeEditModal() {
+            const editModal = document.getElementById('employeeEditModal');
+            const coordsModal = document.getElementById('manualEmployeeCoordinatesModal');
+            if (coordsModal) coordsModal.dataset.source = 'employeeEdit';
+            
+            const tmp = editModal?.dataset?.tempCoordinates;
+            if (tmp) {
+                try {
+                    const coords = JSON.parse(tmp);
+                    const latInput = document.getElementById('manualEmpLat');
+                    const lngInput = document.getElementById('manualEmpLng');
+                    if (latInput) latInput.value = coords.lat ?? '';
+                    if (lngInput) lngInput.value = coords.lng ?? '';
+                } catch (_) {}
+            }
+            
+            openModal('manualEmployeeCoordinatesModal');
+        }
         
         async function geocodeEmployeeAddressEdit(employeeId) {
             const addressInput = document.getElementById('editEmpAddress');
             const postalCodeInput = document.getElementById('editEmpPostalCode');
             const modal = document.querySelector('.input-modal');
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'geocode-edit-pre',hypothesisId:'G4',location:'frontend/index.html:geocodeEmployeeAddressEdit',message:'geocodeEmployeeAddressEdit entry',data:{hasAddressInput:!!addressInput,hasPostalInput:!!postalCodeInput,hasModal:!!modal},timestamp:Date.now()})}).catch(()=>{});
+            // #endregion agent log
             
             if (!addressInput && !postalCodeInput) {
                 showToast('Bitte Adresse oder Postleitzahl eingeben', 'warning');
@@ -8962,6 +9215,9 @@ Weber, Peter;Erle;social</code>
                 showToast('Bitte Adresse oder Postleitzahl eingeben', 'warning');
                 return;
             }
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'geocode-edit-pre',hypothesisId:'G4',location:'frontend/index.html:geocodeEmployeeAddressEdit',message:'geocodeEmployeeAddressEdit will fetch',data:{addressLen:address?String(address).length:0,postalLen:postalCode?String(postalCode).length:0},timestamp:Date.now()})}).catch(()=>{});
+            // #endregion agent log
             
             try {
                 const response = await fetch('/api/geocoding/geocode', {
@@ -8973,8 +9229,14 @@ Weber, Peter;Erle;social</code>
                         city: 'Gelsenkirchen' 
                     })
                 });
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'geocode-edit-pre',hypothesisId:'G5',location:'frontend/index.html:geocodeEmployeeAddressEdit',message:'geocodeEmployeeAddressEdit got response',data:{status:response.status,ok:!!response.ok},timestamp:Date.now()})}).catch(()=>{});
+                // #endregion agent log
                 
                 const data = await response.json();
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'geocode-edit-pre',hypothesisId:'G5',location:'frontend/index.html:geocodeEmployeeAddressEdit',message:'geocodeEmployeeAddressEdit parsed JSON',data:{success:!!data?.success,hasLat:typeof data?.latitude==='number',hasLng:typeof data?.longitude==='number',hasError:!!data?.error},timestamp:Date.now()})}).catch(()=>{});
+                // #endregion agent log
                 
                 if (data.success) {
                     const coordinates = {
@@ -9001,6 +9263,9 @@ Weber, Peter;Erle;social</code>
                 }
             } catch (error) {
                 console.error('Geocoding-Fehler:', error);
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'geocode-edit-pre',hypothesisId:'G6',location:'frontend/index.html:geocodeEmployeeAddressEdit',message:'geocodeEmployeeAddressEdit threw/caught',data:{error:String(error?.message||error)},timestamp:Date.now()})}).catch(()=>{});
+                // #endregion agent log
                 showToast('Fehler beim Ermitteln der Koordinaten', 'error');
             }
         }
@@ -9782,9 +10047,22 @@ Weber, Peter;Erle;social</code>
                 });
             }
             // N = New event (when no modal open)
-            if(e.key === 'n' && !document.querySelector('.modal-overlay[style*="flex"]')) {
+            if(e.key && String(e.key).toLowerCase() === 'n') {
+                const t = e.target;
+                const tag = t && t.tagName ? String(t.tagName).toLowerCase() : null;
+                const isInputLike = !!(t && (t.isContentEditable || tag === 'input' || tag === 'textarea' || tag === 'select'));
+                const modalOpen = !!document.querySelector('.modal-overlay[style*="flex"]');
+                if (!modalOpen && !isInputLike) {
                 e.preventDefault();
+                    // #region agent log
+                    fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'kbd-pre',hypothesisId:'K2',location:'frontend/index.html:keydown',message:'N shortcut executed (openEventModal)',data:{isInputLike,modalOpen},timestamp:Date.now()})}).catch(()=>{});
+                    // #endregion agent log
                 openEventModal(null, { start: '08:00', end: '09:00', dayIndex: 0 });
+                } else {
+                    // #region agent log
+                    fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'kbd-pre',hypothesisId:'K2',location:'frontend/index.html:keydown',message:'N shortcut suppressed (typing or modal open)',data:{isInputLike,modalOpen},timestamp:Date.now()})}).catch(()=>{});
+                    // #endregion agent log
+                }
             }
             // ? or F1 = Show keyboard help
             if((e.key === '?' || e.key === 'F1') && !document.querySelector('.modal-overlay[style*="flex"]')) {
@@ -11102,6 +11380,20 @@ Weber, Peter;Erle;social</code>
                 // #endregion agent log
             }
         }
+
+        // Debug: Klicks auf Geocode-Buttons (ohne PII)
+        document.addEventListener('click', (e) => {
+            const btn = e.target && e.target.closest ? e.target.closest('#geocodeEmpBtn, #geocodeEmpBtnModal') : null;
+            if (!btn) return;
+            const isModal = btn.id === 'geocodeEmpBtnModal';
+            const addrEl = document.getElementById(isModal ? 'newEmpAddressModal' : 'newEmpAddress');
+            const pcEl = document.getElementById(isModal ? 'newEmpPostalCodeModal' : 'newEmpPostalCode');
+            const addrLen = addrEl && typeof addrEl.value === 'string' ? addrEl.value.trim().length : 0;
+            const pcLen = pcEl && typeof pcEl.value === 'string' ? pcEl.value.trim().length : 0;
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'geocode-click',hypothesisId:'G0',location:'frontend/index.html:click',message:'geocode button clicked',data:{btnId:btn.id,isModal,addrLen,pcLen},timestamp:Date.now()})}).catch(()=>{});
+            // #endregion agent log
+        }, true);
         
         function openManualEmployeeCoordinatesModal(source) {
             const modal = document.getElementById('employeeModal');
@@ -11172,21 +11464,32 @@ Weber, Peter;Erle;social</code>
                     return;
                 }
             } else {
-                // Neuer Mitarbeiter: Speichere temporär im employeeModal
-                const modal = document.getElementById('employeeModal');
-                if (modal) {
-                    const source = coordsModal?.dataset?.source === 'modal' ? 'modal' : 'admin';
-                    const tempKey = source === 'modal' ? 'tempCoordinates' : 'tempCoordinatesAdmin';
-                    modal.dataset[tempKey] = JSON.stringify(coordinates);
-                }
+                const source = coordsModal?.dataset?.source || 'admin';
                 
-                // Zeige Koordinaten
-                const source = coordsModal?.dataset?.source === 'modal' ? 'modal' : 'admin';
-                const display = document.getElementById(source === 'modal' ? 'employeeCoordinatesDisplayModal' : 'employeeCoordinatesDisplay');
-                const text = document.getElementById(source === 'modal' ? 'employeeCoordinatesTextModal' : 'employeeCoordinatesText');
-                if (display) display.style.display = 'block';
-                if (text) {
-                    text.textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                if (source === 'employeeEdit') {
+                    const editModal = document.getElementById('employeeEditModal');
+                    if (editModal) {
+                        editModal.dataset.tempCoordinates = JSON.stringify(coordinates);
+                    }
+                    const display = document.getElementById('editEmpCoordinatesDisplay2');
+                    const text = document.getElementById('editEmpCoordinatesText2');
+                    if (display) display.style.display = 'block';
+                    if (text) text.textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                } else {
+                    // Neuer Mitarbeiter: Speichere temporär im employeeModal (admin/modal)
+                    const modal = document.getElementById('employeeModal');
+                    if (modal) {
+                        const resolved = source === 'modal' ? 'modal' : 'admin';
+                        const tempKey = resolved === 'modal' ? 'tempCoordinates' : 'tempCoordinatesAdmin';
+                        modal.dataset[tempKey] = JSON.stringify(coordinates);
+                    }
+                    
+                    // Zeige Koordinaten
+                    const resolved = source === 'modal' ? 'modal' : 'admin';
+                    const display = document.getElementById(resolved === 'modal' ? 'employeeCoordinatesDisplayModal' : 'employeeCoordinatesDisplay');
+                    const text = document.getElementById(resolved === 'modal' ? 'employeeCoordinatesTextModal' : 'employeeCoordinatesText');
+                    if (display) display.style.display = 'block';
+                    if (text) text.textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
                 }
             }
             

@@ -14,6 +14,14 @@ let isProcessingQueue = false;
 router.post('/geocode', async (req, res) => {
     try {
         const { address, postalCode, city } = req.body;
+        const startedAt = Date.now();
+        // #region agent log
+        try {
+            if (typeof fetch === 'function') {
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'geocode-backend-pre',hypothesisId:'BG1',location:'backend/routes/geocoding.js:/geocode',message:'geocode request received',data:{hasAddress:!!address,hasPostal:!!postalCode,addressLen:address?String(address).length:0,postalLen:postalCode?String(postalCode).length:0,hasCity:!!city},timestamp:Date.now()})}).catch(()=>{});
+            }
+        } catch (_) {}
+        // #endregion agent log
         
         if (!address && !postalCode) {
             return res.status(400).json({ error: 'Adresse oder Postleitzahl erforderlich' });
@@ -62,6 +70,13 @@ router.post('/geocode', async (req, res) => {
         }
         
         if (coordinates) {
+            // #region agent log
+            try {
+                if (typeof fetch === 'function') {
+                    fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'geocode-backend-pre',hypothesisId:'BG2',location:'backend/routes/geocoding.js:/geocode',message:'geocode success',data:{durationMs:Date.now()-startedAt,hasDisplayName:!!coordinates.display_name},timestamp:Date.now()})}).catch(()=>{});
+                }
+            } catch (_) {}
+            // #endregion agent log
             res.json({
                 success: true,
                 latitude: parseFloat(coordinates.lat),
@@ -71,6 +86,13 @@ router.post('/geocode', async (req, res) => {
         } else {
             // Prüfe ob es ein HTTP 403 Fehler war
             const isForbidden = lastError && lastError.message && lastError.message.includes('HTTP 403');
+            // #region agent log
+            try {
+                if (typeof fetch === 'function') {
+                    fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'geocode-backend-pre',hypothesisId:'BG3',location:'backend/routes/geocoding.js:/geocode',message:'geocode failed',data:{durationMs:Date.now()-startedAt,isForbidden:!!isForbidden,hasLastError:!!lastError,lastErrorMsg:lastError?String(lastError.message).slice(0,120):null},timestamp:Date.now()})}).catch(()=>{});
+                }
+            } catch (_) {}
+            // #endregion agent log
             res.status(isForbidden ? 429 : 404).json({
                 success: false,
                 error: isForbidden 
@@ -80,6 +102,13 @@ router.post('/geocode', async (req, res) => {
         }
     } catch (error) {
         console.error('Geocoding-Fehler:', error);
+        // #region agent log
+        try {
+            if (typeof fetch === 'function') {
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'geocode-backend-pre',hypothesisId:'BG4',location:'backend/routes/geocoding.js:/geocode',message:'geocode threw (500)',data:{error:String(error?.message||error).slice(0,160)},timestamp:Date.now()})}).catch(()=>{});
+            }
+        } catch (_) {}
+        // #endregion agent log
         res.status(500).json({
             success: false,
             error: 'Fehler beim Geocoding',
@@ -334,6 +363,7 @@ function waitForRateLimit() {
 }
 
 module.exports = router;
+
 
 
 
