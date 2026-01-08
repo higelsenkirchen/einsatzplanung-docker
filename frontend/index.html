@@ -5367,7 +5367,10 @@ Weber, Peter;Erle;social</code>
             if (typeof updateTourEmployeeDisplay === 'function') updateTourEmployeeDisplay();
             if (typeof renderPool === 'function') renderPool();
             if (typeof refreshView === 'function') refreshView();
-            if (typeof renderList === 'function') {
+            // Wenn Team-Tab aktiv ist, verwende renderEmployeeList() statt renderList()
+            if (currentView === 'admin' && currentAdminTab === 'employees' && typeof renderEmployeeList === 'function') {
+                renderEmployeeList();
+            } else if (typeof renderList === 'function') {
                 renderList('employeeList', appData.employees || [], 
                 id => {
                     appData.employees = appData.employees.filter(e => e.id !== id);
@@ -5383,6 +5386,7 @@ Weber, Peter;Erle;social</code>
                     }
                 }
             );
+            }
                 renderList('tourList', appData.tours || [], 
                 id => {
                     if(appData.tours.length <= 1) {
