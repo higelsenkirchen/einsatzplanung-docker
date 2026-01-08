@@ -8853,6 +8853,9 @@ Weber, Peter;Erle;social</code>
         function editEmployee(employeeId) {
             const emp = appData.employees.find(e => e.id === employeeId);
             if (!emp) return;
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'edit-emp-pre',hypothesisId:'E1',location:'frontend/index.html:editEmployee',message:'editEmployee opened',data:{hasHomeZone:!!emp.homeZone,hasAddress:!!emp.address,hasPostal:!!emp.postalCode,hasWageGroup:!!emp.wageGroup,hasTransport:!!emp.transport,hasWeeklyHours:typeof emp.weeklyHours==='number'},timestamp:Date.now()})}).catch(()=>{});
+            // #endregion agent log
             
             // Zeige Modal mit Edit-Feldern
             showInputModal('Mitarbeiter bearbeiten', 
@@ -9741,6 +9744,18 @@ Weber, Peter;Erle;social</code>
 
         // --- KEYBOARD SHORTCUTS ---
         document.addEventListener('keydown', (e) => {
+            // #region agent log
+            if (e.key === 'n' || e.key === 'N' || e.key === '?' || e.key === 'F1') {
+                const t = e.target;
+                const tag = t && t.tagName ? String(t.tagName).toLowerCase() : null;
+                const type = t && t.type ? String(t.type).toLowerCase() : null;
+                const active = document.activeElement;
+                const activeTag = active && active.tagName ? String(active.tagName).toLowerCase() : null;
+                const isInputLike = !!(t && (t.isContentEditable || tag === 'input' || tag === 'textarea' || tag === 'select'));
+                const modalOpen = !!document.querySelector('.modal-overlay[style*="flex"]');
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'kbd-pre',hypothesisId:'K1',location:'frontend/index.html:keydown',message:'shortcut keydown observed',data:{key:e.key,ctrl:!!e.ctrlKey,shift:!!e.shiftKey,alt:!!e.altKey,targetTag:tag,targetType:type,activeTag:activeTag,isInputLike,modalOpen,currentView:typeof currentView!=='undefined'?currentView:null,currentAdminTab:typeof currentAdminTab!=='undefined'?currentAdminTab:null},timestamp:Date.now()})}).catch(()=>{});
+            }
+            // #endregion agent log
             // Escape = Clear selection
             if(e.key === 'Escape') {
                 clearEventSelection();
@@ -11005,6 +11020,9 @@ Weber, Peter;Erle;social</code>
             const display = document.getElementById(useModal ? 'employeeCoordinatesDisplayModal' : 'employeeCoordinatesDisplay');
             const text = document.getElementById(useModal ? 'employeeCoordinatesTextModal' : 'employeeCoordinatesText');
             const modal = document.getElementById('employeeModal');
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'geocode-pre',hypothesisId:'G1',location:'frontend/index.html:geocodeEmployeeAddress',message:'geocodeEmployeeAddress entry',data:{source:source||'admin',hasAddressInput:!!addressInput,hasPostalInput:!!postalCodeInput,btnExists:!!btn,displayExists:!!display,textExists:!!text},timestamp:Date.now()})}).catch(()=>{});
+            // #endregion agent log
             
             if (!addressInput && !postalCodeInput) {
                 showToast('Bitte Adresse oder Postleitzahl eingeben', 'warning');
@@ -11018,6 +11036,9 @@ Weber, Peter;Erle;social</code>
                 showToast('Bitte Adresse oder Postleitzahl eingeben', 'warning');
                 return;
             }
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'geocode-pre',hypothesisId:'G1',location:'frontend/index.html:geocodeEmployeeAddress',message:'geocodeEmployeeAddress will fetch',data:{source:source||'admin',addressLen:address?String(address).length:0,postalLen:postalCode?String(postalCode).length:0},timestamp:Date.now()})}).catch(()=>{});
+            // #endregion agent log
             
             if (btn) {
                 btn.disabled = true;
@@ -11034,8 +11055,14 @@ Weber, Peter;Erle;social</code>
                         city: 'Gelsenkirchen' 
                     })
                 });
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'geocode-pre',hypothesisId:'G2',location:'frontend/index.html:geocodeEmployeeAddress',message:'geocodeEmployeeAddress got response',data:{status:response.status,ok:!!response.ok},timestamp:Date.now()})}).catch(()=>{});
+                // #endregion agent log
                 
                 const data = await response.json();
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'geocode-pre',hypothesisId:'G2',location:'frontend/index.html:geocodeEmployeeAddress',message:'geocodeEmployeeAddress parsed JSON',data:{success:!!data?.success,hasLat:typeof data?.latitude==='number',hasLng:typeof data?.longitude==='number',hasError:!!data?.error},timestamp:Date.now()})}).catch(()=>{});
+                // #endregion agent log
                 
                 if (data.success) {
                     const coordinates = {
@@ -11061,12 +11088,18 @@ Weber, Peter;Erle;social</code>
                 }
             } catch (error) {
                 console.error('Geocoding-Fehler:', error);
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'geocode-pre',hypothesisId:'G3',location:'frontend/index.html:geocodeEmployeeAddress',message:'geocodeEmployeeAddress threw/caught',data:{error:String(error?.message||error)},timestamp:Date.now()})}).catch(()=>{});
+                // #endregion agent log
                 showToast('Fehler beim Ermitteln der Koordinaten', 'error');
             } finally {
                 if (btn) {
                     btn.disabled = false;
                     btn.textContent = '🔍 Koordinaten ermitteln';
                 }
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId:'debug-session',runId:'geocode-pre',hypothesisId:'G3',location:'frontend/index.html:geocodeEmployeeAddress',message:'geocodeEmployeeAddress finally',data:{btnDisabled:!!btn?.disabled,btnText:btn?.textContent||null},timestamp:Date.now()})}).catch(()=>{});
+                // #endregion agent log
             }
         }
         
