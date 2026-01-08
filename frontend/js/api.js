@@ -82,9 +82,6 @@ async function loadFromAPI() {
 
 // Daten an API speichern
 async function saveToAPI() {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'api.js:84',message:'saveToAPI entry',data:{currentVariantId,eventsCount:appData.events?.length,eventsWithTour:appData.events?.filter(e=>e.extendedProps?.tour)?.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-    // #endregion
     if (!currentVariantId) {
         console.warn('Keine Variante ausgewählt, speichern nicht möglich');
         return false;
@@ -92,9 +89,6 @@ async function saveToAPI() {
     
     try {
         const eventsToSave = appData.events || [];
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'api.js:91',message:'before apiCall',data:{eventsToSaveCount:eventsToSave.length,eventsWithTour:eventsToSave.filter(e=>e.extendedProps?.tour).length,sampleEvent:eventsToSave.find(e=>e.extendedProps?.tour)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-        // #endregion
         const response = await apiCall(`/api/data?variantId=${currentVariantId}`, {
             method: 'PUT',
             body: JSON.stringify({
@@ -107,9 +101,6 @@ async function saveToAPI() {
             })
         });
         
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'api.js:103',message:'apiCall response',data:{status:response.status,ok:response.ok},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-        // #endregion
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
         }
@@ -120,9 +111,6 @@ async function saveToAPI() {
         
         return true;
     } catch (e) {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'api.js:112',message:'error in saveToAPI',data:{errorMessage:e.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-        // #endregion
         console.error('Fehler beim Speichern:', e);
         if (typeof showToast === 'function') {
             showToast('Fehler beim Speichern', 'error');

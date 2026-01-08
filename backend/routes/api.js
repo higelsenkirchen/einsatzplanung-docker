@@ -406,26 +406,13 @@ router.put('/data', async (req, res) => {
         // Events speichern
         await client.query('DELETE FROM events WHERE variant_id = $1', [variantId]);
         if (events && Array.isArray(events)) {
-            // #region agent log
-            const fs = require('fs');
-            const logPath = 'c:\\Users\\Arbeit\\Jottacloud\\Georg Canzler\\Programmierung\\Einsatzplanung-Docker\\.cursor\\debug.log';
-            fs.appendFileSync(logPath, JSON.stringify({location:'api.js:402',message:'saving events',data:{eventsCount:events.length,eventsWithTour:events.filter(e=>e.extendedProps?.tour).length,sampleEvent:events.find(e=>e.extendedProps?.tour)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})+'\n');
-            // #endregion
             for (const event of events) {
                 const extendedPropsStr = JSON.stringify(event.extendedProps || {});
-                // #region agent log
-                if (event.extendedProps?.tour) {
-                    fs.appendFileSync(logPath, JSON.stringify({location:'api.js:406',message:'saving event with tour',data:{eventId:event.id,tour:event.extendedProps.tour,extendedPropsStr},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})+'\n');
-                }
-                // #endregion
                 await client.query(
                     'INSERT INTO events (id, variant_id, title, start, "end", day_index, extended_props) VALUES ($1, $2, $3, $4, $5, $6, $7)',
                     [event.id, variantId, event.title, event.start, event.end, event.dayIndex, extendedPropsStr]
                 );
             }
-            // #region agent log
-            fs.appendFileSync(logPath, JSON.stringify({location:'api.js:409',message:'events saved',data:{eventsSaved:events.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})+'\n');
-            // #endregion
         }
 
         // Pool speichern
