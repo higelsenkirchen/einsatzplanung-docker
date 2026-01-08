@@ -10916,6 +10916,10 @@ Weber, Peter;Erle;social</code>
                 queueSave();
                 refreshUI();
                 updateCapacityDisplay();
+                // Aktualisiere die Mitarbeiterliste im Team-Tab, falls dieser aktiv ist
+                if (typeof renderEmployeeList === 'function') {
+                    renderEmployeeList();
+                }
                 n.value = '';
                 if(h) h.value = '40';
                 if(addr) addr.value = '';
