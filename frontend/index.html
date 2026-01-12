@@ -5349,9 +5349,15 @@ Weber, Peter;Erle;social</code>
                 }
             );
             }
-            if (typeof renderList === 'function') {
+            // Verwende renderTourList() für tourList statt renderList(), wenn renderTourList verfügbar ist
+            if (typeof renderTourList === 'function' && document.getElementById('tourList')) {
                 // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:5352',message:'refreshUI calling renderList for tourList',data:{toursLength:appData.tours?.length||0,toursArray:appData.tours?.map(t=>({id:t.id,name:t.name}))||[],containerExists:!!document.getElementById('tourList')},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+                fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:5352',message:'refreshUI calling renderTourList for tourList',data:{toursLength:appData.tours?.length||0,toursArray:appData.tours?.map(t=>({id:t.id,name:t.name}))||[],containerExists:!!document.getElementById('tourList')},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'E'})}).catch(()=>{});
+                // #endregion
+                renderTourList();
+            } else if (typeof renderList === 'function') {
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:5352',message:'refreshUI calling renderList for tourList (fallback)',data:{toursLength:appData.tours?.length||0,toursArray:appData.tours?.map(t=>({id:t.id,name:t.name}))||[],containerExists:!!document.getElementById('tourList')},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'E'})}).catch(()=>{});
                 // #endregion
                 renderList('tourList', appData.tours || [], 
                 id => {
