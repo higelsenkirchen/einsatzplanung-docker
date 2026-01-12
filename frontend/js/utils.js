@@ -24,6 +24,12 @@ function minutesToTime(minutes) {
 // Zone mit PLZ zurückgeben
 function getZoneWithPostalCode(zone) {
     if (!zone || zone === "Außerhalb") return zone;
+    
+    // Spezielle Behandlung für Zonen mit mehreren PLZ
+    if (zone === "Buer") {
+        return "Buer (45894, 45897)";
+    }
+    
     const plz = ZONE_POSTAL_CODES[zone];
     return plz ? `${zone} (${plz})` : zone;
 }
