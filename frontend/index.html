@@ -8236,6 +8236,98 @@ Weber, Peter;Erle;social</code>
             });
         }
 
+        // --- CUSTOMER WEEK VIEW ---
+        function populateCustomerSelect() {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:populateCustomerSelect',message:'populateCustomerSelect called',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session'})}).catch(()=>{});
+            // #endregion
+            
+            const select = document.getElementById('customerSelect');
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:populateCustomerSelect',message:'select element check',data:{selectExists:!!select},timestamp:Date.now(),sessionId:'debug-session'})}).catch(()=>{});
+            // #endregion
+            if (!select) return;
+            
+            const customers = getAllCustomers();
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:populateCustomerSelect',message:'customers retrieved',data:{customerCount:customers.length,customers:customers.map(c=>c.name)},timestamp:Date.now(),sessionId:'debug-session'})}).catch(()=>{});
+            // #endregion
+            customers.sort((a, b) => a.name.localeCompare(b.name));
+            
+            // Aktuellen Wert speichern
+            const currentValue = select.value;
+            
+            // Select leeren (außer erste Option)
+            select.innerHTML = '<option value="">-- Kunde wählen --</option>';
+            
+            // Kunden hinzufügen
+            customers.forEach(customer => {
+                const option = document.createElement('option');
+                option.value = customer.name;
+                option.textContent = customer.name;
+                select.appendChild(option);
+            });
+            
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:populateCustomerSelect',message:'options added',data:{optionCount:select.options.length},timestamp:Date.now(),sessionId:'debug-session'})}).catch(()=>{});
+            // #endregion
+            
+            // Vorherigen Wert wiederherstellen, falls vorhanden
+            if (currentValue && customers.some(c => c.name === currentValue)) {
+                select.value = currentValue;
+                selectedCustomer = currentValue;
+            }
+        }
+
+        function renderCustomerWeekView(container) {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:renderCustomerWeekView',message:'renderCustomerWeekView called',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session'})}).catch(()=>{});
+            // #endregion
+            // Kunden-Select befüllen
+            populateCustomerSelect();
+            
+            // Prüfe ob ein Kunde ausgewählt ist
+            const customerSelect = document.getElementById('customerSelect');
+            const customerName = customerSelect ? customerSelect.value : selectedCustomer;
+            
+            if (!customerName || customerName === '') {
+                container.innerHTML = `
+                    <div style="padding:40px; text-align:center; color:var(--text-muted);">
+                        <div style="font-size:1.2rem; margin-bottom:12px;">👤 Kunden-Wochenplan</div>
+                        <div style="font-size:0.9rem;">Wählen Sie einen Kunden aus, um dessen Wochenplan anzuzeigen</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Filtere Events nach Kundenname
+            const customerEvents = (appData.events || []).filter(evt => {
+                if (!evt || evt.dayIndex === undefined) return false;
+                if (evt.extendedProps?.isTravel) return false;
+                return evt.title === customerName;
+            });
+            
+            if (customerEvents.length === 0) {
+                container.innerHTML = `
+                    <div style="padding:40px; text-align:center; color:var(--text-muted);">
+                        <div style="font-size:1.2rem; margin-bottom:12px;">👤 ${customerName}</div>
+                        <div style="font-size:0.9rem;">Keine Einsätze für diesen Kunden vorhanden</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Travel-Events für diesen Kunden hinzufügen (falls vorhanden)
+            // Da wir keine Tour-Information haben, können wir keine Travel-Events berechnen
+            // Wir zeigen nur die direkten Einsätze des Kunden
+            
+            // Render Week Board mit gefilterten Events
+            renderWeekBoard(container, customerEvents);
+            
+            // Stats berechnen (nur für diesen Kunden)
+            calculateStats(customerEvents);
+        }
+
         // --- DASHBOARD ---
         function renderDashboard(container) {
             // Reset container styles that might have been set by week/compare/overall views
