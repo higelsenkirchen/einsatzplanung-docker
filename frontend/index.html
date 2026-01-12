@@ -9075,7 +9075,14 @@ Weber, Peter;Erle;social</code>
                 </div>
             `;
             ensureWageSettings();
-            renderWageGroups();
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:9078',message:'renderAdminWages: about to call renderWageGroups',data:{wageGroupsLength:appData.wageSettings?.wageGroups?.length||0,renderWageGroupsExists:typeof renderWageGroups === 'function',renderWageGroupsListExists:typeof renderWageGroupsList === 'function',containerExists:!!document.getElementById('wageGroupsList')},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+            // #endregion
+            if (typeof renderWageGroupsList === 'function') {
+                renderWageGroupsList();
+            } else if (typeof renderWageGroups === 'function') {
+                renderWageGroups();
+            }
             loadWageSettings();
         }
         
@@ -11094,10 +11101,21 @@ Weber, Peter;Erle;social</code>
         }
         
         function renderWageGroupsList() {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:11096',message:'renderWageGroupsList called',data:{wageGroupsLength:appData.wageSettings?.wageGroups?.length||0,wageGroupsArray:appData.wageSettings?.wageGroups?.map(g=>({id:g.id,name:g.name}))||[],containerExists:!!document.getElementById('wageGroupsList')},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+            // #endregion
             const container = document.getElementById('wageGroupsList');
-            if (!container) return;
+            if (!container) {
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:11098',message:'renderWageGroupsList: container not found',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+                // #endregion
+                return;
+            }
             
             const groups = appData.wageSettings?.wageGroups || [];
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:11100',message:'renderWageGroupsList: rendering groups',data:{groupsLength:groups.length,groupsArray:groups.map(g=>({id:g.id,name:g.name}))},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+            // #endregion
             
             container.innerHTML = groups.map((g, idx) => `
                 <div style="display:grid; grid-template-columns:1fr auto auto; gap:12px; align-items:center; padding:12px; background:var(--border-light); border-radius:var(--radius-md);">
@@ -11112,14 +11130,30 @@ Weber, Peter;Erle;social</code>
         }
         
         function addWageGroup() {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:11114',message:'addWageGroup called',data:{wageGroupsBefore:appData.wageSettings?.wageGroups?.length||0,wageGroupsArray:appData.wageSettings?.wageGroups?.map(g=>({id:g.id,name:g.name}))||[]},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+            // #endregion
             ensureWageSettings();
             const newId = 'gruppe_' + Date.now();
-            appData.wageSettings.wageGroups.push({
+            const newGroup = {
                 id: newId,
                 name: 'Neue Lohngruppe',
                 hourlyRate: 15.00
-            });
+            };
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:11117',message:'Wage group created before push',data:{newGroup:newGroup,wageGroupsLengthBefore:appData.wageSettings.wageGroups.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+            // #endregion
+            appData.wageSettings.wageGroups.push(newGroup);
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:11121',message:'Wage group pushed to array',data:{wageGroupsLengthAfter:appData.wageSettings.wageGroups.length,wageGroupsArray:appData.wageSettings.wageGroups.map(g=>({id:g.id,name:g.name}))},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+            // #endregion
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:11122',message:'Before renderWageGroupsList call',data:{wageGroupsLength:appData.wageSettings.wageGroups.length,containerExists:!!document.getElementById('wageGroupsList')},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+            // #endregion
             renderWageGroupsList();
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:11122',message:'After renderWageGroupsList call',data:{wageGroupsLength:appData.wageSettings.wageGroups.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+            // #endregion
             updateWageSettings();
         }
         
