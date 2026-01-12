@@ -9088,7 +9088,10 @@ Weber, Peter;Erle;social</code>
             ensureWageSettings();
             // Verwende renderWageGroupsList() statt der nicht existierenden renderWageGroups()
             renderWageGroupsList();
-            loadWageSettings();
+            // Lade die aktuellen Wage Settings in die Input-Felder
+            if (typeof populateWageSettingsModal === 'function') {
+                populateWageSettingsModal();
+            }
         }
         
         function renderAdminCustomers(container) {
