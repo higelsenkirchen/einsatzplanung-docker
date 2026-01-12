@@ -11124,6 +11124,8 @@ Weber, Peter;Erle;social</code>
             }
             
             closeModal('manualEmployeeCoordinatesModal');
+            // Reset z-index
+            if (coordsModal) coordsModal.style.zIndex = '';
             showToast('Koordinaten gespeichert', 'success');
         }
         
