@@ -10878,37 +10878,89 @@ Weber, Peter;Erle;social</code>
             const tour = appData.tours.find(t => t.id === tourId);
             if(!tour) return;
             
-            // Öffne Modal oder bearbeite direkt in der Liste
-            showInputModal('Tour bearbeiten', 'Tour-Name:', tour.name, (newName) => {
-                if(!newName || !newName.trim()) return;
-                const tourName = newName.trim();
-                
-                showInputModal('Wochenstunden-Limit', 'Wochenstunden-Limit (leer für kein Limit):', tour.weeklyHoursLimit || '', (newHoursLimit) => {
-                    const hoursLimit = newHoursLimit === null || newHoursLimit === '' ? null : parseInt(newHoursLimit);
+            // Erstelle Modal für Tour-Bearbeitung
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.style.display = 'flex';
+            modal.style.zIndex = '2000';
+            
+            const currentTypes = tour.preferredTypes || [];
+            const careChecked = currentTypes.includes('care') ? 'checked' : '';
+            const houseChecked = currentTypes.includes('house') ? 'checked' : '';
+            const socialChecked = currentTypes.includes('social') ? 'checked' : '';
+            
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width:500px;">
+                    <button class="modal-close-btn" onclick="this.closest('.modal-overlay').remove()" title="Schließen">×</button>
+                    <h3 style="margin-top:0;">Tour bearbeiten</h3>
                     
-                    // Bevorzugte Types bearbeiten
-                    const currentTypes = tour.preferredTypes || [];
-                    showInputModal('Leistungstypen', 'Bevorzugte Leistungstypen (Komma-getrennt: care, house, social) oder leer für alle:', currentTypes.join(', '), (typeStr) => {
-                        let preferredTypes = null;
-                        if(typeStr && typeStr.trim()) {
-                            preferredTypes = typeStr.split(',').map(t => t.trim()).filter(t => ['care', 'house', 'social'].includes(t));
-                            if(preferredTypes.length === 0) preferredTypes = null;
-                        }
-                        
-                        tour.name = tourName;
-                        tour.weeklyHoursLimit = hoursLimit;
-                        tour.preferredTypes = preferredTypes;
-                        
-                        tour.name = tourName;
-                        tour.weeklyHoursLimit = hoursLimit;
-                        tour.preferredTypes = preferredTypes;
-                        
-                        queueSave();
-                        renderAdminTabContent('tours');
-                        showToast('Tour aktualisiert', 'success');
-                    });
-                });
+                    <label class="section-title">Tour-Name</label>
+                    <input id="editTourName" type="text" value="${tour.name || ''}" placeholder="🚗 Name der Tour..." style="width:100%; margin-bottom:16px;">
+                    
+                    <label class="section-title">Wochenstunden-Limit (optional)</label>
+                    <input id="editTourHoursLimit" type="number" value="${tour.weeklyHoursLimit || ''}" placeholder="⏱️ Std/Woche" min="0" max="168" style="width:100%; margin-bottom:16px;">
+                    
+                    <label class="section-title" style="font-size:0.85rem; color:var(--text-muted); margin-bottom:4px; display:block;">Bevorzugte Leistungstypen (optional):</label>
+                    <div class="checkbox-group" style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:20px;">
+                        <label class="cb-item"><input type="checkbox" class="edit-tour-type-cb" value="care" ${careChecked}><div class="dot care"></div>Pflege</label>
+                        <label class="cb-item"><input type="checkbox" class="edit-tour-type-cb" value="house" ${houseChecked}><div class="dot house"></div>HW</label>
+                        <label class="cb-item"><input type="checkbox" class="edit-tour-type-cb" value="social" ${socialChecked}><div class="dot social"></div>Betr.</label>
+                    </div>
+                    
+                    <div style="display:flex; gap:10px; justify-content:flex-end;">
+                        <button class="btn btn-secondary" onclick="this.closest('.modal-overlay').remove()">❌ Abbrechen</button>
+                        <button class="btn btn-primary" onclick="saveTourEdit('${tourId}')">✅ Speichern</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // ESC-Taste zum Schließen
+            const escHandler = (e) => {
+                if (e.key === 'Escape') {
+                    modal.remove();
+                    document.removeEventListener('keydown', escHandler);
+                }
+            };
+            document.addEventListener('keydown', escHandler);
+        }
+        
+        function saveTourEdit(tourId) {
+            const tour = appData.tours.find(t => t.id === tourId);
+            if(!tour) return;
+            
+            const nameInput = document.getElementById('editTourName');
+            const hoursInput = document.getElementById('editTourHoursLimit');
+            
+            if(!nameInput) return;
+            
+            const tourName = nameInput.value.trim();
+            if(!tourName) {
+                showToast('Tour-Name darf nicht leer sein', 'error');
+                return;
+            }
+            
+            const hoursLimit = hoursInput && hoursInput.value ? parseInt(hoursInput.value) || null : null;
+            
+            // Sammle bevorzugte Types
+            const preferredTypes = [];
+            document.querySelectorAll('.edit-tour-type-cb:checked').forEach(cb => {
+                preferredTypes.push(cb.value);
             });
+            
+            tour.name = tourName;
+            tour.weeklyHoursLimit = hoursLimit;
+            tour.preferredTypes = preferredTypes.length > 0 ? preferredTypes : null;
+            
+            queueSave();
+            renderAdminTabContent('tours');
+            
+            // Schließe Modal
+            const modal = document.querySelector('.modal-overlay[style*="z-index: 2000"]');
+            if(modal) modal.remove();
+            
+            showToast('Tour aktualisiert', 'success');
         }
         
         // Temp-Koordinaten für neues Teammitglied (Admin-Ansicht)
