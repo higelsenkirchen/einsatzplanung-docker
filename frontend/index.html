@@ -1249,6 +1249,24 @@
             font-size: 0.6rem;
         }
 
+        .week-event-row.is-threeweekly {
+            border-left: 3px solid #10b981; /* Grün für 3-wöchentlich */
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        }
+
+        .week-event-row.is-threeweekly::before {
+            content: '3W';
+            position: absolute;
+            top: 2px;
+            right: 4px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.15);
+            padding: 1px 4px;
+            border-radius: 2px;
+        }
+
         .week-event-row.is-fourweekly {
             border-left: 3px solid #ec4899; /* Pink für 4-wöchentlich */
             background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
