@@ -9075,14 +9075,8 @@ Weber, Peter;Erle;social</code>
                 </div>
             `;
             ensureWageSettings();
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:9078',message:'renderAdminWages: about to call renderWageGroups',data:{wageGroupsLength:appData.wageSettings?.wageGroups?.length||0,renderWageGroupsExists:typeof renderWageGroups === 'function',renderWageGroupsListExists:typeof renderWageGroupsList === 'function',containerExists:!!document.getElementById('wageGroupsList')},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-            // #endregion
-            if (typeof renderWageGroupsList === 'function') {
-                renderWageGroupsList();
-            } else if (typeof renderWageGroups === 'function') {
-                renderWageGroups();
-            }
+            // Verwende renderWageGroupsList() statt der nicht existierenden renderWageGroups()
+            renderWageGroupsList();
             loadWageSettings();
         }
         
