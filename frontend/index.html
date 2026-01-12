@@ -8781,7 +8781,7 @@ Weber, Peter;Erle;social</code>
                 </div>
                 
                 <div>
-                    <label class="section-title">Teammitglieder</label>
+                    <label class="section-title">Teammitglieder <span id="employeeCount" style="font-size:0.85rem; color:var(--text-muted); font-weight:normal;">(0)</span></label>
                     <div id="employeeList" class="item-list"></div>
                 </div>
             `;
@@ -8806,6 +8806,12 @@ Weber, Peter;Erle;social</code>
         function renderEmployeeList() {
             const container = document.getElementById('employeeList');
             if (!container || !appData.employees) return;
+            
+            // Aktualisiere Anzahl-Anzeige
+            const countElement = document.getElementById('employeeCount');
+            if (countElement) {
+                countElement.textContent = `(${appData.employees.length})`;
+            }
             
             container.innerHTML = '';
             
