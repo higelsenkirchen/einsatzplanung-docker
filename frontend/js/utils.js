@@ -162,6 +162,9 @@ function getEventDuration(evt) {
     if (evt.extendedProps?.rhythm === 'biweekly') {
         return duration / 2;
     }
+    if (evt.extendedProps?.rhythm === 'threeweekly') {
+        return duration / 3;
+    }
     if (evt.extendedProps?.rhythm === 'fourweekly') {
         return duration / 4;
     }

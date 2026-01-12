@@ -2822,6 +2822,7 @@
                             <select id="eventRhythm" style="width:100%; font-size:0.9rem; padding:6px 8px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
                                 <option value="weekly">1-wöchentlich</option>
                                 <option value="biweekly">2-wöchentlich</option>
+                                <option value="threeweekly">3-wöchentlich</option>
                                 <option value="fourweekly">4-wöchentlich</option>
                             </select>
                         </div>
@@ -3951,6 +3952,10 @@ Weber, Peter;Erle;social</code>
                     if(newRhythm === 'biweekly' && evtRhythm === 'biweekly') {
                         return; // Allow - they're on alternating weeks
                     }
+                    // Allow overlap if BOTH are threeweekly (different 3-week cycles)
+                    if(newRhythm === 'threeweekly' && evtRhythm === 'threeweekly') {
+                        return; // Allow - they're on different 3-week cycles
+                    }
                     // Allow overlap if BOTH are fourweekly (different 4-week cycles)
                     if(newRhythm === 'fourweekly' && evtRhythm === 'fourweekly') {
                         return; // Allow - they're on different 4-week cycles
@@ -4003,6 +4008,10 @@ Weber, Peter;Erle;social</code>
             // 2-wöchentliche Einsätze nur halb zählen
             if(evt.extendedProps?.rhythm === 'biweekly') {
                 return duration / 2;
+            }
+            // 3-wöchentliche Einsätze nur ein Drittel zählen
+            if(evt.extendedProps?.rhythm === 'threeweekly') {
+                return duration / 3;
             }
             // 4-wöchentliche Einsätze nur ein Viertel zählen
             if(evt.extendedProps?.rhythm === 'fourweekly') {
@@ -6882,6 +6891,7 @@ Weber, Peter;Erle;social</code>
             row.setAttribute('data-event-id', evt.id);
             if(evt.extendedProps?.isTravel) row.classList.add('is-travel');
             if(evt.extendedProps?.rhythm === 'biweekly') row.classList.add('is-biweekly');
+            if(evt.extendedProps?.rhythm === 'threeweekly') row.classList.add('is-threeweekly');
             if(evt.extendedProps?.rhythm === 'fourweekly') row.classList.add('is-fourweekly');
             if(hasConflict) row.classList.add('has-conflict');
             
