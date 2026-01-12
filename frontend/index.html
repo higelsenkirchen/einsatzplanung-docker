@@ -4782,7 +4782,10 @@ Weber, Peter;Erle;social</code>
                 customerWeekControls.style.display = view === 'customerWeek' ? 'flex' : 'none';
                 // Kunden-Select befüllen wenn View gewechselt wird
                 if (view === 'customerWeek') {
-                    setTimeout(() => populateCustomerSelect(), 0);
+                    // #region agent log
+                    fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:switchView',message:'switching to customerWeek view',data:{view:view},timestamp:Date.now(),sessionId:'debug-session'})}).catch(()=>{});
+                    // #endregion
+                    setTimeout(() => populateCustomerSelect(), 100);
                 }
             }
             const compareControls = document.getElementById('compareControls');
@@ -8143,36 +8146,47 @@ Weber, Peter;Erle;social</code>
 
         // Helper-Funktion: Extrahiert alle Kunden aus Events und Pool
         function getAllCustomers() {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:getAllCustomers',message:'getAllCustomers called',data:{hasAppData:!!appData,hasEvents:!!appData?.events,eventsCount:appData?.events?.length||0,hasPool:!!appData?.pool,poolCount:appData?.pool?.length||0},timestamp:Date.now(),sessionId:'debug-session'})}).catch(()=>{});
+            // #endregion
             const customers = new Map();
             
-            appData.events.forEach(evt => {
-                if(evt.extendedProps?.isTravel) return;
-                const key = evt.title;
-                if(!customers.has(key)) {
-                    customers.set(key, {
-                        name: evt.title,
-                        zone: evt.extendedProps?.zone || '',
-                        types: evt.extendedProps?.types || [],
-                        eventCount: 0
-                    });
-                }
-                customers.get(key).eventCount++;
-            });
+            if (appData && appData.events) {
+                appData.events.forEach(evt => {
+                    if(evt.extendedProps?.isTravel) return;
+                    const key = evt.title;
+                    if(!customers.has(key)) {
+                        customers.set(key, {
+                            name: evt.title,
+                            zone: evt.extendedProps?.zone || '',
+                            types: evt.extendedProps?.types || [],
+                            eventCount: 0
+                        });
+                    }
+                    customers.get(key).eventCount++;
+                });
+            }
             
-            appData.pool.forEach(p => {
-                const key = p.title;
-                if(!customers.has(key)) {
-                    customers.set(key, {
-                        name: p.title,
-                        zone: p.zone || '',
-                        types: p.types || [],
-                        eventCount: 0,
-                        inPool: true
-                    });
-                }
-            });
+            if (appData && appData.pool) {
+                appData.pool.forEach(p => {
+                    const key = p.title;
+                    if(!customers.has(key)) {
+                        customers.set(key, {
+                            name: p.title,
+                            zone: p.zone || '',
+                            types: p.types || [],
+                            eventCount: 0,
+                            inPool: true
+                        });
+                    }
+                });
+            }
             
-            return Array.from(customers.values());
+            const result = Array.from(customers.values());
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:getAllCustomers',message:'getAllCustomers result',data:{customerCount:result.length,customerNames:result.map(c=>c.name)},timestamp:Date.now(),sessionId:'debug-session'})}).catch(()=>{});
+            // #endregion
+            return result;
         }
 
         function renderCustomerList() {
