@@ -56,9 +56,9 @@
             --shadow-glow: 0 0 30px rgba(6, 182, 212, 0.2);
             
             /* Status Colors */
-            --c-care: #3b82f6;
-            --c-house: #10b981;
-            --c-social: #f59e0b;
+            --c-care: #3b82f6; 
+            --c-house: #10b981; 
+            --c-social: #f59e0b; 
             --c-other: #6b7280;
             --success: #10b981;
             --danger: #ef4444;
@@ -337,7 +337,7 @@
         }
 
         .toolbar-dropdown-item {
-            display: flex;
+            display: flex; 
             align-items: center;
             gap: 8px;
             width: 100%;
@@ -850,7 +850,7 @@
         }
 
         .nav-group-btn:hover {
-            color: var(--primary);
+            color: var(--primary); 
             background: var(--bg-hover);
         }
 
@@ -2124,6 +2124,7 @@
 
         @media (max-width: 480px) {
             #weekControls select,
+            #customerWeekControls select,
             #compareControls select {
                 width: 100%;
             }
@@ -2340,7 +2341,7 @@
             </div>
             
         <!-- Versteckte Inputs für Datei-Funktionen -->
-        <input type="file" id="csvFileInput" accept=".csv" style="display:none;" onchange="handleCSVImport(event)">
+             <input type="file" id="csvFileInput" accept=".csv" style="display:none;" onchange="handleCSVImport(event)">
         <div id="fileStatus" style="display:none;">Status: Verbunden</div>
         <div id="lastSaveDisplay" style="display:none;">💾 Zuletzt: –</div>
 
@@ -2372,6 +2373,7 @@
                         </button>
                         <div class="nav-dropdown" id="navDropdownPlanning">
                             <button class="nav-dropdown-item active" id="btnViewWeek" onclick="switchView('week'); closeNavGroups();">📅 Woche</button>
+                            <button class="nav-dropdown-item" id="btnViewCustomerWeek" onclick="switchView('customerWeek'); closeNavGroups();">👤 Kunden-Woche</button>
                             <button class="nav-dropdown-item" id="btnViewOverall" onclick="switchView('overall'); closeNavGroups();">🌐 Gesamt</button>
                         </div>
                     </div>
@@ -2418,6 +2420,14 @@
                 </select>
             </div>
 
+            <div id="customerWeekControls" style="display:none; align-items:center; gap:10px; flex-wrap:wrap;">
+                <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">KUNDE:</label>
+                <select id="customerSelect" onchange="selectedCustomer=this.value; refreshView();" style="width:200px; margin:0; cursor:pointer; font-weight:600;">
+                    <option value="">-- Kunde wählen --</option>
+                </select>
+                <span style="font-size:0.75rem; color:var(--text-muted);">Wählen Sie einen Kunden aus, um dessen Wochenplan anzuzeigen</span>
+            </div>
+
             <div id="compareControls" style="display:none; align-items:center; gap:10px; flex-wrap:wrap;">
                 <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">TAG:</label>
                 <select id="compareDaySelect" onchange="currentCompareDayIndex = parseInt(this.value); refreshView();" style="width:150px; margin:0; cursor:pointer; font-weight:600;">
@@ -2448,47 +2458,47 @@
                                        onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
                                     <input type="checkbox" value="0" checked onchange="updateOverallDayFilter()" style="width:16px; height:16px; margin:0; cursor:pointer; accent-color:var(--primary);">
                                     <span>Mo</span>
-                                </label>
+                    </label>
                                 <label class="day-checkbox-compact" style="display:inline-flex; align-items:center; gap:6px; padding:6px 10px; background:var(--bg-hover); border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; transition:all 0.2s; font-size:0.75rem; font-weight:500; user-select:none;" 
                                        onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
                                        onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
                                     <input type="checkbox" value="1" checked onchange="updateOverallDayFilter()" style="width:16px; height:16px; margin:0; cursor:pointer; accent-color:var(--primary);">
                                     <span>Di</span>
-                                </label>
+                    </label>
                                 <label class="day-checkbox-compact" style="display:inline-flex; align-items:center; gap:6px; padding:6px 10px; background:var(--bg-hover); border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; transition:all 0.2s; font-size:0.75rem; font-weight:500; user-select:none;" 
                                        onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
                                        onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
                                     <input type="checkbox" value="2" checked onchange="updateOverallDayFilter()" style="width:16px; height:16px; margin:0; cursor:pointer; accent-color:var(--primary);">
                                     <span>Mi</span>
-                                </label>
+                    </label>
                                 <label class="day-checkbox-compact" style="display:inline-flex; align-items:center; gap:6px; padding:6px 10px; background:var(--bg-hover); border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; transition:all 0.2s; font-size:0.75rem; font-weight:500; user-select:none;" 
                                        onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
                                        onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
                                     <input type="checkbox" value="3" checked onchange="updateOverallDayFilter()" style="width:16px; height:16px; margin:0; cursor:pointer; accent-color:var(--primary);">
                                     <span>Do</span>
-                                </label>
+                    </label>
                                 <label class="day-checkbox-compact" style="display:inline-flex; align-items:center; gap:6px; padding:6px 10px; background:var(--bg-hover); border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; transition:all 0.2s; font-size:0.75rem; font-weight:500; user-select:none;" 
                                        onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
                                        onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
                                     <input type="checkbox" value="4" checked onchange="updateOverallDayFilter()" style="width:16px; height:16px; margin:0; cursor:pointer; accent-color:var(--primary);">
                                     <span>Fr</span>
-                                </label>
+                    </label>
                                 <label class="day-checkbox-compact" style="display:inline-flex; align-items:center; gap:6px; padding:6px 10px; background:var(--bg-hover); border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; transition:all 0.2s; font-size:0.75rem; font-weight:500; user-select:none;" 
                                        onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
                                        onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
                                     <input type="checkbox" value="5" checked onchange="updateOverallDayFilter()" style="width:16px; height:16px; margin:0; cursor:pointer; accent-color:var(--primary);">
                                     <span>Sa</span>
-                                </label>
+                    </label>
                                 <label class="day-checkbox-compact" style="display:inline-flex; align-items:center; gap:6px; padding:6px 10px; background:var(--bg-hover); border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; transition:all 0.2s; font-size:0.75rem; font-weight:500; user-select:none;" 
                                        onmouseover="if(!this.querySelector('input').checked) this.style.borderColor='var(--primary)'; this.style.background='var(--primary-light)'" 
                                        onmouseout="if(!this.querySelector('input').checked) this.style.borderColor='var(--border)'; this.style.background='var(--bg-hover)'">
                                     <input type="checkbox" value="6" checked onchange="updateOverallDayFilter()" style="width:16px; height:16px; margin:0; cursor:pointer; accent-color:var(--primary);">
                                     <span>So</span>
-                                </label>
+                    </label>
                                 <div style="display:flex; gap:4px; margin-top:4px; width:100%;">
                                     <button class="btn btn-sm btn-secondary" onclick="selectAllDays(); event.stopPropagation();" style="padding:4px 8px; font-size:0.7rem; flex:1;">Alle</button>
                                     <button class="btn btn-sm btn-secondary" onclick="deselectAllDays(); event.stopPropagation();" style="padding:4px 8px; font-size:0.7rem; flex:1;">Keine</button>
-                                </div>
+                </div>
                             </div>
                         </div>
                     </div>
@@ -2529,7 +2539,7 @@
                 <div class="view-switcher" style="margin-right:8px;">
                     <button class="view-btn" id="btnZoom15" onclick="setZoom(15)" title="15-Minuten-Raster">15m</button>
                     <button class="view-btn" id="btnZoom5" onclick="setZoom(5)" title="5-Minuten-Raster">5m</button>
-                </div>
+            </div>
                 
                 <!-- Aktionen Gruppe -->
                 <div class="toolbar-group">
@@ -2778,63 +2788,63 @@
                 <div class="event-modal-left">
                     <!-- Typ-Checkboxen -->
                     <div class="checkbox-group" style="margin:0; padding:10px; background:var(--border-light); border-radius:var(--radius-sm);">
-                        <label class="cb-item"><input type="checkbox" class="event-cb" value="care"> 🏥 Pflege</label>
-                        <label class="cb-item"><input type="checkbox" class="event-cb" value="house"> 🏠 HW</label>
-                        <label class="cb-item"><input type="checkbox" class="event-cb" value="social"> 🤝 Betr.</label>
-                        <label class="cb-item"><input type="checkbox" class="event-cb" value="other"> 📋 Sonst.</label>
-                    </div>
-                    <!-- Zeit-Felder -->
+                <label class="cb-item"><input type="checkbox" class="event-cb" value="care"> 🏥 Pflege</label>
+                <label class="cb-item"><input type="checkbox" class="event-cb" value="house"> 🏠 HW</label>
+                <label class="cb-item"><input type="checkbox" class="event-cb" value="social"> 🤝 Betr.</label>
+                <label class="cb-item"><input type="checkbox" class="event-cb" value="other"> 📋 Sonst.</label>
+            </div>
+            <!-- Zeit-Felder -->
                     <div style="padding:12px; background:var(--border-light); border-radius:var(--radius-md);">
                         <div id="eventDayLabel" style="font-size:0.85rem; color:var(--primary); font-weight:600; margin-bottom:8px; text-align:center; padding:4px 0;"></div>
                         <div style="display:flex; gap:8px; align-items:flex-start;">
-                            <div style="flex:1; min-width:0;">
+                    <div style="flex:1; min-width:0;">
                                 <label class="section-title" style="margin-bottom:4px; display:block; font-size:0.8rem;">⏰ Von</label>
                                 <input type="time" id="eventStartTime" style="width:100%; font-size:0.9rem; font-weight:500; padding:6px 8px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
-                            </div>
-                            <div style="flex:1; min-width:0;">
+                    </div>
+                    <div style="flex:1; min-width:0;">
                                 <label class="section-title" style="margin-bottom:4px; display:block; font-size:0.8rem;">⏰ Bis</label>
                                 <input type="time" id="eventEndTime" style="width:100%; font-size:0.9rem; font-weight:500; padding:6px 8px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
-                            </div>
-                            <div style="flex:1; min-width:0;">
+                    </div>
+                    <div style="flex:1; min-width:0;">
                                 <label class="section-title" style="margin-bottom:4px; display:block; font-size:0.8rem;">⏱️ Dauer</label>
                                 <div id="eventDuration" style="font-size:0.9rem; font-weight:600; color:var(--primary); padding:6px 8px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body); min-height:34px; display:flex; align-items:center;">--</div>
-                            </div>
-                        </div>
                     </div>
+                </div>
+            </div>
                     <!-- Zone + Tour -->
                     <div style="display:flex; gap:8px;">
-                        <div style="flex:1; min-width:0;">
+                <div style="flex:1; min-width:0;">
                             <label class="section-title" style="margin-bottom:4px; display:block; font-size:0.8rem;">🌍 Zone</label>
                             <select id="eventZone" style="width:100%; font-size:0.9rem; padding:6px 8px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);"></select>
-                        </div>
-                        <div style="flex:1; min-width:0;">
+                </div>
+                <div style="flex:1; min-width:0;">
                             <label class="section-title" style="margin-bottom:4px; display:block; font-size:0.8rem;">🚐 Tour</label>
                             <select id="eventTourSelect" style="width:100%; font-size:0.9rem; padding:6px 8px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);"></select>
-                        </div>
-                    </div>
+                </div>
+            </div>
                     <!-- Wiederholung -->
                     <div style="padding:10px; background:var(--border-light); border-radius:var(--radius-sm);">
                         <label class="section-title" style="margin-bottom:8px; display:block; font-size:0.8rem;">🔄 Auch anlegen für (Wiederholung)</label>
                         <div class="checkbox-group" style="margin:0; display:flex; flex-wrap:wrap; gap:8px;">
-                            <label class="cb-item"><input type="checkbox" class="repeat-cb" value="0"> Mo</label>
-                            <label class="cb-item"><input type="checkbox" class="repeat-cb" value="1"> Di</label>
-                            <label class="cb-item"><input type="checkbox" class="repeat-cb" value="2"> Mi</label>
-                            <label class="cb-item"><input type="checkbox" class="repeat-cb" value="3"> Do</label>
-                            <label class="cb-item"><input type="checkbox" class="repeat-cb" value="4"> Fr</label>
-                            <label class="cb-item"><input type="checkbox" class="repeat-cb" value="5"> Sa</label>
-                            <label class="cb-item"><input type="checkbox" class="repeat-cb" value="6"> So</label>
-                        </div>
-                    </div>
+                    <label class="cb-item"><input type="checkbox" class="repeat-cb" value="0"> Mo</label>
+                    <label class="cb-item"><input type="checkbox" class="repeat-cb" value="1"> Di</label>
+                    <label class="cb-item"><input type="checkbox" class="repeat-cb" value="2"> Mi</label>
+                    <label class="cb-item"><input type="checkbox" class="repeat-cb" value="3"> Do</label>
+                    <label class="cb-item"><input type="checkbox" class="repeat-cb" value="4"> Fr</label>
+                    <label class="cb-item"><input type="checkbox" class="repeat-cb" value="5"> Sa</label>
+                    <label class="cb-item"><input type="checkbox" class="repeat-cb" value="6"> So</label>
                 </div>
+            </div>
+            </div>
                 <!-- Rechte Spalte -->
                 <div class="event-modal-right">
                     <!-- Adresse + Koordinaten (kombiniert) -->
                     <div id="eventLocationDisplay" style="display:none; padding:10px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm); font-size:0.9rem;">
                         <div id="eventAddressText" style="margin-bottom:4px;"></div>
                         <div id="eventCoordinatesText" style="color:var(--text-muted); font-size:0.85rem;"></div>
-                    </div>
+        </div>
                     <!-- Rhythmus + Tag -->
-                    <div style="display:flex; gap:8px;">
+                <div style="display:flex; gap:8px;">
                         <div style="flex:1; min-width:0;">
                             <label class="section-title" style="margin-bottom:4px; display:block; font-size:0.8rem;">🔄 Rhythmus</label>
                             <select id="eventRhythm" style="width:100%; font-size:0.9rem; padding:6px 8px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
@@ -2843,24 +2853,24 @@
                                 <option value="threeweekly">3-wöchentlich</option>
                                 <option value="fourweekly">4-wöchentlich</option>
                             </select>
-                        </div>
+                </div>
                         <div style="flex:1; min-width:0;">
                             <label class="section-title" style="margin-bottom:4px; display:block; font-size:0.8rem;">🏷️ Tag</label>
                             <input type="text" id="eventTag" placeholder="z.B. Wichtig, Dringend" style="width:100%; font-size:0.9rem; padding:6px 8px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
-                        </div>
-                    </div>
+            </div>
+            </div>
                     <!-- Buttons -->
                     <div class="event-modal-buttons">
                         <button class="btn btn-secondary" onclick="moveBackToPool()" style="display:flex; align-items:center; gap:6px; padding:10px 16px;">📤 In Pool</button>
                         <button class="btn btn-secondary" onclick="duplicateEvent()" id="duplicateBtn" style="display:none; align-items:center; gap:6px; padding:10px 16px;">📄 Duplizieren</button>
                         <button class="btn btn-danger" onclick="deleteEvent()" style="display:flex; align-items:center; gap:6px; padding:10px 16px;">🗑️ Löschen</button>
                         <button class="btn btn-primary" onclick="saveEvent()" style="display:flex; align-items:center; gap:6px; padding:10px 20px; font-weight:600;">💾 Speichern</button>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
-
+                </div>
+            </div>
+            
     <datalist id="patientList"></datalist>
 
     <!-- (ehemalige Admin-Überbleibsel entfernt): tourModal + employeeModal -->
@@ -3311,7 +3321,7 @@ Weber, Peter;Erle;social</code>
             document.head.appendChild(script);
         })();
     </script>
-    
+
     <script>
         const CITY_ZONES = ["Alt-/Neustadt", "Beckhausen", "Bismarck", "Buer", "Bulmke-Hüllen", "Erle", "Feldmark", "Hassel", "Heßler", "Horst", "Resser Mark", "Resse", "Rotthausen", "Schalke", "Scholven", "Ückendorf", "Außerhalb"];
         
@@ -3907,9 +3917,10 @@ Weber, Peter;Erle;social</code>
         // End IndexedDB System
         // ============================================
         
-        let currentView = 'week'; // 'week', 'compare', 'overall', 'dashboard', or 'admin'
+        let currentView = 'week'; // 'week', 'customerWeek', 'compare', 'overall', 'dashboard', or 'admin'
         let currentAdminTab = 'tours'; // 'tours', 'employees', 'wages', 'customers', 'events', 'templates', 'copyday'
         let currentCompareDayIndex = 0; // 0=Montag, 1=Dienstag, etc.
+        let selectedCustomer = null; // Ausgewählter Kunde für Kunden-Wochenansicht
         let currentVariantId = null; // Aktuelle Varianten-ID
         let variants = []; // Liste aller Varianten
         let contextMenuEvent = null; // Globale Variable für Context-Menu Event
@@ -4150,7 +4161,7 @@ Weber, Peter;Erle;social</code>
         });
 
         document.addEventListener('DOMContentLoaded', async () => {
-        initTheme();
+            initTheme();
             populateZones();
             populatePoolZoneFilter();
             renderZoneLegend();
@@ -4174,26 +4185,26 @@ Weber, Peter;Erle;social</code>
             
             // Load data from API
             if (currentVariantId) {
-                try {
-                    await loadFromAPI();
-                } catch(e) {
-                    console.error('Fehler beim Laden der Daten:', e);
-                    showToast('Fehler beim Laden der Daten vom Server', 'error');
-                    // Fallback: use empty data structure
-                    appData = {
-                        events: [],
-                        pool: [],
-                        employees: [],
-                        tours: [{id:'t1', name:'Tour 1'}, {id:'t2', name:'Tour 2'}],
-                        wageSettings: JSON.parse(JSON.stringify(DEFAULT_WAGE_SETTINGS)),
-                        favorites: []
-                    };
+            try {
+                await loadFromAPI();
+            } catch(e) {
+                console.error('Fehler beim Laden der Daten:', e);
+                showToast('Fehler beim Laden der Daten vom Server', 'error');
+                // Fallback: use empty data structure
+                appData = {
+                    events: [],
+                    pool: [],
+                    employees: [],
+                    tours: [{id:'t1', name:'Tour 1'}, {id:'t2', name:'Tour 2'}],
+                    wageSettings: JSON.parse(JSON.stringify(DEFAULT_WAGE_SETTINGS)),
+                    favorites: []
+                };
                 }
             }
             
             await loadTemplatesFromStorage();
             await loadFilterPresetsFromStorage();
-        refreshUI(); // Hier wird renderPool() aufgerufen
+            refreshUI(); // Hier wird renderPool() aufgerufen
             if (typeof updatePatientList === 'function') updatePatientList();
             if (typeof renderFilterPresetSelect === 'function') renderFilterPresetSelect();
         // HINWEIS: switchView wird im späteren DOMContentLoaded Handler aufgerufen,
@@ -4417,7 +4428,7 @@ Weber, Peter;Erle;social</code>
                 });
             }); 
         }
-        
+
         function populatePoolZoneFilter() {
             const filter = document.getElementById('poolZoneFilter');
             if(!filter) return;
@@ -4746,6 +4757,9 @@ Weber, Peter;Erle;social</code>
             } else if(view === 'week') {
                 btnId = 'btnViewWeek';
                 groupBtnId = 'navGroupPlanning';
+            } else if(view === 'customerWeek') {
+                btnId = 'btnViewCustomerWeek';
+                groupBtnId = 'navGroupPlanning';
             }
             
             const item = document.getElementById(btnId);
@@ -4762,6 +4776,14 @@ Weber, Peter;Erle;social</code>
             
             const weekControls = document.getElementById('weekControls');
             if (weekControls) weekControls.style.display = view === 'week' ? 'flex' : 'none';
+            const customerWeekControls = document.getElementById('customerWeekControls');
+            if (customerWeekControls) {
+                customerWeekControls.style.display = view === 'customerWeek' ? 'flex' : 'none';
+                // Kunden-Select befüllen wenn View gewechselt wird
+                if (view === 'customerWeek') {
+                    setTimeout(() => populateCustomerSelect(), 0);
+                }
+            }
             const compareControls = document.getElementById('compareControls');
             if (compareControls) compareControls.style.display = view === 'compare' ? 'flex' : 'none';
             const overallControls = document.getElementById('overallControls');
@@ -5434,7 +5456,7 @@ Weber, Peter;Erle;social</code>
             );
             }
         }
-        
+
         // --- ZONE LEGEND ---
         function renderZoneLegend() {
             const container = document.getElementById('zoneLegendContent');
@@ -5593,7 +5615,7 @@ Weber, Peter;Erle;social</code>
                             ${coordIcon ? `<span style="font-size:0.75rem;opacity:0.7;" title="Koordinaten vorhanden">${coordIcon}</span>` : ''}
                     </div>
                         <div style="display:flex;align-items:center;gap:3px;flex-shrink:0;">
-                            <span style="display:flex;gap:3px;flex-shrink:0;margin-left:6px;">${dots}</span>
+                        <span style="display:flex;gap:3px;flex-shrink:0;margin-left:6px;">${dots}</span>
                             <button class="pool-delete-btn" onclick="event.stopPropagation(); deletePoolItem('${p.id}')" title="Kunde löschen" style="background:none;border:none;color:var(--danger);cursor:pointer;padding:2px 4px;font-size:0.85rem;opacity:0.6;transition:opacity 0.2s;">🗑️</button>
                         </div>
                     </div>
@@ -5773,9 +5795,9 @@ Weber, Peter;Erle;social</code>
             
             if (totalCount === 0) {
                 showToast('Keine Kunden zum Löschen vorhanden', 'info');
-                return;
-            }
-            
+                    return;
+                }
+                
             // Erstelle Modal für Auswahl
             const modal = document.createElement('div');
             modal.className = 'modal-overlay';
@@ -5878,8 +5900,8 @@ Weber, Peter;Erle;social</code>
             );
             
             if (!confirmed) {
-                return;
-            }
+                        return;
+                    }
             
             showConfirmInputModal(
                 'Alle Einsätze löschen',
@@ -5889,8 +5911,8 @@ Weber, Peter;Erle;social</code>
                 (isValid) => {
                     if (!isValid) {
                         showToast('Löschung abgebrochen', 'info');
-                        return;
-                    }
+                return;
+            }
                     
                     // Entferne alle Einsätze (behalte Fahrtzeiten)
                     appData.events = appData.events.filter(e => e.extendedProps?.isTravel === true);
@@ -5986,9 +6008,9 @@ Weber, Peter;Erle;social</code>
                         // Neues Pool-Item erstellen mit Adresse/Koordinaten aus Event
                         const newPoolItem = {
                             id: existingPoolId || generateId(), 
-                            title: evt.title,
-                            zone: evt.extendedProps?.zone || 'Alt-/Neustadt',
-                            types: evt.extendedProps?.types || ['other']
+                        title: evt.title,
+                        zone: evt.extendedProps?.zone || 'Alt-/Neustadt',
+                        types: evt.extendedProps?.types || ['other']
                         };
                         
                         // Übernehme Adresse/Koordinaten aus Event falls vorhanden
@@ -6042,15 +6064,15 @@ Weber, Peter;Erle;social</code>
                 if (typeof switchView === 'function') {
         switchView(currentView || 'week');
                 } else if (typeof refreshView === 'function') {
-                    refreshView();
-                }
+            refreshView();
+        }
             }, 100);
         });
 
         // --- STANDARD LOGIC ---
         function refreshView() {
-        const container = document.getElementById('weekView');
-        if(!container) return;
+            const container = document.getElementById('weekView');
+            if(!container) return;
             
             container.innerHTML = ''; // Clear container
 
@@ -6065,19 +6087,21 @@ Weber, Peter;Erle;social</code>
             }
 
             if(currentView === 'week') {
-        const tourSelect = document.getElementById('tourSelect');
+                const tourSelect = document.getElementById('tourSelect');
                 const selectedTour = tourSelect ? tourSelect.value : null;
-        // Filter events by tour (no date filtering - static week)
+                // Filter events by tour (no date filtering - static week)
                 const eventsForTour = (appData.events || []).filter(evt => {
                     if(!evt || evt.dayIndex === undefined) return false;
                     if(selectedTour && (!evt.extendedProps || evt.extendedProps.tour !== selectedTour)) return false;
                     return true;
                 });
-        // Auto-calculate travel times (with tour ID for commute calculation)
+                // Auto-calculate travel times (with tour ID for commute calculation)
                 const withTravel = injectTravelTimes(eventsForTour, selectedTour);
 
                 renderWeekBoard(container, withTravel);
                 calculateStats(withTravel);
+            } else if(currentView === 'customerWeek') {
+                renderCustomerWeekView(container);
             } else if(currentView === 'overall') {
                 // Gesamtansicht - alle Touren für alle Tage parallel
                 const allEvents = (appData.events || []).filter(evt => {
@@ -6170,7 +6194,7 @@ Weber, Peter;Erle;social</code>
                     const emp = appData.employees?.find(e => e.id === tour.employeeId);
                     if(emp) {
                         if(emp.homeZone) {
-                            employeeHomeZone = emp.homeZone;
+                        employeeHomeZone = emp.homeZone;
                         }
                         if(emp.extendedProps?.coordinates) {
                             employeeCoordinates = emp.extendedProps.coordinates;
@@ -6658,11 +6682,11 @@ Weber, Peter;Erle;social</code>
         }
 
         function renderWeekBoard(container, events) {
-        const dayNames = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
+            const dayNames = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
             const pxPerMin = getPixelsPerMinute();
             const hourHeight = 60 * pxPerMin;
             const totalHeight = TIMELINE_HOURS * hourHeight;
-        // Get selected tour for filtering
+            // Get selected tour for filtering
             const tourSelect = document.getElementById('tourSelect');
             const selectedTour = tourSelect ? tourSelect.value : null;
             
@@ -7641,7 +7665,7 @@ Weber, Peter;Erle;social</code>
                                     lng: data.longitude
                                 };
                                 geocoded++;
-                            } else {
+                } else {
                                 geocodeFailed++;
                                 warnings.push(`${item.title}: Geocoding fehlgeschlagen`);
                             }
@@ -7669,8 +7693,8 @@ Weber, Peter;Erle;social</code>
             });
             
             // Speichere Änderungen
-            queueSave();
-            renderPool();
+                queueSave(); 
+                renderPool(); 
             
             // Aktualisiere Kundenliste falls im Admin-Tab
             if (currentView === 'admin' && currentAdminTab === 'customers') {
@@ -8116,12 +8140,8 @@ Weber, Peter;Erle;social</code>
             switchView('admin');
         }
 
-        function renderCustomerList() {
-            const container = document.getElementById('customerList');
-            const searchVal = (document.getElementById('customerSearch')?.value || '').toLowerCase();
-            const zoneVal = document.getElementById('customerZoneFilter')?.value || '';
-            
-            // Extract unique customers from events and pool
+        // Helper-Funktion: Extrahiert alle Kunden aus Events und Pool
+        function getAllCustomers() {
             const customers = new Map();
             
             appData.events.forEach(evt => {
@@ -8151,7 +8171,15 @@ Weber, Peter;Erle;social</code>
                 }
             });
             
-            let customerList = Array.from(customers.values());
+            return Array.from(customers.values());
+        }
+
+        function renderCustomerList() {
+            const container = document.getElementById('customerList');
+            const searchVal = (document.getElementById('customerSearch')?.value || '').toLowerCase();
+            const zoneVal = document.getElementById('customerZoneFilter')?.value || '';
+            
+            let customerList = getAllCustomers();
             
             // Apply filters
             if(searchVal) {
@@ -8825,7 +8853,7 @@ Weber, Peter;Erle;social</code>
                 throw e;
             }
             try {
-                renderEmployeeList();
+            renderEmployeeList();
             } catch (e) {
                 throw e;
             }
@@ -9328,7 +9356,7 @@ Weber, Peter;Erle;social</code>
             a.click();
             URL.revokeObjectURL(url);
         }
-        
+
         function importCSV() {
             openModal('csvImportModal');
         }
@@ -9399,12 +9427,12 @@ Weber, Peter;Erle;social</code>
             };
             
             const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
             a.download = `tourenplanung-backup-${new Date().toISOString().split('T')[0]}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
+                a.click();
+                URL.revokeObjectURL(url);
             showToast('Backup exportiert', 'success');
         }
         
@@ -10627,8 +10655,8 @@ Weber, Peter;Erle;social</code>
         async function loadFromAPI(){
             if (!currentVariantId) {
                 console.warn('Keine Variante ausgewählt');
-                return;
-            }
+                    return;
+                }
             
             try {
                 const response = await apiCall(`/api/data?variant_id=${currentVariantId}`);
@@ -10758,8 +10786,8 @@ Weber, Peter;Erle;social</code>
         async function handleRenameVariant(variantId) {
             if (!variantId) {
                 showToast('Keine Variante zum Umbenennen ausgewählt', 'error');
-                return;
-            }
+                    return;
+                }
             
             const variant = variants.find(v => v.id === variantId);
             if (!variant) {
@@ -10798,10 +10826,10 @@ Weber, Peter;Erle;social</code>
                 } catch (error) {
                     console.error('Fehler beim Umbenennen der Variante:', error);
                     showToast('Fehler beim Umbenennen: ' + error.message, 'error');
-                }
-            });
-        }
-        
+                    }
+                });
+            }
+            
         async function handleDeleteVariant(variantId) {
             if (!variantId) {
                 showToast('Keine Variante zum Löschen ausgewählt', 'error');
@@ -12333,11 +12361,11 @@ Weber, Peter;Erle;social</code>
                     
                     eventsToProcess.forEach(evt => {
                         if(!evt) return;
-                        
-                        const oldStartMin = parseTimeToMinutes(evt.start);
-                        const oldEndMin = parseTimeToMinutes(evt.end);
-                        const duration = oldEndMin - oldStartMin;
-                        
+                    
+                    const oldStartMin = parseTimeToMinutes(evt.start);
+                    const oldEndMin = parseTimeToMinutes(evt.end);
+                    const duration = oldEndMin - oldStartMin;
+                    
                         // Apply same time offset to all events
                         const newStartMin = Math.max(TIMELINE_START_HOUR * 60, Math.min((TIMELINE_END_HOUR - 1) * 60, oldStartMin + timeOffset));
                         const newEndMin = Math.min(TIMELINE_END_HOUR * 60, newStartMin + duration);
@@ -12362,13 +12390,13 @@ Weber, Peter;Erle;social</code>
                         } else {
                             // Move the existing event
                             evt.start = minutesToTime(newStartMin);
-                            evt.end = minutesToTime(newEndMin);
+                    evt.end = minutesToTime(newEndMin);
                             evt.dayIndex = newDayIndex;
-                            
-                            if(targetTourId) {
-                                if(!evt.extendedProps) evt.extendedProps = {};
-                                evt.extendedProps.tour = targetTourId;
-                            }
+                    
+                    if(targetTourId) {
+                        if(!evt.extendedProps) evt.extendedProps = {};
+                        evt.extendedProps.tour = targetTourId;
+                    }
                         }
                     });
                     
