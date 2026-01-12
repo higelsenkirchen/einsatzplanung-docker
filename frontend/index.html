@@ -5146,6 +5146,16 @@ Weber, Peter;Erle;social</code>
                     })
                 });
                 
+                // Prüfe ob es ein Timeout war
+                if (response.status === 504) {
+                    throw new Error('Geocoding-Service antwortet nicht rechtzeitig. Bitte versuchen Sie es später erneut.');
+                }
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
+                    throw new Error(errorData.error || `HTTP ${response.status}`);
+                }
+                
                 const data = await response.json();
                 
                 if (data.success) {
@@ -5171,7 +5181,14 @@ Weber, Peter;Erle;social</code>
                 }
             } catch (error) {
                 console.error('Geocoding-Fehler:', error);
-                showToast('Fehler beim Ermitteln der Koordinaten', 'error');
+                // Zeige spezifische Fehlermeldung für Timeouts
+                if (error.message && (error.message.includes('Timeout') || error.message.includes('504'))) {
+                    showToast('Geocoding-Service antwortet nicht rechtzeitig. Bitte versuchen Sie es später erneut.', 'error');
+                } else if (error.message && error.message.includes('Unexpected token')) {
+                    showToast('Geocoding-Service hat ungültige Antwort zurückgegeben. Bitte versuchen Sie es später erneut.', 'error');
+                } else {
+                    showToast('Fehler beim Ermitteln der Koordinaten: ' + (error.message || 'Unbekannter Fehler'), 'error');
+                }
             } finally {
                 if (btn) {
                     btn.disabled = false;
@@ -7572,6 +7589,16 @@ Weber, Peter;Erle;social</code>
                                 })
                             });
                             
+                            // Prüfe ob es ein Timeout war
+                            if (response.status === 504) {
+                                throw new Error('Timeout');
+                            }
+                            
+                            if (!response.ok) {
+                                const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
+                                throw new Error(errorData.error || `HTTP ${response.status}`);
+                            }
+                            
                             const data = await response.json();
                             
                             if (data.success) {
@@ -7588,7 +7615,13 @@ Weber, Peter;Erle;social</code>
                         } catch (error) {
                             console.error(`Geocoding-Fehler für ${item.title}:`, error);
                             geocodeFailed++;
-                            warnings.push(`${item.title}: Geocoding-Fehler`);
+                            if (error.message && (error.message.includes('Timeout') || error.message.includes('504'))) {
+                                warnings.push(`${item.title}: Geocoding-Timeout - bitte später erneut versuchen`);
+                            } else if (error.message && error.message.includes('Unexpected token')) {
+                                warnings.push(`${item.title}: Geocoding-Service-Fehler - bitte später erneut versuchen`);
+                            } else {
+                                warnings.push(`${item.title}: Geocoding-Fehler`);
+                            }
                         }
                     }
                     
@@ -8932,6 +8965,17 @@ Weber, Peter;Erle;social</code>
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ address, postalCode, city: 'Gelsenkirchen' })
                 });
+                
+                // Prüfe ob es ein Timeout war
+                if (response.status === 504) {
+                    throw new Error('Geocoding-Service antwortet nicht rechtzeitig. Bitte versuchen Sie es später erneut.');
+                }
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
+                    throw new Error(errorData.error || `HTTP ${response.status}`);
+                }
+                
                 const data = await response.json();
                 
                 if (data.success) {
@@ -8944,7 +8988,15 @@ Weber, Peter;Erle;social</code>
                     showToast('Koordinaten konnten nicht ermittelt werden: ' + (data.error || 'Unbekannter Fehler'), 'error');
                 }
             } catch (e) {
-                showToast('Fehler beim Ermitteln der Koordinaten', 'error');
+                console.error('Geocoding-Fehler:', e);
+                // Zeige spezifische Fehlermeldung für Timeouts
+                if (e.message && (e.message.includes('Timeout') || e.message.includes('504'))) {
+                    showToast('Geocoding-Service antwortet nicht rechtzeitig. Bitte versuchen Sie es später erneut.', 'error');
+                } else if (e.message && e.message.includes('Unexpected token')) {
+                    showToast('Geocoding-Service hat ungültige Antwort zurückgegeben. Bitte versuchen Sie es später erneut.', 'error');
+                } else {
+                    showToast('Fehler beim Ermitteln der Koordinaten: ' + (e.message || 'Unbekannter Fehler'), 'error');
+                }
             } finally {
                 if (btn) {
                     btn.disabled = false;
@@ -10936,6 +10988,16 @@ Weber, Peter;Erle;social</code>
                     })
                 });
                 
+                // Prüfe ob es ein Timeout war
+                if (response.status === 504) {
+                    throw new Error('Geocoding-Service antwortet nicht rechtzeitig. Bitte versuchen Sie es später erneut.');
+                }
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
+                    throw new Error(errorData.error || `HTTP ${response.status}`);
+                }
+                
                 const data = await response.json();
                 
                 if (data.success) {
@@ -10959,7 +11021,14 @@ Weber, Peter;Erle;social</code>
                 }
             } catch (error) {
                 console.error('Geocoding-Fehler:', error);
-                showToast('Fehler beim Ermitteln der Koordinaten', 'error');
+                // Zeige spezifische Fehlermeldung für Timeouts
+                if (error.message && error.message.includes('Timeout') || error.message.includes('504')) {
+                    showToast('Geocoding-Service antwortet nicht rechtzeitig. Bitte versuchen Sie es später erneut.', 'error');
+                } else if (error.message && error.message.includes('Unexpected token')) {
+                    showToast('Geocoding-Service hat ungültige Antwort zurückgegeben. Bitte versuchen Sie es später erneut.', 'error');
+                } else {
+                    showToast('Fehler beim Ermitteln der Koordinaten: ' + (error.message || 'Unbekannter Fehler'), 'error');
+                }
             } finally {
                 if (btn) {
                     btn.disabled = false;
