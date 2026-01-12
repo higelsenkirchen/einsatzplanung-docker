@@ -2603,7 +2603,7 @@
     </div>
 
     <!-- Manuelle Koordinaten-Eingabe Modal für Mitarbeiter -->
-    <div id="manualEmployeeCoordinatesModal" class="modal-overlay">
+    <div id="manualEmployeeCoordinatesModal" class="modal-overlay" style="z-index: 2000;">
         <div class="modal-content" style="max-width:500px;">
             <button class="modal-close-btn" onclick="closeModal('manualEmployeeCoordinatesModal')" title="Schließen">×</button>
             <h3 style="margin-top:0;">Koordinaten manuell eingeben</h3>
@@ -9008,7 +9008,11 @@ Weber, Peter;Erle;social</code>
         function openManualEmployeeCoordinatesEmployeeEditModal() {
             const editModal = document.getElementById('employeeEditModal');
             const coordsModal = document.getElementById('manualEmployeeCoordinatesModal');
-            if (coordsModal) coordsModal.dataset.source = 'employeeEdit';
+            if (coordsModal) {
+                coordsModal.dataset.source = 'employeeEdit';
+                // Erhöhe z-index, damit Modal über dem Edit-Modal erscheint
+                coordsModal.style.zIndex = '2000';
+            }
             
             const tmp = editModal?.dataset?.tempCoordinates;
             if (tmp) {
@@ -11039,7 +11043,11 @@ Weber, Peter;Erle;social</code>
 
         function openManualEmployeeCoordinatesModal(source) {
             const coordsModal = document.getElementById('manualEmployeeCoordinatesModal');
-            if (coordsModal) coordsModal.dataset.source = 'admin';
+            if (coordsModal) {
+                coordsModal.dataset.source = 'admin';
+                // Erhöhe z-index, damit Modal über anderen Modals erscheint
+                coordsModal.style.zIndex = '2000';
+            }
             if (tempNewEmployeeCoordinates) {
                 const latInput = document.getElementById('manualEmpLat');
                 const lngInput = document.getElementById('manualEmpLng');
