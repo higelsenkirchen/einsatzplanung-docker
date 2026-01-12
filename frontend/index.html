@@ -5351,14 +5351,8 @@ Weber, Peter;Erle;social</code>
             }
             // Verwende renderTourList() für tourList statt renderList(), wenn renderTourList verfügbar ist
             if (typeof renderTourList === 'function' && document.getElementById('tourList')) {
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:5352',message:'refreshUI calling renderTourList for tourList',data:{toursLength:appData.tours?.length||0,toursArray:appData.tours?.map(t=>({id:t.id,name:t.name}))||[],containerExists:!!document.getElementById('tourList')},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'E'})}).catch(()=>{});
-                // #endregion
                 renderTourList();
             } else if (typeof renderList === 'function') {
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:5352',message:'refreshUI calling renderList for tourList (fallback)',data:{toursLength:appData.tours?.length||0,toursArray:appData.tours?.map(t=>({id:t.id,name:t.name}))||[],containerExists:!!document.getElementById('tourList')},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'E'})}).catch(()=>{});
-                // #endregion
                 renderList('tourList', appData.tours || [], 
                 id => {
                     if(appData.tours.length <= 1) {
@@ -8494,9 +8488,6 @@ Weber, Peter;Erle;social</code>
         }
         
         function renderAdminTours(container) {
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8487',message:'renderAdminTours called',data:{toursLength:appData.tours?.length||0,toursArray:appData.tours?.map(t=>({id:t.id,name:t.name}))||[]},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-            // #endregion
             container.innerHTML = `
                 <h3 style="margin:0 0 8px 0; font-size:1.2rem; color:var(--text-main);">🚐 Touren verwalten</h3>
                 <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:20px;">Erstellen und verwalten Sie Ihre Touren für die Einsatzplanung.</p>
@@ -8525,35 +8516,18 @@ Weber, Peter;Erle;social</code>
                     <div id="tourList" class="item-list"></div>
                 </div>
             `;
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8516',message:'renderAdminTours: about to call renderTourList',data:{toursLength:appData.tours?.length||0,containerExists:!!document.getElementById('tourList')},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-            // #endregion
             renderTourList();
         }
         
         function renderTourList() {
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8519',message:'renderTourList called',data:{toursLength:appData.tours?.length||0,toursArray:appData.tours?.map(t=>({id:t.id,name:t.name}))||[],containerExists:!!document.getElementById('tourList')},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-            // #endregion
             const container = document.getElementById('tourList');
-            if (!container) {
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8521',message:'renderTourList: container not found',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-                // #endregion
-                return;
-            }
+            if (!container) return;
             
             if (!appData.tours || appData.tours.length === 0) {
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8523',message:'renderTourList: no tours',data:{toursLength:appData.tours?.length||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-                // #endregion
                 container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-light);">Keine Touren vorhanden</div>';
                 return;
             }
             
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:8528',message:'renderTourList: clearing container and rendering',data:{toursLength:appData.tours.length,toursArray:appData.tours.map(t=>({id:t.id,name:t.name}))},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-            // #endregion
             container.innerHTML = '';
             
             appData.tours.forEach(tour => {
@@ -10040,25 +10014,8 @@ Weber, Peter;Erle;social</code>
 
         // refreshUI wurde bereits oben definiert
         function renderList(id, l, cb, updateCb){
-            // #region agent log
-            if(id === 'tourList') {
-                fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:10036',message:'renderList called for tourList',data:{listLength:l?.length||0,listArray:l?.map(i=>({id:i.id,name:i.name}))||[],containerExists:!!document.getElementById(id)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-            }
-            // #endregion
             const el = document.getElementById(id); 
-            if(!el) {
-                // #region agent log
-                if(id === 'tourList') {
-                    fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:10038',message:'renderList: container not found',data:{id:id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-                }
-                // #endregion
-                return;
-            }
-            // #region agent log
-            if(id === 'tourList') {
-                fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:10039',message:'renderList: clearing container',data:{listLength:l?.length||0,containerInnerHTMLBefore:el.innerHTML.substring(0,100)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-            }
-            // #endregion
+            if(!el) return;
             el.innerHTML = ''; 
             const isTourList = id === 'tourList';
             const isEmployeeList = id === 'employeeList';
@@ -10807,9 +10764,6 @@ Weber, Peter;Erle;social</code>
         }
         
         function addTour(){
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:10763',message:'addTour called',data:{toursBefore:appData.tours?.length||0,toursArray:appData.tours?.map(t=>({id:t.id,name:t.name}))||[]},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-            // #endregion
             const n=document.getElementById('newTourName');
             const h=document.getElementById('newTourHoursLimit');
             if(!n) return;
@@ -10824,27 +10778,14 @@ Weber, Peter;Erle;social</code>
             
             if(name) {
                 if(!appData.tours) appData.tours = [];
-                const newTour = {
+                appData.tours.push({
                     id:'t'+generateId(), 
                     name:name, 
                     weeklyHoursLimit: hoursLimit,
                     preferredTypes: preferredTypes.length > 0 ? preferredTypes : null
-                };
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:10778',message:'Tour created before push',data:{newTour:newTour,toursLengthBefore:appData.tours.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-                // #endregion
-                appData.tours.push(newTour);
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:10780',message:'Tour pushed to array',data:{toursLengthAfter:appData.tours.length,toursArray:appData.tours.map(t=>({id:t.id,name:t.name}))},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-                // #endregion
+                });
                 queueSave();
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:10784',message:'Before refreshUI call',data:{toursLength:appData.tours.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-                // #endregion
                 refreshUI();
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:10785',message:'After refreshUI call',data:{toursLength:appData.tours.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-                // #endregion
                 n.value='';
                 if(h) h.value='';
                 document.querySelectorAll('.new-tour-type-cb').forEach(cb => cb.checked = false);
