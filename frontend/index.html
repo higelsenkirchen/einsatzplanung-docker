@@ -4101,7 +4101,8 @@ Weber, Peter;Erle;social</code>
                 
                 // Zone-Badge neben Leistungs-Badges (HTML-escaped für title-Attribut)
                 const zoneTooltipEscaped = zoneTooltip.replace(/"/g, '&quot;').replace(/\n/g, ' ');
-                const zoneBadge = zone !== 'Keine Zone' ? `<span class="zone-badge" title="${zoneTooltipEscaped}" style="display:inline-flex;align-items:center;gap:3px;font-size:0.6rem;color:var(--text-muted);margin-left:4px;">
+                // pointer-events: auto ist wichtig, da event-content pointer-events: none hat
+                const zoneBadge = zone !== 'Keine Zone' ? `<span class="zone-badge" title="${zoneTooltipEscaped}" style="display:inline-flex;align-items:center;gap:3px;font-size:0.6rem;color:var(--text-muted);margin-left:4px;pointer-events:auto;cursor:help;">
                     <span style="width:5px;height:5px;background:${zoneColor};border-radius:50%;display:inline-block;flex-shrink:0;"></span>
                     <span>${zoneAbbrev}</span>
                 </span>` : '';
@@ -4114,23 +4115,35 @@ Weber, Peter;Erle;social</code>
                 row.appendChild(content);
                 
                 // #region agent log
-                // Stelle sicher, dass Tooltip nach innerHTML gesetzt wird
+                // Stelle sicher, dass Tooltip nach innerHTML gesetzt wird und pointer-events korrekt ist
                 if (zoneBadge && zone !== 'Keine Zone') {
                     setTimeout(() => {
                         const badgeEl = row.querySelector('.zone-badge');
-                        if (badgeEl && !badgeEl.getAttribute('title')) {
-                            badgeEl.setAttribute('title', zoneTooltipEscaped);
+                        if (badgeEl) {
+                            // Stelle sicher, dass title gesetzt ist
+                            if (!badgeEl.getAttribute('title')) {
+                                badgeEl.setAttribute('title', zoneTooltipEscaped);
+                            }
+                            // Stelle sicher, dass pointer-events aktiviert ist
+                            badgeEl.style.pointerEvents = 'auto';
+                            badgeEl.style.cursor = 'help';
+                            
                             fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86', {
                                 method: 'POST',
                                 headers: {'Content-Type': 'application/json'},
                                 body: JSON.stringify({
                                     location: 'index.html:4114',
-                                    message: 'Tooltip nach innerHTML wiederhergestellt',
-                                    data: {zone, hasTooltip: !!badgeEl.getAttribute('title')},
+                                    message: 'Tooltip gesetzt und pointer-events aktiviert',
+                                    data: {
+                                        zone,
+                                        hasTooltip: !!badgeEl.getAttribute('title'),
+                                        pointerEvents: badgeEl.style.pointerEvents,
+                                        title: badgeEl.getAttribute('title')?.substring(0, 50)
+                                    },
                                     timestamp: Date.now(),
                                     sessionId: 'debug-session',
-                                    runId: 'tooltip-fix',
-                                    hypothesisId: 'A'
+                                    runId: 'tooltip-fix-v2',
+                                    hypothesisId: 'B'
                                 })
                             }).catch(() => {});
                         }
