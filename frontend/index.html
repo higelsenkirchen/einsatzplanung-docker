@@ -4381,33 +4381,41 @@ Weber, Peter;Erle;social</code>
                     return `<span class="type-badge type-${t}">${labels[t] || t}</span>`;
                 }).join('');
                 
-                // Zone display (like in pool)
+                // Zone display - kompakt neben Badges
                 const zone = evt.extendedProps?.zone || 'Keine Zone';
                 const zoneColor = ZONE_COLORS[zone] || 'var(--primary)';
+                const zoneAbbrev = getZoneAbbreviation(zone);
                 
                 // Prüfe ob Koordinaten vorhanden sind (aus Pool-Item)
                 const poolId = evt.extendedProps?.poolId;
                 let hasCoordinates = false;
+                let zoneTooltip = getZoneWithPostalCode(zone);
                 if (poolId) {
                     const poolItem = appData.pool?.find(p => p.id === poolId);
                     if (poolItem) {
                         const coordinates = poolItem.extendedProps?.coordinates || poolItem.extended_props?.coordinates;
                         hasCoordinates = coordinates && coordinates.lat && coordinates.lng;
+                        // Erweitere Tooltip mit Adresse falls vorhanden
+                        if (poolItem.address) {
+                            zoneTooltip += `\n${poolItem.address}`;
+                            if (poolItem.postalCode) zoneTooltip += `, ${poolItem.postalCode}`;
+                        }
+                        if (hasCoordinates) {
+                            zoneTooltip += `\n📍 Koordinaten: ${coordinates.lat.toFixed(6)}°N, ${coordinates.lng.toFixed(6)}°E`;
+                        }
                     }
                 }
-                const coordIcon = hasCoordinates ? '<span style="font-size:0.7rem;opacity:0.8;margin-left:4px;" title="Koordinaten vorhanden">📍</span>' : '';
                 
-                const zoneDisplay = `<div class="event-zone" style="color:var(--text-muted);display:flex;align-items:center;gap:4px;margin-top:2px;font-size:0.7rem;">
-                    <span style="width:4px;height:4px;background:${zoneColor};border-radius:2px;display:inline-block;flex-shrink:0;"></span>
-                    <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${getZoneWithPostalCode(zone)}</span>
-                    ${coordIcon}
-                </div>`;
+                // Zone-Badge neben Leistungs-Badges
+                const zoneBadge = zone !== 'Keine Zone' ? `<span class="zone-badge" title="${zoneTooltip}" style="display:inline-flex;align-items:center;gap:3px;font-size:0.6rem;color:var(--text-muted);margin-left:4px;">
+                    <span style="width:5px;height:5px;background:${zoneColor};border-radius:50%;display:inline-block;flex-shrink:0;"></span>
+                    <span>${zoneAbbrev}</span>
+                </span>` : '';
                 
                 content.innerHTML = `
-                    <div class="event-title">${evt.title}${hasCoordinates ? ' <span style="font-size:0.7rem;opacity:0.7;">📍</span>' : ''}</div>
+                    <div class="event-title">${evt.title}${hasCoordinates ? ' <span style="font-size:0.7rem;opacity:0.7;" title="Koordinaten vorhanden">📍</span>' : ''}</div>
                     <div class="event-time">${evt.start} - ${evt.end}</div>
-                    <div class="event-badges">${typeBadges}</div>
-                    ${zoneDisplay}
+                    <div class="event-badges">${typeBadges}${zoneBadge}</div>
                 `;
                 row.appendChild(content);
             } else {

@@ -86,3 +86,30 @@ const ZONE_COLORS = {
     "Ückendorf": "#0d9488",     // Teal
     "Außerhalb": "#525252"      // Grau
 };
+
+// Zone-Abkürzungen für kompakte Darstellung
+const ZONE_ABBREVIATIONS = {
+    "Alt-/Neustadt": "Alt-Neu",
+    "Beckhausen": "Beckh.",
+    "Bismarck": "Bism.",
+    "Buer": "Buer",
+    "Bulmke-Hüllen": "Bulmke",
+    "Erle": "Erle",
+    "Feldmark": "Feldm.",
+    "Hassel": "Hassel",
+    "Heßler": "Heßler",
+    "Horst": "Horst",
+    "Resser Mark": "R.Mark",
+    "Resse": "Resse",
+    "Rotthausen": "Rotth.",
+    "Schalke": "Schalke",
+    "Scholven": "Scholv.",
+    "Ückendorf": "Ückend.",
+    "Außerhalb": "Außerh."
+};
+
+// Hilfsfunktion: Gibt Zone-Abkürzung zurück
+function getZoneAbbreviation(zone) {
+    if(!zone) return '';
+    return ZONE_ABBREVIATIONS[zone] || zone.substring(0, 6);
+}
