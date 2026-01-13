@@ -7673,6 +7673,10 @@ Weber, Peter;Erle;social</code>
                 return;
             }
             
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:7670',message:'Executing save',data:{employeesCount:appData?.employees?.length,employees:appData?.employees?.map(e=>({id:e.id,name:e.name,hasExtendedProps:!!e.extendedProps,hasAvailability:!!e.extendedProps?.availability,availability:e.extendedProps?.availability}))},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
+            // #endregion
+            
             try {
                 const response = await apiCall(`/api/data?variant_id=${currentVariantId}`, {
                     method: 'PUT',
