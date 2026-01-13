@@ -5350,10 +5350,14 @@ Weber, Peter;Erle;social</code>
                 }
             }
             
-            // Sammle ausgewählte Leistungstypen
+            // Sammle ausgewählte Leistungstypen (nur care, house, social - kein "other")
             const types = [];
             document.querySelectorAll('.pool-cb:checked').forEach(cb => {
-                types.push(cb.value);
+                const value = cb.value;
+                // Nur gültige Typen erlauben
+                if (value === 'care' || value === 'house' || value === 'social') {
+                    types.push(value);
+                }
             });
             
             if (types.length === 0) {
@@ -5812,9 +5816,10 @@ Weber, Peter;Erle;social</code>
             document.getElementById('poolAddress').value = poolItem.address || '';
             document.getElementById('poolPostalCode').value = poolItem.postalCode || '';
             
-            // Set checkboxes
+            // Set checkboxes (nur care, house, social - filtere "other" heraus)
+            const validTypes = (poolItem.types || []).filter(t => t === 'care' || t === 'house' || t === 'social');
             document.querySelectorAll('.pool-cb').forEach(cb => {
-                cb.checked = (poolItem.types || []).includes(cb.value);
+                cb.checked = validTypes.includes(cb.value);
             });
             
             // Zeige Koordinaten falls vorhanden
