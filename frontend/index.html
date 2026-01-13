@@ -4005,12 +4005,17 @@ Weber, Peter;Erle;social</code>
                 // Die Anfahrt endet bei firstEvent.start, also sollte die Höhe genau
                 // bis zur top Position des Einsatzes reichen, ohne zu überlappen
                 // Berechne die Höhe so, dass top + height genau der top Position des nächsten Events entspricht
-                // endMin entspricht bereits startMin des nächsten Events, also ist die Berechnung korrekt
-                // Aber wir müssen sicherstellen, dass die Höhe exakt bis zur Grenze reicht
+                // endMin entspricht bereits startMin des nächsten Events
+                // WICHTIG: Bei allen Zoom-Leveln muss die Berechnung exakt sein
+                // Verwende endMin direkt, da es bereits die korrekte Endzeit in Minuten ist
                 const targetEndPosition = endMin * pxPerMin;
                 const calculatedHeight = targetEndPosition - topPosition;
+                // Stelle sicher, dass die Höhe exakt berechnet wird
+                // Bei sehr kleinen Werten könnte es Rundungsfehler geben, daher verwenden wir Math.floor für Konsistenz
                 if(calculatedHeight > 0) {
-                    heightValue = calculatedHeight;
+                    heightValue = Math.floor(calculatedHeight * 100) / 100; // Auf 2 Dezimalstellen runden für Präzision
+                    // Mindestens 1px, damit das Element sichtbar ist
+                    if(heightValue < 1) heightValue = 1;
                 }
             }
             
