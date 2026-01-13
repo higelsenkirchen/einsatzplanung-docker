@@ -4110,7 +4110,7 @@ Weber, Peter;Erle;social</code>
                 content.innerHTML = `
                     <div class="event-title">${evt.title}${hasCoordinates ? ' <span style="font-size:0.7rem;opacity:0.7;" title="Koordinaten vorhanden">📍</span>' : ''}</div>
                     <div class="event-time">${evt.start} - ${evt.end}</div>
-                    <div class="event-badges">${typeBadges}${zoneBadge}</div>
+                    <div class="event-badges" style="pointer-events:auto;">${typeBadges}${zoneBadge}</div>
                 `;
                 row.appendChild(content);
                 
@@ -4119,6 +4119,7 @@ Weber, Peter;Erle;social</code>
                 if (zoneBadge && zone !== 'Keine Zone') {
                     setTimeout(() => {
                         const badgeEl = row.querySelector('.zone-badge');
+                        const badgesContainer = row.querySelector('.event-badges');
                         if (badgeEl) {
                             // Stelle sicher, dass title gesetzt ist
                             if (!badgeEl.getAttribute('title')) {
@@ -4127,6 +4128,28 @@ Weber, Peter;Erle;social</code>
                             // Stelle sicher, dass pointer-events aktiviert ist
                             badgeEl.style.pointerEvents = 'auto';
                             badgeEl.style.cursor = 'help';
+                            
+                            // Stelle sicher, dass event-badges Container auch pointer-events hat
+                            if (badgesContainer) {
+                                badgesContainer.style.pointerEvents = 'auto';
+                            }
+                            
+                            // Teste ob Hover funktioniert
+                            badgeEl.addEventListener('mouseenter', () => {
+                                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86', {
+                                    method: 'POST',
+                                    headers: {'Content-Type': 'application/json'},
+                                    body: JSON.stringify({
+                                        location: 'index.html:4114',
+                                        message: 'Hover auf zone-badge erkannt',
+                                        data: {zone, hasTooltip: !!badgeEl.getAttribute('title')},
+                                        timestamp: Date.now(),
+                                        sessionId: 'debug-session',
+                                        runId: 'hover-test',
+                                        hypothesisId: 'C'
+                                    })
+                                }).catch(() => {});
+                            });
                             
                             fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86', {
                                 method: 'POST',
@@ -4138,11 +4161,12 @@ Weber, Peter;Erle;social</code>
                                         zone,
                                         hasTooltip: !!badgeEl.getAttribute('title'),
                                         pointerEvents: badgeEl.style.pointerEvents,
+                                        badgesContainerPE: badgesContainer ? badgesContainer.style.pointerEvents : 'none',
                                         title: badgeEl.getAttribute('title')?.substring(0, 50)
                                     },
                                     timestamp: Date.now(),
                                     sessionId: 'debug-session',
-                                    runId: 'tooltip-fix-v2',
+                                    runId: 'tooltip-fix-v3',
                                     hypothesisId: 'B'
                                 })
                             }).catch(() => {});
