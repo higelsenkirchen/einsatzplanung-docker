@@ -4115,88 +4115,102 @@ Weber, Peter;Erle;social</code>
                 row.appendChild(content);
                 
                 // #region agent log
-                // Custom Tooltip-System für Zone-Badge (da native Tooltips nicht funktionieren)
-                if (zoneBadge && zone !== 'Keine Zone') {
-                    setTimeout(() => {
-                        const badgeEl = row.querySelector('.zone-badge');
-                        const badgesContainer = row.querySelector('.event-badges');
-                        if (badgeEl) {
-                            // Stelle sicher, dass pointer-events aktiviert ist
-                            badgeEl.style.pointerEvents = 'auto';
-                            badgeEl.style.cursor = 'help';
-                            
-                            // Stelle sicher, dass event-badges Container auch pointer-events hat
-                            if (badgesContainer) {
-                                badgesContainer.style.pointerEvents = 'auto';
+                // Custom Tooltip-System für gesamte Einsatzkachel mit allen Details
+                if (!evt.extendedProps?.isTravel) {
+                    // Sammle alle Einsatzdetails für Tooltip
+                    const types = evt.extendedProps?.types || [];
+                    const typeLabels = { care: 'Pflege', house: 'Hauswirtschaft', social: 'Betreuung', other: 'Sonstiges' };
+                    const typeList = types.map(t => typeLabels[t] || t).join(', ') || 'Keine';
+                    
+                    // Erstelle vollständigen Tooltip-Text
+                    let fullTooltipText = `📋 ${evt.title || 'Unbenannter Einsatz'}\n\n`;
+                    fullTooltipText += `⏰ Zeit: ${evt.start} - ${evt.end}\n`;
+                    fullTooltipText += `🏷️ Leistungen: ${typeList}\n`;
+                    
+                    if (zone !== 'Keine Zone') {
+                        fullTooltipText += `\n📍 ${zoneTooltip}`;
+                    }
+                    
+                    // Füge weitere Details hinzu, falls vorhanden
+                    if (poolId) {
+                        const poolItem = appData.pool?.find(p => p.id === poolId);
+                        if (poolItem) {
+                            if (poolItem.phone) {
+                                fullTooltipText += `\n📞 Telefon: ${poolItem.phone}`;
                             }
-                            
-                            // Custom Tooltip-Element
-                            let zoneTooltipEl = null;
-                            
-                            // Zeige Tooltip beim Hover
-                            badgeEl.addEventListener('mouseenter', (e) => {
-                                if (zoneTooltipEl) return; // Bereits angezeigt
-                                
-                                zoneTooltipEl = document.createElement('div');
-                                zoneTooltipEl.className = 'zone-tooltip-custom';
-                                zoneTooltipEl.style.cssText = `
-                                    position: fixed;
-                                    background: rgba(18, 18, 26, 0.95);
-                                    backdrop-filter: blur(20px);
-                                    -webkit-backdrop-filter: blur(20px);
-                                    border: 1px solid rgba(255, 255, 255, 0.1);
-                                    border-left: 3px solid ${zoneColor};
-                                    border-radius: 8px;
-                                    padding: 10px 14px;
-                                    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-                                    z-index: 10001;
-                                    font-size: 0.85rem;
-                                    color: #f0f0f5;
-                                    white-space: pre-line;
-                                    pointer-events: none;
-                                    max-width: 300px;
-                                    line-height: 1.5;
-                                `;
-                                zoneTooltipEl.textContent = zoneTooltip;
-                                document.body.appendChild(zoneTooltipEl);
-                                
-                                // Positioniere Tooltip
-                                const rect = badgeEl.getBoundingClientRect();
-                                const x = rect.left + rect.width / 2;
-                                const y = rect.top - 10;
-                                zoneTooltipEl.style.left = x + 'px';
-                                zoneTooltipEl.style.top = y + 'px';
-                                zoneTooltipEl.style.transform = 'translate(-50%, -100%)';
-                                
-                                // Stelle sicher, dass Tooltip nicht außerhalb des Viewports ist
-                                requestAnimationFrame(() => {
-                                    if (zoneTooltipEl) {
-                                        const tooltipRect = zoneTooltipEl.getBoundingClientRect();
-                                        if (tooltipRect.left < 10) {
-                                            zoneTooltipEl.style.left = '10px';
-                                            zoneTooltipEl.style.transform = 'translate(0, -100%)';
-                                        }
-                                        if (tooltipRect.right > window.innerWidth - 10) {
-                                            zoneTooltipEl.style.left = (window.innerWidth - 10) + 'px';
-                                            zoneTooltipEl.style.transform = 'translate(-100%, -100%)';
-                                        }
-                                        if (tooltipRect.top < 10) {
-                                            zoneTooltipEl.style.top = (rect.bottom + 10) + 'px';
-                                            zoneTooltipEl.style.transform = 'translate(-50%, 0)';
-                                        }
-                                    }
-                                });
-                            });
-                            
-                            // Verstecke Tooltip beim Verlassen
-                            badgeEl.addEventListener('mouseleave', () => {
-                                if (zoneTooltipEl) {
-                                    zoneTooltipEl.remove();
-                                    zoneTooltipEl = null;
-                                }
-                            });
+                            if (poolItem.notes) {
+                                fullTooltipText += `\n📝 Notizen: ${poolItem.notes.substring(0, 100)}${poolItem.notes.length > 100 ? '...' : ''}`;
+                            }
                         }
-                    }, 0);
+                    }
+                    
+                    // Custom Tooltip-Element
+                    let eventTooltipEl = null;
+                    
+                    // Zeige Tooltip beim Hover über die gesamte Kachel
+                    row.addEventListener('mouseenter', (e) => {
+                        // Verhindere Tooltip während Drag & Drop
+                        if (row.getAttribute('data-dragging') === 'true') return;
+                        if (eventTooltipEl) return; // Bereits angezeigt
+                        
+                        eventTooltipEl = document.createElement('div');
+                        eventTooltipEl.className = 'event-tooltip-custom';
+                        eventTooltipEl.style.cssText = `
+                            position: fixed;
+                            background: rgba(18, 18, 26, 0.95);
+                            backdrop-filter: blur(20px);
+                            -webkit-backdrop-filter: blur(20px);
+                            border: 1px solid rgba(255, 255, 255, 0.1);
+                            border-left: 3px solid ${zoneColor};
+                            border-radius: 8px;
+                            padding: 12px 16px;
+                            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+                            z-index: 10001;
+                            font-size: 0.85rem;
+                            color: #f0f0f5;
+                            white-space: pre-line;
+                            pointer-events: none;
+                            max-width: 350px;
+                            line-height: 1.6;
+                        `;
+                        eventTooltipEl.textContent = fullTooltipText;
+                        document.body.appendChild(eventTooltipEl);
+                        
+                        // Positioniere Tooltip oberhalb der Kachel
+                        const rect = row.getBoundingClientRect();
+                        const x = rect.left + rect.width / 2;
+                        const y = rect.top - 10;
+                        eventTooltipEl.style.left = x + 'px';
+                        eventTooltipEl.style.top = y + 'px';
+                        eventTooltipEl.style.transform = 'translate(-50%, -100%)';
+                        
+                        // Stelle sicher, dass Tooltip nicht außerhalb des Viewports ist
+                        requestAnimationFrame(() => {
+                            if (eventTooltipEl) {
+                                const tooltipRect = eventTooltipEl.getBoundingClientRect();
+                                if (tooltipRect.left < 10) {
+                                    eventTooltipEl.style.left = '10px';
+                                    eventTooltipEl.style.transform = 'translate(0, -100%)';
+                                }
+                                if (tooltipRect.right > window.innerWidth - 10) {
+                                    eventTooltipEl.style.left = (window.innerWidth - 10) + 'px';
+                                    eventTooltipEl.style.transform = 'translate(-100%, -100%)';
+                                }
+                                if (tooltipRect.top < 10) {
+                                    eventTooltipEl.style.top = (rect.bottom + 10) + 'px';
+                                    eventTooltipEl.style.transform = 'translate(-50%, 0)';
+                                }
+                            }
+                        });
+                    });
+                    
+                    // Verstecke Tooltip beim Verlassen
+                    row.addEventListener('mouseleave', () => {
+                        if (eventTooltipEl) {
+                            eventTooltipEl.remove();
+                            eventTooltipEl = null;
+                        }
+                    });
                 }
                 // #endregion
             } else {
