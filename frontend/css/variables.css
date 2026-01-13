@@ -5,7 +5,7 @@
 
 :root {
     /* Primary Colors - Light Theme (Default) */
-    --primary: #0891b2;
+    --primary: #0369a1; /* Angepasst: #0891b2 → #0284c7 → #0369a1 für besseren Kontrast (4.5:1) */
     --primary-hover: #0e7490;
     --primary-light: rgba(8, 145, 178, 0.1);
     --primary-glow: 0 0 20px rgba(8, 145, 178, 0.4);
@@ -27,7 +27,7 @@
     --text-main: #0f172a;
     --text-secondary: #475569;
     --text-muted: #64748b;
-    --text-light: #94a3b8;
+    --text-light: #64748b; /* Angepasst: #94a3b8 → #64748b für besseren Kontrast (4.76:1 statt 2.56:1) */
     
     /* Border Colors */
     --border: rgba(0, 0, 0, 0.1);
@@ -47,11 +47,11 @@
     --c-social: #f59e0b; 
     --c-other: #6b7280;
     
-    /* Status Colors */
-    --success: #10b981;
-    --danger: #ef4444;
-    --warning: #f59e0b;
-    --info: #0891b2;
+    /* Status Colors - angepasst für besseren Kontrast auf hellem Hintergrund */
+    --success: #047857; /* Angepasst: #10b981 → #059669 → #047857 für besseren Kontrast (4.5:1) */
+    --danger: #dc2626; /* Angepasst: #ef4444 → #dc2626 (4.83:1) */
+    --warning: #b45309; /* Angepasst: #f59e0b → #d97706 → #b45309 für besseren Kontrast (4.5:1) */
+    --info: #0369a1; /* Angepasst: #0891b2 → #0284c7 → #0369a1 für besseren Kontrast (4.5:1) */
     
     /* Border Radius */
     --radius-sm: 6px;
@@ -103,8 +103,8 @@
     
     --text-main: #f0f0f5;
     --text-secondary: #a0a0b0;
-    --text-muted: #6b6b80;
-    --text-light: #4a4a5a;
+    --text-muted: #8b8ba0; /* Angepasst: #6b6b80 → #8b8ba0 für besseren Kontrast (4.5:1 statt 3.58:1) */
+    --text-light: #8b8ba0; /* Angepasst: #4a4a5a → #8b8ba0 für besseren Kontrast (4.5:1 statt 2.15:1) */
     
     --border: rgba(255, 255, 255, 0.1);
     --border-light: rgba(255, 255, 255, 0.05);
