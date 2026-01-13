@@ -4812,10 +4812,6 @@ Weber, Peter;Erle;social</code>
         function switchView(view) {
         currentView = view;
             
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:switchView',message:'Switching view',data:{view,currentView,selectedTourId:document.getElementById('tourSelect')?.value||null,employeesCount:appData?.employees?.length||0,toursCount:appData?.tours?.length||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'H1'})}).catch(()=>{});
-            // #endregion
-            
             // Remove active from all navigation items
             document.querySelectorAll('.nav-dropdown-item').forEach(item => item.classList.remove('active'));
             document.querySelectorAll('.nav-group-btn').forEach(btn => {
@@ -6941,10 +6937,6 @@ Weber, Peter;Erle;social</code>
             const tourSelect = document.getElementById('tourSelect');
             const selectedTour = tourSelect ? tourSelect.value : null;
             
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:renderWeekBoard',message:'Render week board',data:{selectedTour,eventsCount:events?.length||0,employeesCount:appData?.employees?.length||0,toursCount:appData?.tours?.length||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'H2'})}).catch(()=>{});
-            // #endregion
-            
             // Reset container styles from dashboard/overall view
             container.style.display = 'grid';
             container.style.gridTemplateColumns = '50px repeat(7, 1fr)';
@@ -7061,9 +7053,6 @@ Weber, Peter;Erle;social</code>
                     const tour = appData.tours.find(t => t.id === selectedTour);
                     if (tour && tour.employeeId) {
                         const employee = appData.employees.find(e => e.id === tour.employeeId);
-                        // #region agent log
-                        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:weekAvailability',message:'Week availability lookup',data:{dayIndex,selectedTour,hasTour:!!tour,tourEmployeeId:tour?.employeeId||null,foundEmployee:!!employee,availabilityCount:Array.isArray(employee?.extendedProps?.availability)?employee.extendedProps.availability.length:0,availabilityType:typeof employee?.extendedProps?.availability},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'H3'})}).catch(()=>{});
-                        // #endregion
                         if (employee && employee.extendedProps?.availability) {
                             const dayAvailabilities = employee.extendedProps.availability.filter(a => a.dayIndex === dayIndex);
                             dayAvailabilities.forEach(dayAvailability => {
@@ -7683,10 +7672,6 @@ Weber, Peter;Erle;social</code>
                 console.warn('Keine Variante ausgewählt, kann nicht speichern');
                 return;
             }
-            
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:7670',message:'Executing save',data:{employeesCount:appData?.employees?.length,employees:appData?.employees?.map(e=>({id:e.id,name:e.name,hasExtendedProps:!!e.extendedProps,hasAvailability:!!e.extendedProps?.availability,availability:e.extendedProps?.availability}))},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
-            // #endregion
             
             try {
                 const response = await apiCall(`/api/data?variant_id=${currentVariantId}`, {
@@ -9292,9 +9277,6 @@ Weber, Peter;Erle;social</code>
         // ===== Mitarbeiter bearbeiten (vollständiges Modal) =====
         function openEmployeeEditModal(employeeId) {
             const emp = appData.employees?.find(e => e.id === employeeId);
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:9278',message:'Opening employee edit modal',data:{employeeId,hasEmployee:!!emp,hasExtendedProps:!!emp?.extendedProps,hasAvailability:!!emp?.extendedProps?.availability,availability:emp?.extendedProps?.availability,allEmployees:appData.employees?.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-            // #endregion
             if (!emp) return;
             const modal = document.getElementById('employeeEditModal');
             if (!modal) return;
@@ -9345,9 +9327,6 @@ Weber, Peter;Erle;social</code>
             }
             
             // Verfügbarkeiten rendern
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:9347',message:'Before renderEmployeeAvailability',data:{employeeId:emp.id,empFromAppData:appData.employees?.find(e=>e.id===emp.id)?{hasExtendedProps:!!appData.employees.find(e=>e.id===emp.id)?.extendedProps,hasAvailability:!!appData.employees.find(e=>e.id===emp.id)?.extendedProps?.availability,availability:appData.employees.find(e=>e.id===emp.id)?.extendedProps?.availability}:null,empHasExtendedProps:!!emp.extendedProps,empHasAvailability:!!emp.extendedProps?.availability,empAvailability:emp.extendedProps?.availability},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'H4'})}).catch(()=>{});
-            // #endregion
             renderEmployeeAvailability(emp);
             
             openModal('employeeEditModal');
@@ -9357,9 +9336,6 @@ Weber, Peter;Erle;social</code>
             const container = document.getElementById('employeeAvailabilityContainer');
             if (!container) return;
             
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:9335',message:'Rendering employee availability',data:{employeeId:emp?.id,hasExtendedProps:!!emp?.extendedProps,hasAvailability:!!emp?.extendedProps?.availability,availability:emp?.extendedProps?.availability,extendedProps:emp?.extendedProps},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-            // #endregion
             const dayNames = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
             // Verfügbarkeiten als Objekt gruppiert nach dayIndex: {0: [{start, end}, ...], 1: [...], ...}
             const availabilityByDay = {};
@@ -9371,9 +9347,6 @@ Weber, Peter;Erle;social</code>
                     availabilityByDay[avail.dayIndex].push({ start: avail.start, end: avail.end });
                 });
             }
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:9349',message:'Availability grouped by day',data:{availabilityByDay,dayBlocksCount:Object.keys(availabilityByDay).length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-            // #endregion
             
             container.innerHTML = '';
             
@@ -9413,9 +9386,6 @@ Weber, Peter;Erle;social</code>
                 dayRow.appendChild(blocksContainer);
                 
                 // Füge vorhandene Blöcke hinzu
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:9385',message:'Adding blocks for day',data:{dayIndex,dayBlocksCount:dayBlocks.length,dayBlocks},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'H5'})}).catch(()=>{});
-                // #endregion
                 if (dayBlocks.length > 0) {
                     dayBlocks.forEach(block => {
                         addAvailabilityBlock(dayIndex, container, dayRow, block.start, block.end);
@@ -9569,9 +9539,6 @@ Weber, Peter;Erle;social</code>
                 }
                 
                 emp.extendedProps.availability = availability.length > 0 ? availability : null;
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:9539',message:'Saving availability',data:{employeeId:emp.id,availabilityCount:availability.length,availability,hasExtendedProps:!!emp.extendedProps,extendedPropsAvailability:emp.extendedProps?.availability},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-                // #endregion
             }
             
             queueSave();
@@ -11250,10 +11217,6 @@ Weber, Peter;Erle;social</code>
                 }
                 const data = await response.json();
                 
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:11219',message:'Loading data from API',data:{employeesCount:data?.employees?.length,employees:data?.employees?.map(e=>({id:e.id,name:e.name,hasExtendedProps:!!e.extendedProps,hasAvailability:!!e.extendedProps?.availability,availability:e.extendedProps?.availability}))},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-                // #endregion
-                
                 appData = data;
                 ensureAppDataDefaults();
                 
@@ -11262,10 +11225,6 @@ Weber, Peter;Erle;social</code>
                 
                 // Bereinige veraltete Einsätze ohne dayIndex
                 cleanupInvalidEvents();
-                
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:11230',message:'Data loaded into appData',data:{employeesCount:appData?.employees?.length,employees:appData?.employees?.map(e=>({id:e.id,name:e.name,hasExtendedProps:!!e.extendedProps,hasAvailability:!!e.extendedProps?.availability,availability:e.extendedProps?.availability}))},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
-                // #endregion
                 
                 console.log('Daten erfolgreich vom Server geladen');
                 
