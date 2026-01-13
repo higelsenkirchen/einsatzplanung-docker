@@ -46,8 +46,8 @@
             </div>
             <div class="menu-content" id="menuPool" style="display:flex; flex-direction:column; flex:1; min-height:0;" role="region" aria-labelledby="poolSectionTitle">
                 <div style="display:flex; gap:4px; margin-bottom:6px; flex-wrap:wrap; align-items:center;">
-                    <input type="text" id="poolSearchInput" placeholder="🔍 Suchen..." style="flex:1; min-width:60px; height:32px; padding:0 8px; font-size:0.75rem;" oninput="if(typeof debouncedRenderPool !== 'undefined') debouncedRenderPool(); else renderPool();">
-                    <select id="poolTypeFilter" style="width:60px; height:32px; padding:0 20px 0 6px; font-size:0.75rem;" onchange="renderPool()">
+                    <input type="text" id="poolSearchInput" placeholder="🔍 Suchen..." style="flex:1; min-width:60px; height:32px; padding:0 8px; font-size:0.75rem;" oninput="if(typeof debouncedRenderPool !== 'undefined' && debouncedRenderPool) debouncedRenderPool(); else if(typeof renderPool === 'function') renderPool();">
+                    <select id="poolTypeFilter" style="width:60px; height:32px; padding:0 20px 0 6px; font-size:0.75rem;" onchange="if(typeof renderPool === 'function') renderPool();">
                     <option value="">Alle</option>
                     <option value="care">Pflege</option>
                     <option value="house">HW</option>
@@ -58,7 +58,7 @@
                     <select id="poolZoneFilter" style="flex:1; height:32px; padding:0 20px 0 6px; font-size:0.75rem;" onchange="renderPool()">
                     <option value="">Alle Zonen</option>
                 </select>
-                    <select id="poolSort" style="width:60px; height:32px; padding:0 20px 0 6px; font-size:0.75rem;" onchange="renderPool()">
+                    <select id="poolSort" style="width:60px; height:32px; padding:0 20px 0 6px; font-size:0.75rem;" onchange="if(typeof renderPool === 'function') renderPool();">
                     <option value="name">A-Z</option>
                     <option value="name-desc">Z-A</option>
                     <option value="zone">Zone</option>
@@ -670,7 +670,7 @@
             <h3 id="customerModalTitle" style="margin-top:0;">👥 Kundenübersicht</h3>
             
             <div style="display:flex; gap:10px; margin-bottom:16px;">
-                <input type="text" id="customerSearch" placeholder="🔍 Kunde suchen..." style="flex:1;" oninput="if(typeof debouncedRenderCustomerList !== 'undefined') debouncedRenderCustomerList(); else renderCustomerList();">
+                <input type="text" id="customerSearch" placeholder="🔍 Kunde suchen..." style="flex:1;" oninput="if(typeof debouncedRenderCustomerList !== 'undefined' && debouncedRenderCustomerList) debouncedRenderCustomerList(); else if(typeof renderCustomerList === 'function') renderCustomerList();">
                 <select id="customerZoneFilter" onchange="renderCustomerList()" style="width:150px;">
                     <option value="">Alle Zonen</option>
                 </select>
@@ -1072,24 +1072,8 @@ Weber, Peter;Erle;social</code>
     <script>
         // Distanzberechnungen wurden nach frontend/js/distances.js ausgelagert
         
-        // COLORS wird jetzt aus CSS-Variablen gelesen (siehe getTypeColor Funktion)
-        // Fallback für den Fall, dass CSS-Variablen nicht verfügbar sind
-        function getTypeColor(type) {
-            const style = getComputedStyle(document.documentElement);
-            const colorMap = {
-                care: style.getPropertyValue('--c-care').trim() || '#3b82f6',
-                house: style.getPropertyValue('--c-house').trim() || '#10b981',
-                social: style.getPropertyValue('--c-social').trim() || '#f59e0b',
-                other: style.getPropertyValue('--c-other').trim() || '#6b7280'
-            };
-            return colorMap[type] || '#6b7280';
-        }
-        const COLORS = { care: getTypeColor('care'), house: getTypeColor('house'), social: getTypeColor('social'), other: getTypeColor('other') };
-        
-        // Debounced-Versionen für Performance-Optimierung
-        const debouncedRenderPool = typeof debounce !== 'undefined' ? debounce(renderPool, 300) : renderPool;
-        const debouncedRefreshView = typeof debounce !== 'undefined' ? debounce(refreshView, 300) : refreshView;
-        const debouncedRenderCustomerList = typeof debounce !== 'undefined' ? debounce(renderCustomerList, 300) : renderCustomerList;
+        // COLORS wird jetzt in config.js definiert
+        // Debounced-Versionen werden in init.js nach dem Laden aller Scripts erstellt
         const DEFAULT_DURATION_MIN = 60;
         const TIMELINE_START_HOUR = 7;  // 7:00
         const TIMELINE_END_HOUR = 22;   // 22:00
@@ -1128,230 +1112,15 @@ Weber, Peter;Erle;social</code>
         // ============================================
         // IndexedDB Storage System
         // ============================================
-        const DB_NAME = 'TourenplanungDB';
-        const DB_VERSION = 2;
-        const STORE_NAME = 'appData';
-        let db = null;
-        const TEMPLATE_FALLBACK_KEY = 'weekTemplates';
-        const FILTER_PRESET_FALLBACK_KEY = 'filterPresets';
-        let templateCache = [];
-        let filterPresetCache = [];
-        // API Configuration
-        const API_BASE_URL = window.location.origin;
+        // db, templateCache, filterPresetCache werden jetzt in storage.js definiert
+        // apiCall wird jetzt in api.js definiert
+        // openDatabase, dbSave, dbLoad, dbLoadAll, dbDelete, dbClear werden jetzt in storage.js definiert
+        // currentView, currentVariantId, variants, appData werden jetzt in app.js definiert
+        // saveTimeout wird jetzt in api.js definiert
+        // API_BASE_URL wird jetzt in config.js definiert
         
-        // API-Call Funktion (vereinfacht ohne Auth)
-        async function apiCall(url, options = {}) {
-            const headers = {
-                'Content-Type': 'application/json',
-                ...options.headers
-            };
-            
-            if (currentVariantId) {
-                headers['X-Variant-ID'] = currentVariantId.toString();
-            }
-            
-            const response = await fetch(`${API_BASE_URL}${url}`, {
-                ...options,
-                headers
-            });
-            
-            return response;
-        }
-        
-        function openDatabase() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open(DB_NAME, DB_VERSION);
-                
-                request.onerror = (e) => {
-                    console.error('IndexedDB Fehler:', e.target.error);
-                    reject(e.target.error);
-                };
-                
-                request.onsuccess = (e) => {
-                    db = e.target.result;
-                    console.log('IndexedDB geöffnet');
-                    resolve(db);
-                };
-                
-                request.onupgradeneeded = (e) => {
-                    const database = e.target.result;
-                    
-                    // Hauptdaten-Store
-                    if (!database.objectStoreNames.contains(STORE_NAME)) {
-                        database.createObjectStore(STORE_NAME, { keyPath: 'key' });
-                    }
-                    
-                    // Templates-Store
-                    if (!database.objectStoreNames.contains('templates')) {
-                        database.createObjectStore('templates', { keyPath: 'id' });
-                    }
-                    
-                    // Filter-Presets-Store
-                    if (!database.objectStoreNames.contains('filterPresets')) {
-                        database.createObjectStore('filterPresets', { keyPath: 'id' });
-                    }
-                    
-                    if (!database.objectStoreNames.contains('settings')) {
-                        database.createObjectStore('settings', { keyPath: 'key' });
-                    }
-                    
-                    console.log('IndexedDB Schema erstellt/aktualisiert');
-                };
-            });
-        }
-        
-        async function dbSave(storeName, key, data) {
-            if (!db) await openDatabase();
-            
-            return new Promise((resolve, reject) => {
-                try {
-                    const tx = db.transaction(storeName, 'readwrite');
-                    const store = tx.objectStore(storeName);
-                    
-                    let item;
-                    if (storeName === STORE_NAME) {
-                        item = { key: key, data: data, timestamp: Date.now() };
-                    } else if (storeName === 'settings') {
-                        item = { key: key, ...data };
-                    } else {
-                        item = { ...data, id: data.id || key };
-                    }
-                    
-                    const request = store.put(item);
-                    
-                    request.onsuccess = () => resolve(true);
-                    request.onerror = (e) => {
-                        console.error('DB Save Error:', e.target.error);
-                        reject(e.target.error);
-                    };
-                } catch (e) {
-                    console.error('DB Save Exception:', e);
-                    reject(e);
-                }
-            });
-        }
-        
-        async function dbLoad(storeName, key) {
-            if (!db) await openDatabase();
-            
-            return new Promise((resolve, reject) => {
-                try {
-                    // Check if object store exists
-                    if (!db.objectStoreNames.contains(storeName)) {
-                        console.warn(`ObjectStore "${storeName}" nicht gefunden, versuche Upgrade...`);
-                        resolve(null);
-                        return;
-                    }
-                    
-                    const tx = db.transaction(storeName, 'readonly');
-                    const store = tx.objectStore(storeName);
-                    const request = store.get(key);
-                    
-                    request.onsuccess = (e) => {
-                        const result = e.target.result;
-                        resolve(result ? (storeName === STORE_NAME ? result.data : result) : null);
-                    };
-                    
-                    request.onerror = (e) => {
-                        console.error('DB Load Error:', e.target.error);
-                        resolve(null); // Return null instead of rejecting
-                    };
-                } catch (e) {
-                    console.error('DB Load Exception:', e);
-                    reject(e);
-                }
-            });
-        }
-        
-        async function dbLoadAll(storeName) {
-            if (!db) await openDatabase();
-            
-            return new Promise((resolve, reject) => {
-                try {
-                    const tx = db.transaction(storeName, 'readonly');
-                    const store = tx.objectStore(storeName);
-                    const request = store.getAll();
-                    
-                    request.onsuccess = (e) => resolve(e.target.result || []);
-                    request.onerror = (e) => {
-                        console.error('DB LoadAll Error:', e.target.error);
-                        reject(e.target.error);
-                    };
-                } catch (e) {
-                    console.error('DB LoadAll Exception:', e);
-                    reject(e);
-                }
-            });
-        }
-        
-        async function dbDelete(storeName, key) {
-            if (!db) await openDatabase();
-            
-            return new Promise((resolve, reject) => {
-                try {
-                    const tx = db.transaction(storeName, 'readwrite');
-                    const store = tx.objectStore(storeName);
-                    const request = store.delete(key);
-                    
-                    request.onsuccess = () => resolve(true);
-                    request.onerror = (e) => {
-                        console.error('DB Delete Error:', e.target.error);
-                        reject(e.target.error);
-                    };
-                } catch (e) {
-                    console.error('DB Delete Exception:', e);
-                    reject(e);
-                }
-            });
-        }
-        
-        async function dbClear(storeName) {
-            if (!db) await openDatabase();
-            
-            return new Promise((resolve, reject) => {
-                try {
-                    const tx = db.transaction(storeName, 'readwrite');
-                    const store = tx.objectStore(storeName);
-                    const request = store.clear();
-                    
-                    request.onsuccess = () => resolve(true);
-                    request.onerror = (e) => {
-                        console.error('DB Clear Error:', e.target.error);
-                        reject(e.target.error);
-                    };
-                } catch (e) {
-                    console.error('DB Clear Exception:', e);
-                    reject(e);
-                }
-            });
-        }
-        
-        // Initialize IndexedDB on page load
-        openDatabase().then(() => {
-            console.log('IndexedDB bereit');
-        }).catch(err => {
-            console.warn('IndexedDB nicht verfügbar, nutze localStorage als Fallback');
-        });
-        
-        // ============================================
-        // End IndexedDB System
-        // ============================================
-        
-        let currentView = 'week'; // 'week', 'customerWeek', 'compare', 'overall', 'dashboard', or 'admin'
-        let currentAdminTab = 'tours'; // 'tours', 'employees', 'wages', 'customers', 'events', 'templates', 'copyday'
-        let currentCompareDayIndex = 0; // 0=Montag, 1=Dienstag, etc.
         let selectedCustomer = null; // Ausgewählter Kunde für Kunden-Wochenansicht
-        let currentVariantId = null; // Aktuelle Varianten-ID
-        let variants = []; // Liste aller Varianten
         let contextMenuEvent = null; // Globale Variable für Context-Menu Event
-        let appData = { 
-            events: [], 
-            pool: [], 
-            employees: [], 
-            tours: [{id:'t1', name:'Tour 1'}, {id:'t2', name:'Tour 2'}],
-            wageSettings: JSON.parse(JSON.stringify(DEFAULT_WAGE_SETTINGS))
-        };
-        let currentEvent, fileHandle, saveTimeout;
         let undoStack = []; // For undo functionality
         let searchTerm = ''; // For search filter
         let selectedEvents = new Set(); // For multi-select with Ctrl
@@ -6981,7 +6750,7 @@ Weber, Peter;Erle;social</code>
         
         // --- BACKUP FUNKTIONEN ---
         // Backup-Funktionen wurden nach frontend/js/export.js ausgelagert
-        let pendingBackupImport = null;
+        // pendingBackupImport wird jetzt in export.js definiert
         
         async function executeOptimization() {
             const scope = document.getElementById('optimizeScopeSelect').value;
@@ -9409,7 +9178,7 @@ Weber, Peter;Erle;social</code>
         }
 
         // Speichere die Event-Listener für jedes Modal
-        const modalHandlers = {};
+        // modalHandlers wird jetzt in ui.js definiert
         
         // Hilfsfunktion zum Öffnen des Optimierungs-Modals
         function updateOptimizeScope() {
@@ -9916,23 +9685,23 @@ Weber, Peter;Erle;social</code>
             });
         }
         
-        // Initialisiere View am Ende des Scripts (wenn DOM bereits geladen)
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-        setTimeout(() => {
-                if (typeof switchView === 'function' && typeof refreshView === 'function') {
-        switchView(currentView || 'week');
-                }
-            }, 50);
-        } else {
-            // Falls DOM noch nicht geladen, warte darauf
-            document.addEventListener('DOMContentLoaded', () => {
-        setTimeout(() => {
-                    if (typeof switchView === 'function' && typeof refreshView === 'function') {
-                        switchView(currentView || 'week');
-                    }
-                }, 50);
-            });
+// Initialisiere View am Ende des Scripts (wenn DOM bereits geladen)
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    setTimeout(() => {
+        if (typeof switchView === 'function' && typeof refreshView === 'function' && typeof currentView !== 'undefined') {
+            switchView(currentView || 'week');
         }
+    }, 50);
+} else {
+    // Falls DOM noch nicht geladen, warte darauf
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            if (typeof switchView === 'function' && typeof refreshView === 'function' && typeof currentView !== 'undefined') {
+                switchView(currentView || 'week');
+            }
+        }, 50);
+    });
+}
     </script>
 
     <!-- Externe JavaScript-Dateien -->

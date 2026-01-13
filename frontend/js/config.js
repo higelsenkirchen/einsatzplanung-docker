@@ -74,12 +74,33 @@ const ZONE_DISTANCES = {
     }
 };
 
-// Typ-Farben
+// Typ-Farben - aus CSS-Variablen lesen für besseren Kontrast
+function getTypeColor(type) {
+    if (typeof document === 'undefined') {
+        // Fallback für Node.js/Server-Side
+        const fallback = {
+            care: '#3b82f6',
+            house: '#047857',
+            social: '#b45309',
+            other: '#6b7280'
+        };
+        return fallback[type] || '#6b7280';
+    }
+    const style = getComputedStyle(document.documentElement);
+    const colorMap = {
+        care: style.getPropertyValue('--c-care').trim() || '#3b82f6',
+        house: style.getPropertyValue('--c-house').trim() || '#047857',
+        social: style.getPropertyValue('--c-social').trim() || '#b45309',
+        other: style.getPropertyValue('--c-other').trim() || '#6b7280'
+    };
+    return colorMap[type] || '#6b7280';
+}
+
 const COLORS = { 
-    care: '#3b82f6', 
-    house: '#10b981', 
-    social: '#f59e0b', 
-    other: '#6b7280' 
+    care: getTypeColor('care'), 
+    house: getTypeColor('house'), 
+    social: getTypeColor('social'), 
+    other: getTypeColor('other') 
 };
 
 // Timeline-Konstanten
