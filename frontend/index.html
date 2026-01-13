@@ -4002,6 +4002,31 @@ Weber, Peter;Erle;social</code>
             // Für Commute-Events (Anfahrt vor dem ersten Einsatz): 
             // Stelle sicher, dass die Unterkante bündig an die Oberkante des ersten Einsatzes anschließt
             if(evt.extendedProps?.isCommute && evt.extendedProps?.commuteType === 'start' && durationMin > 0) {
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        location: 'index.html:4004',
+                        message: 'Commute-Event Positionierung - Vor Berechnung',
+                        data: {
+                            eventId: evt.id,
+                            startMin,
+                            endMin,
+                            durationMin,
+                            pxPerMin,
+                            zoomLevel: typeof zoomLevel !== 'undefined' ? zoomLevel : 'undefined',
+                            topPosition,
+                            heightValueBefore: heightValue
+                        },
+                        timestamp: Date.now(),
+                        sessionId: 'debug-session',
+                        runId: 'commute-positioning',
+                        hypothesisId: 'A'
+                    })
+                }).catch(() => {});
+                // #endregion
+                
                 // Die Anfahrt endet bei firstEvent.start, also sollte die Höhe genau
                 // bis zur top Position des Einsatzes reichen, ohne zu überlappen
                 // Berechne die Höhe so, dass top + height genau der top Position des nächsten Events entspricht
@@ -4010,6 +4035,28 @@ Weber, Peter;Erle;social</code>
                 // Verwende endMin direkt, da es bereits die korrekte Endzeit in Minuten ist
                 const targetEndPosition = endMin * pxPerMin;
                 const calculatedHeight = targetEndPosition - topPosition;
+                
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        location: 'index.html:4025',
+                        message: 'Commute-Event Positionierung - Nach Berechnung',
+                        data: {
+                            eventId: evt.id,
+                            targetEndPosition,
+                            calculatedHeight,
+                            heightValueAfter: calculatedHeight > 0 ? Math.floor(calculatedHeight * 100) / 100 : heightValue
+                        },
+                        timestamp: Date.now(),
+                        sessionId: 'debug-session',
+                        runId: 'commute-positioning',
+                        hypothesisId: 'A'
+                    })
+                }).catch(() => {});
+                // #endregion
+                
                 // Stelle sicher, dass die Höhe exakt berechnet wird
                 // Bei sehr kleinen Werten könnte es Rundungsfehler geben, daher verwenden wir Math.floor für Konsistenz
                 if(calculatedHeight > 0) {
@@ -4021,6 +4068,30 @@ Weber, Peter;Erle;social</code>
             
             row.style.top = topPosition + 'px';
             row.style.height = heightValue + 'px';
+            
+            // #region agent log
+            if(evt.extendedProps?.isCommute && evt.extendedProps?.commuteType === 'start') {
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        location: 'index.html:4018',
+                        message: 'Commute-Event - Finale Positionierung',
+                        data: {
+                            eventId: evt.id,
+                            topPosition,
+                            heightValue,
+                            bottomPosition: topPosition + heightValue,
+                            zoomLevel: typeof zoomLevel !== 'undefined' ? zoomLevel : 'undefined'
+                        },
+                        timestamp: Date.now(),
+                        sessionId: 'debug-session',
+                        runId: 'commute-positioning',
+                        hypothesisId: 'A'
+                    })
+                }).catch(() => {});
+            }
+            // #endregion
             
             // Apply zone color
             const zone = evt.extendedProps?.zone;
@@ -5642,11 +5713,12 @@ Weber, Peter;Erle;social</code>
             container.style.display = 'block';
             container.style.padding = '20px';
             container.style.overflowY = 'auto';
-            container.style.overflowX = ''; // Reset from overall view
-            container.style.width = ''; // Reset from overall view
-            container.style.minWidth = ''; // Reset from overall view
-            container.style.maxWidth = ''; // Reset from overall view
+            container.style.overflowX = 'hidden'; // Verhindere horizontales Scrollen
+            container.style.width = '100%'; // Volle Breite nutzen
+            container.style.minWidth = '0'; // Reset from overall view
+            container.style.maxWidth = '100%'; // Begrenze auf Container-Breite
             container.style.height = 'auto';
+            container.style.boxSizing = 'border-box'; // Korrekte Breitenberechnung
             
             const tabs = [
                 { id: 'tours', label: '🚗 Touren' },

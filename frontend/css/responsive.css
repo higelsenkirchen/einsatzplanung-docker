@@ -101,30 +101,61 @@
 
 /* Sehr große Bildschirme - Begrenzung und Zentrierung */
 @media (min-width: 1920px) {
+    html, body {
+        max-width: 100vw;
+        overflow-x: hidden;
+    }
+    
     body {
-        max-width: 1920px;
-        margin: 0 auto;
+        margin: 0;
+        padding: 0;
     }
     
     .main-content {
         max-width: 100%;
         overflow-x: hidden;
+        box-sizing: border-box;
     }
     
     /* Verwaltung-Ansicht begrenzen */
-    #mainArea[data-view="admin"] {
+    #mainArea {
         max-width: 100%;
+        overflow-x: hidden;
+        box-sizing: border-box;
+    }
+    
+    /* Admin-Content Container begrenzen */
+    #adminContent {
+        max-width: 100%;
+        overflow-x: hidden;
+        box-sizing: border-box;
+    }
+    
+    /* Admin Tab Container begrenzen */
+    #mainArea > div:first-child {
+        max-width: 100%;
+        overflow-x: hidden;
+        box-sizing: border-box;
     }
     
     /* Top-Bar begrenzen */
     .top-bar {
         max-width: 100%;
+        overflow-x: hidden;
+        box-sizing: border-box;
     }
     
     /* View-Switcher begrenzen */
     .view-switcher {
         max-width: 100%;
         flex-wrap: wrap;
+        box-sizing: border-box;
+    }
+    
+    /* Sidebar begrenzen */
+    .sidebar {
+        max-width: 100%;
+        box-sizing: border-box;
     }
 }
 
