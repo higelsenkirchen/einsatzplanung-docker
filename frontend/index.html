@@ -4101,8 +4101,15 @@ Weber, Peter;Erle;social</code>
         // UNDO FUNCTIONALITY
         // ============================================
         function saveUndoState() {
-            const state = JSON.stringify(appData);
-            undoStack.push(state);
+            // Speichere auch UI-State wie Tour-Auswahl
+            const tourSelect = document.getElementById('tourSelect');
+            const selectedTourId = tourSelect ? tourSelect.value : null;
+            
+            const state = {
+                appData: JSON.parse(JSON.stringify(appData)), // Deep copy
+                selectedTourId: selectedTourId
+            };
+            undoStack.push(JSON.stringify(state));
             if(undoStack.length > UNDO_STACK_MAX_SIZE) undoStack.shift();
         }
 
@@ -4868,17 +4875,53 @@ Weber, Peter;Erle;social</code>
                 if (typeof showToast === 'function') showToast('Nichts zum Rückgängigmachen', 'info');
                 return;
             }
-            const state = undoStack.pop();
-            appData = JSON.parse(state);
+            const stateStr = undoStack.pop();
+            let state;
+            try {
+                state = JSON.parse(stateStr);
+            } catch(e) {
+                // Fallback für alte Format (nur appData als String)
+                appData = JSON.parse(stateStr);
+                state = { appData: appData, selectedTourId: null };
+            }
+            
+            // Stelle appData wieder her
+            if (state.appData) {
+                appData = state.appData;
+            } else {
+                // Fallback: state ist direkt appData
+                appData = state;
+            }
             
             // Aktualisiere UI vollständig
-            if (typeof queueSave === 'function') queueSave();
             if (typeof refreshUI === 'function') refreshUI();
-            if (typeof refreshView === 'function') refreshView();
+            
+            // Stelle Tour-Auswahl wieder her (nach refreshUI, damit tourSelect existiert)
+            if (state.selectedTourId) {
+                const tourSelect = document.getElementById('tourSelect');
+                if (tourSelect) {
+                    // Warte kurz, damit refreshUI fertig ist
+                    setTimeout(() => {
+                        tourSelect.value = state.selectedTourId;
+                        if (typeof updateTourEmployeeDisplay === 'function') {
+                            updateTourEmployeeDisplay();
+                        }
+                        if (typeof refreshView === 'function') {
+                            refreshView();
+                        }
+                    }, 50);
+                } else {
+                    // Falls tourSelect noch nicht existiert, rufe refreshView direkt auf
+                    if (typeof refreshView === 'function') refreshView();
+                }
+            } else {
+                if (typeof refreshView === 'function') refreshView();
+            }
             
             // Aktualisiere auch die Ansicht falls vorhanden
             if (typeof renderPool === 'function') renderPool();
             
+            if (typeof queueSave === 'function') queueSave();
             if (typeof showToast === 'function') showToast('Rückgängig gemacht', 'success');
         }
         
