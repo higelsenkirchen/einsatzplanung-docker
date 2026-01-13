@@ -2615,7 +2615,7 @@
                 <label class="cb-item"><input type="checkbox" class="pool-cb" value="house"><div class="dot house"></div>HW</label>
                 <label class="cb-item"><input type="checkbox" class="pool-cb" value="social"><div class="dot social"></div>Betr.</label>
             </div>
-            <button class="btn btn-primary" onclick="createPoolItem()">✅ Anlegen</button>
+            <button class="btn btn-primary" id="poolModalSubmitBtn" onclick="createPoolItem()">✅ Anlegen</button>
             <button class="btn btn-secondary" onclick="closeModal('poolModal')">❌ Abbrechen</button>
         </div>
     </div>
@@ -5139,6 +5139,11 @@ Weber, Peter;Erle;social</code>
             if (postalCodeInput) postalCodeInput.value = '';
             if (coordinatesDisplay) coordinatesDisplay.style.display = 'none';
             document.querySelectorAll('.pool-cb').forEach(cb => cb.checked = false);
+            
+            // Setze Button-Text auf "Anlegen" für neue Einträge
+            const submitBtn = document.getElementById('poolModalSubmitBtn');
+            if (submitBtn) submitBtn.textContent = '✅ Anlegen';
+            
             openModal('poolModal');
         }
         
@@ -5831,6 +5836,10 @@ Weber, Peter;Erle;social</code>
             // Store editing ID
             const modal = document.getElementById('poolModal');
             modal.dataset.editingId = poolItem.id;
+            
+            // Setze Button-Text auf "Speichern" beim Bearbeiten
+            const submitBtn = document.getElementById('poolModalSubmitBtn');
+            if (submitBtn) submitBtn.textContent = '💾 Speichern';
             
             openModal('poolModal');
         }
