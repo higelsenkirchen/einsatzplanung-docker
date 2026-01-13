@@ -4114,7 +4114,6 @@ Weber, Peter;Erle;social</code>
                 `;
                 row.appendChild(content);
                 
-                // #region agent log
                 // Custom Tooltip-System für gesamte Einsatzkachel mit allen Details
                 if (!evt.extendedProps?.isTravel) {
                     // Sammle alle Einsatzdetails für Tooltip
@@ -4212,7 +4211,6 @@ Weber, Peter;Erle;social</code>
                         }
                     });
                 }
-                // #endregion
             } else {
                 // Travel event styling with distance color
                 const travelColor = evt.extendedProps?.travelColor || getComputedStyle(document.documentElement).getPropertyValue('--text-muted').trim() || '#64748b';
