@@ -379,7 +379,10 @@ function optimizeTours(events, tours, employees, poolData, wageSettings, optimiz
                         const travelTime = calculateTravelTime(
                             lastEvent.extendedProps?.poolId,
                             event.extendedProps?.poolId,
-                            poolData
+                            poolData,
+                            null,
+                            null,
+                            employee
                         );
                         const gap = eventStart - lastEventEnd;
                         
@@ -418,7 +421,10 @@ function optimizeTours(events, tours, employees, poolData, wageSettings, optimiz
                         const travelTime = calculateTravelTime(
                             lastEvent.extendedProps?.poolId,
                             event.extendedProps?.poolId,
-                            poolData
+                            poolData,
+                            null,
+                            null,
+                            employee
                         );
                         score = (workload.totalMinutes + travelTime + eventDuration) * employeeCostRate;
                     } else {
@@ -614,13 +620,19 @@ function adjustEventTimings(events, poolData, employee) {
                 const distKm = haversineDistance(empCoords.lat, empCoords.lng, poolCoords.lat, poolCoords.lng);
                 const distKmWithFactor = distKm * 1.4; // Straßenfaktor
                 const avgSpeedKmH = 25;
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'optimization.js:616',message:'Home coordinates calculation - fixed speed',data:{distKm,distKmWithFactor,avgSpeedKmH,transport:employee?.transport||'none'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+                // #endregion
                 homeTravelTime = Math.max(5, Math.round((distKmWithFactor / avgSpeedKmH) * 60));
             }
         }
         
         // Fallback: Zone-basierte Berechnung
         if (homeTravelTime === 0 && employee?.home_zone && firstPool?.zone) {
-            homeTravelTime = calculateTravelTime(null, sortedEvents[0].extendedProps?.poolId, poolData, employee.home_zone, firstPool.zone);
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'optimization.js:623',message:'Calling calculateTravelTime from adjustEventTimings',data:{hasEmployee:!!employee,transport:employee?.transport||'none'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+            // #endregion
+            homeTravelTime = calculateTravelTime(null, sortedEvents[0].extendedProps?.poolId, poolData, employee.home_zone, firstPool.zone, employee);
         }
         
         if (homeTravelTime > 0) {
@@ -644,7 +656,10 @@ function adjustEventTimings(events, poolData, employee) {
         
         if (lastPoolId && currentPoolId) {
             // Berechne realistische Fahrzeit
-            const travelTime = calculateTravelTime(lastPoolId, currentPoolId, poolData);
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'optimization.js:647',message:'Calling calculateTravelTime for event sequence',data:{lastPoolId,currentPoolId,hasEmployee:!!employee,transport:employee?.transport||'none'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+            // #endregion
+            const travelTime = calculateTravelTime(lastPoolId, currentPoolId, poolData, null, null, employee);
             
             // Neue Startzeit = Ende des letzten Events + Fahrzeit
             // Runde auf nächst höheren 5-Minuten-Schritt
@@ -750,13 +765,20 @@ function minutesToTime(minutes) {
     return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
 }
 
-function calculateTravelTime(poolId1, poolId2, poolData, zone1 = null, zone2 = null) {
+function calculateTravelTime(poolId1, poolId2, poolData, zone1 = null, zone2 = null, employee = null) {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'optimization.js:753',message:'calculateTravelTime called',data:{poolId1,poolId2,hasEmployee:!!employee,transport:employee?.transport||'none'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+    
     // Wenn von Home-Zone: verwende Zone-Parameter
     if (!poolId1 && zone1 && poolId2) {
         const pool2 = poolData.find(p => p.id === poolId2);
         if (pool2?.zone) {
             const distance = getZoneDistance(zone1, pool2.zone);
             const avgSpeedKmH = 25;
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'optimization.js:759',message:'Home zone calculation - fixed speed',data:{distance,avgSpeedKmH,transport:employee?.transport||'none'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+            // #endregion
             const timeHours = distance / avgSpeedKmH;
             const timeMinutes = Math.round(timeHours * 60);
             return Math.max(5, Math.min(30, timeMinutes));
@@ -775,6 +797,9 @@ function calculateTravelTime(poolId1, poolId2, poolData, zone1 = null, zone2 = n
     
     // Durchschnittsgeschwindigkeit im Stadtverkehr: ~25 km/h
     const avgSpeedKmH = 25;
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'optimization.js:777',message:'Pool to pool calculation - fixed speed',data:{distance,avgSpeedKmH,transport:employee?.transport||'none'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
     const timeHours = distance / avgSpeedKmH;
     const timeMinutes = Math.round(timeHours * 60);
     

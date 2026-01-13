@@ -289,3 +289,4 @@ openDatabase().then(() => {
     console.warn('IndexedDB nicht verfügbar, nutze localStorage als Fallback');
 });
 
+

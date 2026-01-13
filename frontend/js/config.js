@@ -128,3 +128,4 @@ const FILTER_PRESET_FALLBACK_KEY = 'filterPresets';
 // API Configuration
 const API_BASE_URL = window.location.origin;
 
+

@@ -290,3 +290,4 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('App initialisiert');
 });
 
+
