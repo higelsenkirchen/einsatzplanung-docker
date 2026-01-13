@@ -7064,12 +7064,63 @@ Weber, Peter;Erle;social</code>
 
                 const list = document.createElement('div');
                 list.className = 'week-day-body';
+                list.style.position = 'relative'; // Für absolute Positionierung der Verfügbarkeiten
                 list.style.height = totalHeight + 'px';
                 // Lines: 30 min in 15m zoom, 15 min in 5m zoom
                 const lineInterval = zoomLevel === 5 ? 15 : 30;
                 const lineHeight = lineInterval * pxPerMin;
                 list.style.backgroundSize = '100% ' + lineHeight + 'px';
                 list.onclick = (e) => handleColumnClick(e, dayIndex);
+                
+                // Zeige Verfügbarkeiten des Mitarbeiters an (wenn Tour ausgewählt ist)
+                if (selectedTour) {
+                    const tour = appData.tours.find(t => t.id === selectedTour);
+                    if (tour && tour.employeeId) {
+                        const employee = appData.employees.find(e => e.id === tour.employeeId);
+                        // #region agent log
+                        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:7073',message:'Checking availability in week view',data:{hasEmployee:!!employee,employeeId:employee?.id,hasAvailability:!!employee?.extendedProps?.availability,availability:employee?.extendedProps?.availability,dayIndex,selectedTour},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+                        // #endregion
+                        if (employee && employee.extendedProps?.availability) {
+                            const dayAvailabilities = employee.extendedProps.availability.filter(a => a.dayIndex === dayIndex);
+                            // #region agent log
+                            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:7076',message:'Filtered day availabilities week view',data:{dayAvailabilities,dayIndex,allAvailability:employee.extendedProps.availability},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
+                            // #endregion
+                            dayAvailabilities.forEach(dayAvailability => {
+                                if (dayAvailability.start && dayAvailability.end) {
+                                    const availStart = parseTimeToMinutes(dayAvailability.start);
+                                    const availEnd = parseTimeToMinutes(dayAvailability.end);
+                                    const availStartPx = (availStart - TIMELINE_START_HOUR * 60) * pxPerMin;
+                                    const availHeight = (availEnd - availStart) * pxPerMin;
+                                    // #region agent log
+                                    fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:7080',message:'Calculating availability position week view',data:{start:dayAvailability.start,end:dayAvailability.end,availStart,availEnd,availStartPx,availHeight,TIMELINE_START_HOUR,pxPerMin,isValid:availStartPx >= 0 && availHeight > 0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
+                                    // #endregion
+                                    
+                                    if (availStartPx >= 0 && availHeight > 0) {
+                                        const availBar = document.createElement('div');
+                                        availBar.className = 'availability-bar';
+                                        availBar.style.cssText = `
+                                            position: absolute;
+                                            left: 0;
+                                            right: 0;
+                                            top: ${availStartPx}px;
+                                            height: ${availHeight}px;
+                                            background: rgba(34, 197, 94, 0.1);
+                                            border: 1px dashed rgba(34, 197, 94, 0.4);
+                                            border-left: 3px solid rgba(34, 197, 94, 0.6);
+                                            pointer-events: none;
+                                            z-index: 1;
+                                        `;
+                                        availBar.title = `Verfügbarkeit: ${dayAvailability.start} - ${dayAvailability.end}`;
+                                        list.appendChild(availBar);
+                                        // #region agent log
+                                        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:7095',message:'Availability bar created week view',data:{availStartPx,availHeight,start:dayAvailability.start,end:dayAvailability.end},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H'})}).catch(()=>{});
+                                        // #endregion
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
                 
                 // Find overlapping events for side-by-side display
                 const overlappingPositions = findOverlappingEvents(dayEvents);
