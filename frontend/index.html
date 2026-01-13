@@ -3999,15 +3999,19 @@ Weber, Peter;Erle;social</code>
             let topPosition = Math.max(0, startMin * pxPerMin);
             let heightValue = Math.max(20, durationMin * pxPerMin);
             
-            // Für Commute-Events: Stelle sicher, dass sie genau bis zur Grenze reichen
-            // ohne sich zu überlappen (endMin der Anfahrt = startMin des Einsatzes)
-            if(evt.extendedProps?.isCommute && durationMin > 0) {
+            // Für Commute-Events (Anfahrt vor dem ersten Einsatz): 
+            // Stelle sicher, dass die Unterkante bündig an die Oberkante des ersten Einsatzes anschließt
+            if(evt.extendedProps?.isCommute && evt.extendedProps?.commuteType === 'start' && durationMin > 0) {
                 // Die Anfahrt endet bei firstEvent.start, also sollte die Höhe genau
-                // bis zur top Position des Einsatzes reichen
-                // Aber eigentlich sollte das bereits korrekt sein, da endMin = startMin des Einsatzes
-                // Das Problem könnte sein, dass beide Events die gleiche top Position haben
-                // Lösung: Für Commute-Events die Höhe leicht reduzieren, damit sie nicht überlappen
-                // Oder: Sicherstellen, dass die Anfahrt-Events einen niedrigeren z-index haben
+                // bis zur top Position des Einsatzes reichen, ohne zu überlappen
+                // Berechne die Höhe so, dass top + height genau der top Position des nächsten Events entspricht
+                // endMin entspricht bereits startMin des nächsten Events, also ist die Berechnung korrekt
+                // Aber wir müssen sicherstellen, dass die Höhe exakt bis zur Grenze reicht
+                const targetEndPosition = endMin * pxPerMin;
+                const calculatedHeight = targetEndPosition - topPosition;
+                if(calculatedHeight > 0) {
+                    heightValue = calculatedHeight;
+                }
             }
             
             row.style.top = topPosition + 'px';
@@ -4255,11 +4259,22 @@ Weber, Peter;Erle;social</code>
                 row.style.borderRadius = 'var(--radius-sm)';
                 
                 // Create travel content
-                const travelContent = document.createElement('div');
-                travelContent.style.cssText = 'display:flex; align-items:center; gap:4px; padding:2px 6px; font-size:0.7rem; color:var(--text-muted);';
+                // Prüfe ob die Fahrzeit-Area breit genug ist, um den Text anzuzeigen
+                // Mindesthöhe: ~20px für Text (font-size 0.7rem + padding)
+                const minHeightForText = 20;
+                const showText = heightValue >= minHeightForText;
                 
-                const icon = isCommute ? (commuteType === 'start' ? '🏠→' : '→🏠') : '🚗';
-                travelContent.innerHTML = `<span style="opacity:0.8;">${icon}</span><span style="font-weight:600; color:${travelColor};">${evt.title}</span>`;
+                const travelContent = document.createElement('div');
+                if(showText) {
+                    travelContent.style.cssText = 'display:flex; align-items:center; gap:4px; padding:2px 6px; font-size:0.7rem; color:var(--text-muted);';
+                    
+                    const icon = isCommute ? (commuteType === 'start' ? '🏠→' : '→🏠') : '🚗';
+                    travelContent.innerHTML = `<span style="opacity:0.8;">${icon}</span><span style="font-weight:600; color:${travelColor};">${evt.title}</span>`;
+                } else {
+                    // Zu schmal für Text - nur unsichtbarer Container für Tooltip
+                    travelContent.style.cssText = 'width:100%; height:100%; position:absolute; top:0; left:0;';
+                    travelContent.innerHTML = '';
+                }
                 
                 row.appendChild(travelContent);
                 row.title = `${isCommute ? (commuteType === 'start' ? 'Anfahrt vom Wohnort' : 'Rückfahrt zum Wohnort') : 'Fahrt'}: ${evt.extendedProps?.fromZone || '?'} → ${evt.extendedProps?.toZone || '?'} (${distKm || '?'} km)`;
