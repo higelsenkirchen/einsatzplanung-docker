@@ -4812,6 +4812,10 @@ Weber, Peter;Erle;social</code>
         function switchView(view) {
         currentView = view;
             
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:switchView',message:'Switching view',data:{view,currentView,selectedTourId:document.getElementById('tourSelect')?.value||null,employeesCount:appData?.employees?.length||0,toursCount:appData?.tours?.length||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'H1'})}).catch(()=>{});
+            // #endregion
+            
             // Remove active from all navigation items
             document.querySelectorAll('.nav-dropdown-item').forEach(item => item.classList.remove('active'));
             document.querySelectorAll('.nav-group-btn').forEach(btn => {
@@ -6937,6 +6941,10 @@ Weber, Peter;Erle;social</code>
             const tourSelect = document.getElementById('tourSelect');
             const selectedTour = tourSelect ? tourSelect.value : null;
             
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:renderWeekBoard',message:'Render week board',data:{selectedTour,eventsCount:events?.length||0,employeesCount:appData?.employees?.length||0,toursCount:appData?.tours?.length||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'H2'})}).catch(()=>{});
+            // #endregion
+            
             // Reset container styles from dashboard/overall view
             container.style.display = 'grid';
             container.style.gridTemplateColumns = '50px repeat(7, 1fr)';
@@ -7053,6 +7061,9 @@ Weber, Peter;Erle;social</code>
                     const tour = appData.tours.find(t => t.id === selectedTour);
                     if (tour && tour.employeeId) {
                         const employee = appData.employees.find(e => e.id === tour.employeeId);
+                        // #region agent log
+                        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:weekAvailability',message:'Week availability lookup',data:{dayIndex,selectedTour,hasTour:!!tour,tourEmployeeId:tour?.employeeId||null,foundEmployee:!!employee,availabilityCount:Array.isArray(employee?.extendedProps?.availability)?employee.extendedProps.availability.length:0,availabilityType:typeof employee?.extendedProps?.availability},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'H3'})}).catch(()=>{});
+                        // #endregion
                         if (employee && employee.extendedProps?.availability) {
                             const dayAvailabilities = employee.extendedProps.availability.filter(a => a.dayIndex === dayIndex);
                             dayAvailabilities.forEach(dayAvailability => {
