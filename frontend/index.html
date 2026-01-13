@@ -9367,7 +9367,7 @@ Weber, Peter;Erle;social</code>
                 addBlockBtn.type = 'button';
                 addBlockBtn.textContent = '+ Block';
                 addBlockBtn.className = 'btn btn-secondary';
-                addBlockBtn.style.cssText = 'font-size:0.75rem; padding:4px 8px; height:auto;';
+                addBlockBtn.style.cssText = 'font-size:0.75rem; padding:4px 8px; height:auto; width:auto; min-width:auto;';
                 addBlockBtn.onclick = () => {
                     addAvailabilityBlock(dayIndex, container, dayRow);
                 };
@@ -9407,12 +9407,14 @@ Weber, Peter;Erle;social</code>
             startInput.type = 'time';
             startInput.value = startValue;
             startInput.placeholder = '08:00';
+            startInput.step = 60; // 1 Minute Schritte
             startInput.style.cssText = 'padding:6px; border:1px solid var(--border); border-radius:var(--radius-sm);';
             
             const endInput = document.createElement('input');
             endInput.type = 'time';
             endInput.value = endValue;
             endInput.placeholder = '16:00';
+            endInput.step = 60; // 1 Minute Schritte
             endInput.style.cssText = 'padding:6px; border:1px solid var(--border); border-radius:var(--radius-sm);';
             
             const removeBtn = document.createElement('button');
