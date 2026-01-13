@@ -9345,6 +9345,9 @@ Weber, Peter;Erle;social</code>
             }
             
             // Verfügbarkeiten rendern
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:9347',message:'Before renderEmployeeAvailability',data:{employeeId:emp.id,empFromAppData:appData.employees?.find(e=>e.id===emp.id)?{hasExtendedProps:!!appData.employees.find(e=>e.id===emp.id)?.extendedProps,hasAvailability:!!appData.employees.find(e=>e.id===emp.id)?.extendedProps?.availability,availability:appData.employees.find(e=>e.id===emp.id)?.extendedProps?.availability}:null,empHasExtendedProps:!!emp.extendedProps,empHasAvailability:!!emp.extendedProps?.availability,empAvailability:emp.extendedProps?.availability},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'H4'})}).catch(()=>{});
+            // #endregion
             renderEmployeeAvailability(emp);
             
             openModal('employeeEditModal');
@@ -9406,6 +9409,9 @@ Weber, Peter;Erle;social</code>
                 blocksContainer.dataset.dayIndex = dayIndex;
                 
                 // Füge vorhandene Blöcke hinzu
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:9385',message:'Adding blocks for day',data:{dayIndex,dayBlocksCount:dayBlocks.length,dayBlocks},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'H5'})}).catch(()=>{});
+                // #endregion
                 if (dayBlocks.length > 0) {
                     dayBlocks.forEach(block => {
                         addAvailabilityBlock(dayIndex, container, dayRow, block.start, block.end);
