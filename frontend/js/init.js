@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Initialisiere View am Ende des Scripts (wenn DOM bereits geladen)
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
     setTimeout(() => {
-        if (typeof switchView === 'function' && typeof refreshView === 'function') {
+        if (typeof switchView === 'function' && typeof refreshView === 'function' && typeof currentView !== 'undefined') {
             switchView(currentView || 'week');
         }
     }, 50);
@@ -90,7 +90,7 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
     // Falls DOM noch nicht geladen, warte darauf
     document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
-            if (typeof switchView === 'function' && typeof refreshView === 'function') {
+            if (typeof switchView === 'function' && typeof refreshView === 'function' && typeof currentView !== 'undefined') {
                 switchView(currentView || 'week');
             }
         }, 50);
