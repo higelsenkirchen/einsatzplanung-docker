@@ -17,7 +17,7 @@
 <body>
 
     <!-- Toast Container -->
-    <div id="toastContainer" class="toast-container"></div>
+    <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
     <!-- Context Menu -->
     <div id="contextMenu" class="context-menu">
@@ -30,21 +30,21 @@
     </div>
 
     <aside class="sidebar" id="mainSidebar">
-        <button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Sidebar ein-/ausblenden" id="sidebarToggle"></button>
+        <button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Sidebar ein-/ausblenden" id="sidebarToggle" aria-label="Sidebar ein-/ausblenden" aria-expanded="true"></button>
         <div class="sidebar-content">
         <h2 class="brand">⚡ PflegePlaner</h2>
         
         <!-- Kundenpool - immer sichtbar -->
         <div class="menu-section" style="flex-grow:1; display:flex; flex-direction:column; min-height:0;">
-            <div class="menu-header" onclick="toggleMenuSection('pool')" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:8px 0;">
-                <div class="section-title" style="margin:0;">👥 Kundenpool</div>
+            <div class="menu-header" onclick="toggleMenuSection('pool')" style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; padding:8px 0;" role="button" aria-expanded="true" aria-controls="menuPool" tabindex="0">
+                <div class="section-title" id="poolSectionTitle" style="margin:0;">👥 Kundenpool</div>
                 <div style="display:flex; align-items:center; gap:6px;">
-                    <button class="btn btn-primary icon-btn" style="width:auto; height:28px; padding:0 10px; font-size:0.75rem; gap:4px;" onclick="event.stopPropagation(); openPoolModal()">+ Neu</button>
-                    <button class="btn btn-secondary icon-btn" style="width:auto; height:28px; padding:0 10px; font-size:0.75rem; gap:4px;" onclick="event.stopPropagation(); openPoolImportModal()" title="Kunden importieren">📥</button>
-                    <span class="menu-toggle" id="togglePool">▼</span>
+                    <button class="btn btn-primary icon-btn" style="width:auto; height:28px; padding:0 10px; font-size:0.75rem; gap:4px;" onclick="event.stopPropagation(); openPoolModal()" aria-label="Neuen Kunden hinzufügen">+ Neu</button>
+                    <button class="btn btn-secondary icon-btn" style="width:auto; height:28px; padding:0 10px; font-size:0.75rem; gap:4px;" onclick="event.stopPropagation(); openPoolImportModal()" title="Kunden importieren" aria-label="Kunden importieren">📥</button>
+                    <span class="menu-toggle" id="togglePool" aria-hidden="true">▼</span>
             </div>
             </div>
-            <div class="menu-content" id="menuPool" style="display:flex; flex-direction:column; flex:1; min-height:0;">
+            <div class="menu-content" id="menuPool" style="display:flex; flex-direction:column; flex:1; min-height:0;" role="region" aria-labelledby="poolSectionTitle">
                 <div style="display:flex; gap:4px; margin-bottom:6px; flex-wrap:wrap; align-items:center;">
                     <input type="text" id="poolSearchInput" placeholder="🔍 Suchen..." style="flex:1; min-width:60px; height:32px; padding:0 8px; font-size:0.75rem;" oninput="renderPool()">
                     <select id="poolTypeFilter" style="width:60px; height:32px; padding:0 20px 0 6px; font-size:0.75rem;" onchange="renderPool()">
@@ -80,32 +80,32 @@
         <div id="lastSaveDisplay" style="display:none;">💾 Zuletzt: –</div>
 
         <!-- Versionierung -->
-        <div style="margin-top:auto; padding:16px 0; text-align:center; border-top:1px solid var(--border);">
+        <footer style="margin-top:auto; padding:16px 0; text-align:center; border-top:1px solid var(--border);" role="contentinfo">
             <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:4px;">
                 <span style="font-size:1.2rem;">🚐</span>
                 <span style="font-size:0.85rem; font-weight:700; background:var(--gradient-primary); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">Tourenplanung</span>
             </div>
             <div style="font-size:0.65rem; color:var(--text-muted);">Version 2.2.0</div>
-        </div>
+        </footer>
         </div>
     </aside>
 
     <main class="main-content" id="mainArea">
-        <div class="top-bar">
+        <header class="top-bar" role="banner">
             <div style="display:flex; align-items:center; gap:10px;">
                 <div style="display:flex; align-items:center; gap:8px; padding-right:12px; border-right:1px solid var(--border);">
                     <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted); white-space:nowrap;">Variante:</label>
                     <select id="variantSelect" onchange="switchVariant(this.value)" oncontextmenu="event.preventDefault(); showVariantContextMenu(event, currentVariantId);" style="width:150px; margin:0; padding:8px 12px; cursor:pointer; font-weight:600;"></select>
-                    <button class="btn btn-secondary icon-btn" onclick="handleDuplicateVariant(currentVariantId)" title="Variante duplizieren" style="width:32px; height:32px; padding:0; font-size:0.9rem;">📋</button>
-                    <button class="btn btn-primary icon-btn" onclick="openVariantModal()" title="Neue Variante" style="width:32px; height:32px; padding:0; font-size:0.9rem;">+</button>
+                    <button class="btn btn-secondary icon-btn" onclick="handleDuplicateVariant(currentVariantId)" title="Variante duplizieren" aria-label="Variante duplizieren" style="width:32px; height:32px; padding:0; font-size:0.9rem;">📋</button>
+                    <button class="btn btn-primary icon-btn" onclick="openVariantModal()" title="Neue Variante" aria-label="Neue Variante erstellen" style="width:32px; height:32px; padding:0; font-size:0.9rem;">+</button>
                 </div>
                 <div class="view-switcher">
                     <!-- Planung -->
                     <div class="nav-group">
-                        <button class="nav-group-btn" id="navGroupPlanning" onclick="toggleNavGroup('planning')">
+                        <button class="nav-group-btn" id="navGroupPlanning" onclick="toggleNavGroup('planning')" aria-expanded="false" aria-haspopup="true" aria-label="Planung-Menü öffnen">
                             📅 Planung
                         </button>
-                        <div class="nav-dropdown" id="navDropdownPlanning">
+                        <div class="nav-dropdown" id="navDropdownPlanning" role="menu" aria-labelledby="navGroupPlanning">
                             <button class="nav-dropdown-item active" id="btnViewWeek" onclick="switchView('week'); closeNavGroups();">📅 Woche</button>
                             <button class="nav-dropdown-item" id="btnViewCustomerWeek" onclick="switchView('customerWeek'); closeNavGroups();">👤 Kunden-Woche</button>
                             <button class="nav-dropdown-item" id="btnViewOverall" onclick="switchView('overall'); closeNavGroups();">🌐 Gesamt</button>
@@ -114,10 +114,10 @@
                     
                     <!-- Analyse -->
                     <div class="nav-group">
-                        <button class="nav-group-btn" id="navGroupAnalysis" onclick="toggleNavGroup('analysis')">
+                        <button class="nav-group-btn" id="navGroupAnalysis" onclick="toggleNavGroup('analysis')" aria-expanded="false" aria-haspopup="true" aria-label="Analyse-Menü öffnen">
                             📊 Analyse
                         </button>
-                        <div class="nav-dropdown" id="navDropdownAnalysis">
+                        <div class="nav-dropdown" id="navDropdownAnalysis" role="menu" aria-labelledby="navGroupAnalysis">
                             <button class="nav-dropdown-item" id="btnViewCompare" onclick="switchView('compare'); closeNavGroups();">🔀 Vergleich</button>
                             <button class="nav-dropdown-item" id="btnViewDashboard" onclick="switchView('dashboard'); closeNavGroups();">📈 Übersicht</button>
                         </div>
@@ -135,7 +135,7 @@
                     <div class="nav-group">
                         <button class="nav-group-btn" id="btnViewAdmin" onclick="switchView('admin')">⚙️ Verwaltung</button>
                     </div>
-                </div>
+                </nav>
             </div>
 
             <div id="weekControls" style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
@@ -277,8 +277,8 @@
                 
                 <!-- Aktionen Gruppe -->
                 <div class="toolbar-group">
-                    <button class="btn btn-secondary icon-btn toolbar-group-btn" onclick="toggleToolbarGroup('actions')" title="Aktionen" style="width:36px; height:36px; padding:0;">⚙️</button>
-                    <div class="toolbar-dropdown" id="toolbarDropdownActions">
+                    <button class="btn btn-secondary icon-btn toolbar-group-btn" onclick="toggleToolbarGroup('actions')" title="Aktionen" aria-label="Aktionen-Menü öffnen" aria-expanded="false" aria-haspopup="true" style="width:36px; height:36px; padding:0;">⚙️</button>
+                    <div class="toolbar-dropdown" id="toolbarDropdownActions" role="menu" aria-labelledby="toolbarGroupActions">
                         <button class="toolbar-dropdown-item" onclick="undo(); closeToolbarGroups();" title="Rückgängig (Strg+Z)">
                             <span>↶</span> Rückgängig
                         </button>
@@ -305,7 +305,7 @@
                 </div>
                 
                 <!-- Theme Toggle -->
-                <button class="btn btn-secondary icon-btn" onclick="toggleTheme()" title="Hell-/Dunkelmodus wechseln" style="width:36px; height:36px; padding:0;" id="themeToggleBtn">
+                <button class="btn btn-secondary icon-btn" onclick="toggleTheme()" title="Hell-/Dunkelmodus wechseln" aria-label="Theme wechseln" style="width:36px; height:36px; padding:0;" id="themeToggleBtn">
                     <span id="themeIcon">☀️</span>
                 </button>
                 
@@ -314,7 +314,7 @@
             </div>
         </div>
 
-        <div id="weekView" class="week-board"></div>
+        <section id="weekView" class="week-board" aria-label="Wochenansicht"></section>
 
         <div class="hud-stats">
             <div class="hud-label">Einsätze</div><div class="hud-value" id="hudCount">0</div>
@@ -323,10 +323,11 @@
         </div>
     </main>
 
-    <div id="poolModal" class="modal-overlay">
+    <div id="poolModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="poolModalTitle" aria-hidden="true">
         <div class="modal-content">
-            <button class="modal-close-btn" onclick="closeModal('poolModal')" title="Schließen">×</button>
-            <h3 style="margin-top:0;">Neuer Kunde (Pool)</h3>
+            <button class="modal-close-btn" onclick="closeModal('poolModal')" title="Schließen" aria-label="Modal schließen">×</button>
+            <h3 id="poolModalTitle" style="margin-top:0;">Kunde</h3>
+            <h3 id="poolModalTitle" style="margin-top:0;">Neuer Kunde (Pool)</h3>
             <label class="section-title">Name</label>
             <input type="text" id="poolName" list="patientList" placeholder="👤 Name">
             <label class="section-title">Zone</label>
@@ -355,9 +356,9 @@
     </div>
 
     <!-- Manuelle Koordinaten-Eingabe Modal -->
-    <div id="manualCoordinatesModal" class="modal-overlay">
+    <div id="manualCoordinatesModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="manualCoordinatesModalTitle" aria-hidden="true">
         <div class="modal-content" style="max-width:500px;">
-            <button class="modal-close-btn" onclick="closeModal('manualCoordinatesModal')" title="Schließen">×</button>
+            <button class="modal-close-btn" onclick="closeModal('manualCoordinatesModal')" title="Schließen" aria-label="Modal schließen">×</button>
             <h3 style="margin-top:0;">Koordinaten manuell eingeben</h3>
             <label class="section-title">Breitengrad (Latitude)</label>
             <input type="number" id="manualLat" step="any" placeholder="51.5125" min="-90" max="90">
@@ -371,10 +372,10 @@
     </div>
 
     <!-- Manuelle Koordinaten-Eingabe Modal für Mitarbeiter -->
-    <div id="manualEmployeeCoordinatesModal" class="modal-overlay" style="z-index: 2000;">
+    <div id="manualEmployeeCoordinatesModal" class="modal-overlay" style="z-index: 2000;" role="dialog" aria-modal="true" aria-labelledby="manualEmployeeCoordinatesModalTitle" aria-hidden="true">
         <div class="modal-content" style="max-width:500px;">
-            <button class="modal-close-btn" onclick="closeModal('manualEmployeeCoordinatesModal')" title="Schließen">×</button>
-            <h3 style="margin-top:0;">Koordinaten manuell eingeben</h3>
+            <button class="modal-close-btn" onclick="closeModal('manualEmployeeCoordinatesModal')" title="Schließen" aria-label="Modal schließen">×</button>
+            <h3 id="manualEmployeeCoordinatesModalTitle" style="margin-top:0;">Koordinaten manuell eingeben</h3>
             <label class="section-title">Breitengrad (Latitude)</label>
             <input type="number" id="manualEmpLat" step="any" placeholder="51.5125" min="-90" max="90">
             <label class="section-title">Längengrad (Longitude)</label>
@@ -387,10 +388,10 @@
     </div>
 
     <!-- Mitarbeiter bearbeiten (vollständig) -->
-    <div id="employeeEditModal" class="modal-overlay">
+    <div id="employeeEditModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="employeeEditModalTitle" aria-hidden="true">
         <div class="modal-content" style="width:760px;">
-            <button class="modal-close-btn" onclick="closeModal('employeeEditModal')" title="Schließen">×</button>
-            <h3 style="margin-top:0;">👤 Mitarbeiter:in bearbeiten</h3>
+            <button class="modal-close-btn" onclick="closeModal('employeeEditModal')" title="Schließen" aria-label="Modal schließen">×</button>
+            <h3 id="employeeEditModalTitle" style="margin-top:0;">👤 Mitarbeiter:in bearbeiten</h3>
             <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:20px;">Name, Stunden, Lohngruppe, Transport, Wohnort und Adresse bearbeiten.</p>
             
             <div class="input-group" style="margin-bottom:16px;">
@@ -459,10 +460,10 @@
     </div>
 
     <!-- Pool Import Modal -->
-    <div id="poolImportModal" class="modal-overlay">
+    <div id="poolImportModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="poolImportModalTitle" aria-hidden="true">
         <div class="modal-content" style="max-width:700px;">
-            <button class="modal-close-btn" onclick="closeModal('poolImportModal')" title="Schließen">×</button>
-            <h3 style="margin-top:0;">📥 Kunden importieren</h3>
+            <button class="modal-close-btn" onclick="closeModal('poolImportModal')" title="Schließen" aria-label="Modal schließen">×</button>
+            <h3 id="poolImportModalTitle" style="margin-top:0;">📥 Kunden importieren</h3>
             
             <div style="margin-bottom:20px; padding:12px; background:var(--border-light); border-radius:var(--radius-sm);">
                 <p style="margin:0 0 8px 0; font-weight:600; font-size:0.9rem;">Format:</p>
@@ -516,9 +517,9 @@
         </div>
     </div>
 
-    <div id="eventModal" class="modal-overlay">
+    <div id="eventModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-hidden="true">
         <div class="modal-content">
-            <button class="modal-close-btn" onclick="closeModal('eventModal')" title="Schließen">×</button>
+            <button class="modal-close-btn" onclick="closeModal('eventModal')" title="Schließen" aria-label="Modal schließen">×</button>
             <h3 style="margin-top:0; margin-bottom:16px;" id="modalTitle">Einsatz</h3>
             <input type="hidden" id="eventId">
             <!-- Name oben (volle Breite) -->
@@ -619,10 +620,10 @@
     <!-- (ehemalige Admin-Überbleibsel entfernt): tourModal + employeeModal -->
 
     <!-- Copy Day Modal -->
-    <div id="copyDayModal" class="modal-overlay">
+    <div id="copyDayModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="copyDayModalTitle" aria-hidden="true">
         <div class="modal-content">
-            <button class="modal-close-btn" onclick="closeModal('copyDayModal')" title="Schließen">×</button>
-            <h3 style="margin-top:0;">📋 Tag kopieren</h3>
+            <button class="modal-close-btn" onclick="closeModal('copyDayModal')" title="Schließen" aria-label="Modal schließen">×</button>
+            <h3 id="copyDayModalTitle" style="margin-top:0;">📋 Tag kopieren</h3>
             <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:20px;">Alle Einsätze eines Tages auf einen anderen Tag kopieren.</p>
             
             <div style="display:flex; gap:10px;">
@@ -660,10 +661,10 @@
     </div>
 
     <!-- Customer Overview Modal -->
-    <div id="customerModal" class="modal-overlay">
+    <div id="customerModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="customerModalTitle" aria-hidden="true">
         <div class="modal-content" style="width:600px;">
-            <button class="modal-close-btn" onclick="closeModal('customerModal')" title="Schließen">×</button>
-            <h3 style="margin-top:0;">👥 Kundenübersicht</h3>
+            <button class="modal-close-btn" onclick="closeModal('customerModal')" title="Schließen" aria-label="Modal schließen">×</button>
+            <h3 id="customerModalTitle" style="margin-top:0;">👥 Kundenübersicht</h3>
             
             <div style="display:flex; gap:10px; margin-bottom:16px;">
                 <input type="text" id="customerSearch" placeholder="🔍 Kunde suchen..." style="flex:1;" oninput="renderCustomerList()">
@@ -683,10 +684,10 @@
     <!-- Login Modal -->
 
     <!-- Optimization Modal -->
-    <div id="optimizationModal" class="modal-overlay">
+    <div id="optimizationModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="optimizationModalTitle" aria-hidden="true">
         <div class="modal-content" style="max-width:700px;">
-            <button class="modal-close-btn" onclick="closeModal('optimizationModal')" title="Schließen">×</button>
-            <h3 style="margin-top:0;">⚡ Tourenoptimierung</h3>
+            <button class="modal-close-btn" onclick="closeModal('optimizationModal')" title="Schließen" aria-label="Modal schließen">×</button>
+            <h3 id="optimizationModalTitle" style="margin-top:0;">⚡ Tourenoptimierung</h3>
             <div style="margin-bottom:20px;">
                 <label style="display:block; margin-bottom:8px; font-weight:600;">Optimierungsbereich:</label>
                 <select id="optimizeScopeSelect" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-md);" onchange="updateOptimizeScope()">
@@ -739,10 +740,10 @@
 
     <!-- CSV Import Modal -->
     <!-- Templates Modal -->
-    <div id="templateModal" class="modal-overlay">
+    <div id="templateModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="templateModalTitle" aria-hidden="true">
         <div class="modal-content" style="width:500px;">
-            <button class="modal-close-btn" onclick="closeModal('templateModal')" title="Schließen">×</button>
-            <h3 style="margin-top:0;">📁 Wochenvorlagen</h3>
+            <button class="modal-close-btn" onclick="closeModal('templateModal')" title="Schließen" aria-label="Modal schließen">×</button>
+            <h3 id="templateModalTitle" style="margin-top:0;">📁 Wochenvorlagen</h3>
             
             <div style="margin-bottom:20px;">
                 <label class="section-title">Aktuelle Woche als Vorlage speichern</label>
@@ -770,10 +771,10 @@
     </div>
 
     <!-- Keyboard Shortcuts Help Modal -->
-    <div id="keyboardHelpModal" class="modal-overlay">
+    <div id="keyboardHelpModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="keyboardHelpModalTitle" aria-hidden="true">
         <div class="modal-content" style="width:500px;">
-            <button class="modal-close-btn" onclick="closeModal('keyboardHelpModal')" title="Schließen">×</button>
-            <h3 style="margin-top:0;">⌨️ Tastaturkürzel</h3>
+            <button class="modal-close-btn" onclick="closeModal('keyboardHelpModal')" title="Schließen" aria-label="Modal schließen">×</button>
+            <h3 id="keyboardHelpModalTitle" style="margin-top:0;">⌨️ Tastaturkürzel</h3>
             
             <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
                 <thead>
@@ -905,10 +906,10 @@
     </div>
 
     <!-- Profitability Dashboard Modal -->
-    <div id="profitabilityModal" class="modal-overlay">
+    <div id="profitabilityModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="profitabilityModalTitle" aria-hidden="true">
         <div class="modal-content" style="width:900px; max-height:90vh; overflow-y:auto;">
-            <button class="modal-close-btn" onclick="closeModal('profitabilityModal')" title="Schließen">×</button>
-            <h3 style="margin-top:0;">📊 Profitabilitätsanalyse</h3>
+            <button class="modal-close-btn" onclick="closeModal('profitabilityModal')" title="Schließen" aria-label="Modal schließen">×</button>
+            <h3 id="profitabilityModalTitle" style="margin-top:0;">📊 Profitabilitätsanalyse</h3>
             
             <div id="profitabilityContent">
                 <!-- Will be filled dynamically -->
@@ -948,9 +949,9 @@
     </div>
 
     <!-- Input Modal für Text-Eingaben -->
-    <div id="inputModal" class="modal-overlay">
+    <div id="inputModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="inputModalTitle" aria-hidden="true">
         <div class="modal-content" style="width:500px;">
-            <button class="modal-close-btn" onclick="closeInputModal()" title="Schließen">×</button>
+            <button class="modal-close-btn" onclick="closeInputModal()" title="Schließen" aria-label="Modal schließen">×</button>
             <h3 style="margin-top:0; margin-bottom:12px;" id="inputModalTitle">Eingabe</h3>
             <p style="margin:0 0 16px 0; color:var(--text-muted); font-size:0.9rem;" id="inputModalMessage"></p>
             <input type="text" id="inputModalField" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body); font-size:1rem; margin-bottom:20px;" placeholder="Eingabe...">
@@ -962,9 +963,9 @@
     </div>
 
     <!-- Confirm Input Modal für Bestätigungen mit Text-Eingabe -->
-    <div id="confirmInputModal" class="modal-overlay">
+    <div id="confirmInputModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="confirmInputModalTitle" aria-hidden="true">
         <div class="modal-content" style="width:550px;">
-            <button class="modal-close-btn" onclick="closeConfirmInputModal()" title="Schließen">×</button>
+            <button class="modal-close-btn" onclick="closeConfirmInputModal()" title="Schließen" aria-label="Modal schließen">×</button>
             <h3 style="margin-top:0; margin-bottom:12px;" id="confirmInputModalTitle">Bestätigung erforderlich</h3>
             <div style="background:rgba(239, 68, 68, 0.1); padding:16px; border-radius:var(--radius-md); margin-bottom:16px; border:2px solid var(--danger);">
                 <p style="margin:0; font-weight:600; color:var(--danger); font-size:1rem; margin-bottom:8px;">⚠️ WARNUNG</p>
@@ -980,9 +981,9 @@
     </div>
 
     <!-- Alert Modal für Nachrichten -->
-    <div id="alertModal" class="modal-overlay">
+    <div id="alertModal" class="modal-overlay" role="alertdialog" aria-modal="true" aria-labelledby="alertModalTitle" aria-hidden="true">
         <div class="modal-content" style="width:450px;">
-            <button class="modal-close-btn" onclick="closeAlertModal()" title="Schließen">×</button>
+            <button class="modal-close-btn" onclick="closeAlertModal()" title="Schließen" aria-label="Modal schließen">×</button>
             <div style="text-align:center; margin-bottom:16px;">
                 <div id="alertModalIcon" style="font-size:3rem; margin-bottom:12px;">ℹ️</div>
                 <h3 style="margin:0; margin-bottom:8px;" id="alertModalTitle">Information</h3>
@@ -1039,7 +1040,7 @@ Schmidt, Anna;Buer;care,house
 Weber, Peter;Erle;social</code>
             </div>
             
-            <div style="background:rgba(245, 158, 11, 0.1); padding:12px; border-radius:var(--radius-md); border-left:3px solid #f59e0b; margin-bottom:20px;">
+            <div style="background:rgba(245, 158, 11, 0.1); padding:12px; border-radius:var(--radius-md); border-left:3px solid var(--warning); margin-bottom:20px;">
                 <p style="margin:0; font-size:0.85rem;">⚠️ <strong>Hinweis:</strong> Die importierten Kunden werden dem <strong>Wartepool</strong> hinzugefügt und können von dort eingeplant werden.</p>
             </div>
             
@@ -1068,7 +1069,19 @@ Weber, Peter;Erle;social</code>
     <script>
         // Distanzberechnungen wurden nach frontend/js/distances.js ausgelagert
         
-        const COLORS = { care: '#3b82f6', house: '#10b981', social: '#f59e0b', other: '#6b7280' };
+        // COLORS wird jetzt aus CSS-Variablen gelesen (siehe getTypeColor Funktion)
+        // Fallback für den Fall, dass CSS-Variablen nicht verfügbar sind
+        function getTypeColor(type) {
+            const style = getComputedStyle(document.documentElement);
+            const colorMap = {
+                care: style.getPropertyValue('--c-care').trim() || '#3b82f6',
+                house: style.getPropertyValue('--c-house').trim() || '#10b981',
+                social: style.getPropertyValue('--c-social').trim() || '#f59e0b',
+                other: style.getPropertyValue('--c-other').trim() || '#6b7280'
+            };
+            return colorMap[type] || '#6b7280';
+        }
+        const COLORS = { care: getTypeColor('care'), house: getTypeColor('house'), social: getTypeColor('social'), other: getTypeColor('other') };
         const DEFAULT_DURATION_MIN = 60;
         const TIMELINE_START_HOUR = 7;  // 7:00
         const TIMELINE_END_HOUR = 22;   // 22:00
@@ -4421,7 +4434,7 @@ Weber, Peter;Erle;social</code>
                 row.appendChild(content);
             } else {
                 // Travel event styling with distance color
-                const travelColor = evt.extendedProps?.travelColor || '#64748b';
+                const travelColor = evt.extendedProps?.travelColor || getComputedStyle(document.documentElement).getPropertyValue('--text-muted').trim() || '#64748b';
                 const isCommute = evt.extendedProps?.isCommute;
                 const commuteType = evt.extendedProps?.commuteType;
                 const distKm = evt.extendedProps?.distanceKm || 0;
@@ -9342,8 +9355,10 @@ Weber, Peter;Erle;social</code>
             const getCostColor = (cost, max) => {
                 if (cost === 0) return '#94a3b8'; // gray for no costs
                 const ratio = cost / max;
-                if (ratio < 0.33) return '#10b981'; // green - low
-                if (ratio < 0.66) return '#f59e0b'; // orange - medium
+                const successColor = getComputedStyle(document.documentElement).getPropertyValue('--success').trim() || '#10b981';
+                const warningColor = getComputedStyle(document.documentElement).getPropertyValue('--warning').trim() || '#f59e0b';
+                if (ratio < 0.33) return successColor; // green - low
+                if (ratio < 0.66) return warningColor; // orange - medium
                 return '#ef4444'; // red - high
             };
             
@@ -9371,7 +9386,7 @@ Weber, Peter;Erle;social</code>
                             <span style="font-size:0.7rem; color:var(--text-muted);">Niedrig</span>
                         </div>
                         <div style="display:flex; align-items:center; gap:4px;">
-                            <div style="width:12px; height:12px; border-radius:2px; background:#f59e0b;"></div>
+                            <div style="width:12px; height:12px; border-radius:2px; background:var(--warning);"></div>
                             <span style="font-size:0.7rem; color:var(--text-muted);">Mittel</span>
                         </div>
                         <div style="display:flex; align-items:center; gap:4px;">
