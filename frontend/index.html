@@ -1119,75 +1119,10 @@ Weber, Peter;Erle;social</code>
         // saveTimeout wird jetzt in api.js definiert
         // API_BASE_URL wird jetzt in config.js definiert
         
+        // appData, currentEvent, fileHandle, undoStack, searchTerm, selectedEvents, typeFilter, zoomLevel, overallDayFilter, overallTourFilter werden jetzt in app.js definiert
+        // getPixelsPerMinute, getSnapMinutes, generateId, checkOverlap, getEventConflicts werden jetzt in utils.js definiert
         let selectedCustomer = null; // Ausgewählter Kunde für Kunden-Wochenansicht
         let contextMenuEvent = null; // Globale Variable für Context-Menu Event
-        let undoStack = []; // For undo functionality
-        let searchTerm = ''; // For search filter
-        let selectedEvents = new Set(); // For multi-select with Ctrl
-        let typeFilter = 'all'; // For type filter
-        let zoomLevel = 15; // 15 = 15min steps (1px/min), 5 = 5min steps (3px/min)
-        let overallDayFilter = [0, 1, 2, 3, 4, 5, 6]; // Filter für Wochentage in Gesamtansicht (alle Tage standardmäßig)
-        let overallTourFilter = []; // Filter für Touren in Gesamtansicht (leer = alle Touren)
-        
-        function getPixelsPerMinute() {
-            return zoomLevel === 5 ? 3 : 1; // 5min zoom = 3px/min, 15min zoom = 1px/min
-        }
-        
-        function getSnapMinutes() {
-            return zoomLevel; // 5 or 15 minutes
-        }
-
-        function generateId() { return Date.now().toString(36) + Math.random().toString(36).substring(2); }
-
-        // --- CONFLICT DETECTION ---
-        function checkOverlap(events, newEvent, excludeId = null) {
-            const newStart = parseTimeToMinutes(newEvent.start);
-            const newEnd = parseTimeToMinutes(newEvent.end);
-            const newDay = newEvent.dayIndex;
-            const newRhythm = newEvent.extendedProps?.rhythm || 'weekly';
-            const newTour = newEvent.extendedProps?.tour;
-            
-            const conflicts = [];
-            
-            events.forEach(evt => {
-                if(evt.id === excludeId) return; // Skip self
-                if(evt.extendedProps?.isTravel) return; // Skip travel
-                if(evt.dayIndex !== newDay) return; // Different day
-                
-                // Only check conflicts within the same tour
-                const evtTour = evt.extendedProps?.tour;
-                if(newTour && evtTour && newTour !== evtTour) return; // Different tours - no conflict
-                
-                const evtStart = parseTimeToMinutes(evt.start);
-                const evtEnd = parseTimeToMinutes(evt.end);
-                const evtRhythm = evt.extendedProps?.rhythm || 'weekly';
-                
-                // Check if times overlap
-                const overlaps = (newStart < evtEnd && newEnd > evtStart);
-                
-                if(overlaps) {
-                    // Allow overlap if BOTH are biweekly (different weeks)
-                    if(newRhythm === 'biweekly' && evtRhythm === 'biweekly') {
-                        return; // Allow - they're on alternating weeks
-                    }
-                    // Allow overlap if BOTH are threeweekly (different 3-week cycles)
-                    if(newRhythm === 'threeweekly' && evtRhythm === 'threeweekly') {
-                        return; // Allow - they're on different 3-week cycles
-                    }
-                    // Allow overlap if BOTH are fourweekly (different 4-week cycles)
-                    if(newRhythm === 'fourweekly' && evtRhythm === 'fourweekly') {
-                        return; // Allow - they're on different 4-week cycles
-                    }
-                    conflicts.push(evt);
-                }
-            });
-            
-            return conflicts;
-        }
-
-        function getEventConflicts(evt, allEvents) {
-            return checkOverlap(allEvents, evt, evt.id);
-        }
 
         // ============================================
         // EVENT FILTER HELPER FUNCTIONS
