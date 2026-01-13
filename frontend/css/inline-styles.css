@@ -91,6 +91,8 @@
             overflow: hidden;
             font-size: 14px;
             line-height: 1.6;
+            max-width: 100vw;
+            box-sizing: border-box;
         }
         
         /* Custom Scrollbar - Modern Style */
@@ -663,6 +665,9 @@
             flex-direction: column; 
             position: relative;
             gap: 16px;
+            max-width: 100%;
+            overflow-x: hidden;
+            box-sizing: border-box;
         }
         
         /* TOP BAR - Modern Glass Style */
@@ -684,6 +689,8 @@
             top: 0;
             z-index: 100;
             margin-bottom: 16px;
+            max-width: 100%;
+            box-sizing: border-box;
         }
         
         .top-bar:hover {
@@ -698,6 +705,9 @@
             border-radius: var(--radius-md);
             gap: 4px;
             border: 1px solid var(--border);
+            max-width: 100%;
+            flex-wrap: wrap;
+            box-sizing: border-box;
         }
         
         .view-btn { 

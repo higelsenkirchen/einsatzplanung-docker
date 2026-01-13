@@ -99,6 +99,35 @@
    DESKTOP RESPONSIVE
    ============================================== */
 
+/* Sehr große Bildschirme - Begrenzung und Zentrierung */
+@media (min-width: 1920px) {
+    body {
+        max-width: 1920px;
+        margin: 0 auto;
+    }
+    
+    .main-content {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+    
+    /* Verwaltung-Ansicht begrenzen */
+    #mainArea[data-view="admin"] {
+        max-width: 100%;
+    }
+    
+    /* Top-Bar begrenzen */
+    .top-bar {
+        max-width: 100%;
+    }
+    
+    /* View-Switcher begrenzen */
+    .view-switcher {
+        max-width: 100%;
+        flex-wrap: wrap;
+    }
+}
+
 @media (max-width: 1400px) {
     .sidebar { width: 300px; }
     #calendar { padding: 14px; }
