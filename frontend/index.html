@@ -46,7 +46,7 @@
             </div>
             <div class="menu-content" id="menuPool" style="display:flex; flex-direction:column; flex:1; min-height:0;" role="region" aria-labelledby="poolSectionTitle">
                 <div style="display:flex; gap:4px; margin-bottom:6px; flex-wrap:wrap; align-items:center;">
-                    <input type="text" id="poolSearchInput" placeholder="🔍 Suchen..." style="flex:1; min-width:60px; height:32px; padding:0 8px; font-size:0.75rem;" oninput="renderPool()">
+                    <input type="text" id="poolSearchInput" placeholder="🔍 Suchen..." style="flex:1; min-width:60px; height:32px; padding:0 8px; font-size:0.75rem;" oninput="if(typeof debouncedRenderPool !== 'undefined') debouncedRenderPool(); else renderPool();">
                     <select id="poolTypeFilter" style="width:60px; height:32px; padding:0 20px 0 6px; font-size:0.75rem;" onchange="renderPool()">
                     <option value="">Alle</option>
                     <option value="care">Pflege</option>
@@ -328,8 +328,9 @@
             <button class="modal-close-btn" onclick="closeModal('poolModal')" title="Schließen" aria-label="Modal schließen">×</button>
             <h3 id="poolModalTitle" style="margin-top:0;">Kunde</h3>
             <h3 id="poolModalTitle" style="margin-top:0;">Neuer Kunde (Pool)</h3>
-            <label class="section-title">Name</label>
-            <input type="text" id="poolName" list="patientList" placeholder="👤 Name">
+            <label class="section-title" for="poolName">Name</label>
+            <input type="text" id="poolName" list="patientList" placeholder="👤 Name" aria-describedby="poolNameHelp" aria-required="true">
+            <span id="poolNameHelp" class="sr-only">Geben Sie den Namen des Kunden ein</span>
             <label class="section-title">Zone</label>
             <select id="poolZone"></select>
             <label class="section-title">Straße + Hausnummer</label>
@@ -667,7 +668,7 @@
             <h3 id="customerModalTitle" style="margin-top:0;">👥 Kundenübersicht</h3>
             
             <div style="display:flex; gap:10px; margin-bottom:16px;">
-                <input type="text" id="customerSearch" placeholder="🔍 Kunde suchen..." style="flex:1;" oninput="renderCustomerList()">
+                <input type="text" id="customerSearch" placeholder="🔍 Kunde suchen..." style="flex:1;" oninput="if(typeof debouncedRenderCustomerList !== 'undefined') debouncedRenderCustomerList(); else renderCustomerList();">
                 <select id="customerZoneFilter" onchange="renderCustomerList()" style="width:150px;">
                     <option value="">Alle Zonen</option>
                 </select>
@@ -1082,6 +1083,11 @@ Weber, Peter;Erle;social</code>
             return colorMap[type] || '#6b7280';
         }
         const COLORS = { care: getTypeColor('care'), house: getTypeColor('house'), social: getTypeColor('social'), other: getTypeColor('other') };
+        
+        // Debounced-Versionen für Performance-Optimierung
+        const debouncedRenderPool = typeof debounce !== 'undefined' ? debounce(renderPool, 300) : renderPool;
+        const debouncedRefreshView = typeof debounce !== 'undefined' ? debounce(refreshView, 300) : refreshView;
+        const debouncedRenderCustomerList = typeof debounce !== 'undefined' ? debounce(renderCustomerList, 300) : renderCustomerList;
         const DEFAULT_DURATION_MIN = 60;
         const TIMELINE_START_HOUR = 7;  // 7:00
         const TIMELINE_END_HOUR = 22;   // 22:00

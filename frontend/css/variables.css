@@ -65,6 +65,15 @@
     --transition-normal: 0.25s ease;
     --transition-slow: 0.4s ease;
     
+    /* Spacing Scale */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 12px;
+    --spacing-lg: 16px;
+    --spacing-xl: 24px;
+    --spacing-2xl: 32px;
+    --spacing-3xl: 48px;
+    
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, #0891b2 0%, #8b5cf6 100%);
     --gradient-card: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);

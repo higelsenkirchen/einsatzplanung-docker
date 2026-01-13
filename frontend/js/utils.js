@@ -2,6 +2,19 @@
    UTILS.JS - Hilfsfunktionen
    ============================================== */
 
+// Debounce-Funktion für Performance-Optimierung
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
 // ID-Generator
 function generateId() { 
     return Date.now().toString(36) + Math.random().toString(36).substring(2); 
@@ -85,22 +98,32 @@ function getZoneTravelTime(zone1, zone2) {
 
 // Farbe basierend auf Entfernung
 function getDistanceColor(distanceKm) {
-    if (distanceKm <= 1.5) return '#10b981';
+    const style = getComputedStyle(document.documentElement);
+    const success = style.getPropertyValue('--success').trim() || '#10b981';
+    const warning = style.getPropertyValue('--warning').trim() || '#f59e0b';
+    const danger = style.getPropertyValue('--danger').trim() || '#ef4444';
+    
+    if (distanceKm <= 1.5) return success;
     if (distanceKm <= 3) return '#22c55e';
     if (distanceKm <= 5) return '#84cc16';
     if (distanceKm <= 7) return '#eab308';
     if (distanceKm <= 10) return '#f97316';
-    return '#ef4444';
+    return danger;
 }
 
 // Farbe für Fahrtzeit
 function getTravelTimeColor(minutes) {
-    if (minutes <= 5) return '#10b981';
+    const style = getComputedStyle(document.documentElement);
+    const success = style.getPropertyValue('--success').trim() || '#10b981';
+    const warning = style.getPropertyValue('--warning').trim() || '#f59e0b';
+    const danger = style.getPropertyValue('--danger').trim() || '#ef4444';
+    
+    if (minutes <= 5) return success;
     if (minutes <= 10) return '#22c55e';
     if (minutes <= 15) return '#84cc16';
     if (minutes <= 20) return '#eab308';
     if (minutes <= 30) return '#f97316';
-    return '#ef4444';
+    return danger;
 }
 
 // Fahrzeit-Vorschläge berechnen
