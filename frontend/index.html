@@ -2614,6 +2614,7 @@
                 <label class="cb-item"><input type="checkbox" class="pool-cb" value="care"><div class="dot care"></div>Pflege</label>
                 <label class="cb-item"><input type="checkbox" class="pool-cb" value="house"><div class="dot house"></div>HW</label>
                 <label class="cb-item"><input type="checkbox" class="pool-cb" value="social"><div class="dot social"></div>Betr.</label>
+                <label class="cb-item"><input type="checkbox" class="pool-cb" value="other"><div class="dot other"></div>Sonst.</label>
             </div>
             <button class="btn btn-primary" id="poolModalSubmitBtn" onclick="createPoolItem()">✅ Anlegen</button>
             <button class="btn btn-secondary" onclick="closeModal('poolModal')">❌ Abbrechen</button>
@@ -5350,14 +5351,10 @@ Weber, Peter;Erle;social</code>
                 }
             }
             
-            // Sammle ausgewählte Leistungstypen (nur care, house, social - kein "other")
+            // Sammle ausgewählte Leistungstypen
             const types = [];
             document.querySelectorAll('.pool-cb:checked').forEach(cb => {
-                const value = cb.value;
-                // Nur gültige Typen erlauben
-                if (value === 'care' || value === 'house' || value === 'social') {
-                    types.push(value);
-                }
+                types.push(cb.value);
             });
             
             if (types.length === 0) {
@@ -5816,10 +5813,9 @@ Weber, Peter;Erle;social</code>
             document.getElementById('poolAddress').value = poolItem.address || '';
             document.getElementById('poolPostalCode').value = poolItem.postalCode || '';
             
-            // Set checkboxes (nur care, house, social - filtere "other" heraus)
-            const validTypes = (poolItem.types || []).filter(t => t === 'care' || t === 'house' || t === 'social');
+            // Set checkboxes
             document.querySelectorAll('.pool-cb').forEach(cb => {
-                cb.checked = validTypes.includes(cb.value);
+                cb.checked = (poolItem.types || []).includes(cb.value);
             });
             
             // Zeige Koordinaten falls vorhanden
