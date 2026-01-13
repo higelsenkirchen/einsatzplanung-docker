@@ -11221,6 +11221,10 @@ Weber, Peter;Erle;social</code>
                 }
                 const data = await response.json();
                 
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:11219',message:'Loading data from API',data:{employeesCount:data?.employees?.length,employees:data?.employees?.map(e=>({id:e.id,name:e.name,hasExtendedProps:!!e.extendedProps,hasAvailability:!!e.extendedProps?.availability,availability:e.extendedProps?.availability}))},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+                // #endregion
+                
                 appData = data;
                 ensureAppDataDefaults();
                 
@@ -11229,6 +11233,10 @@ Weber, Peter;Erle;social</code>
                 
                 // Bereinige veraltete Einsätze ohne dayIndex
                 cleanupInvalidEvents();
+                
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:11230',message:'Data loaded into appData',data:{employeesCount:appData?.employees?.length,employees:appData?.employees?.map(e=>({id:e.id,name:e.name,hasExtendedProps:!!e.extendedProps,hasAvailability:!!e.extendedProps?.availability,availability:e.extendedProps?.availability}))},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
+                // #endregion
                 
                 console.log('Daten erfolgreich vom Server geladen');
                 
