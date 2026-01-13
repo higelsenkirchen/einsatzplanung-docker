@@ -13,6 +13,33 @@
     <link rel="stylesheet" href="/css/calendar.css">
     <link rel="stylesheet" href="/css/responsive.css">
     <link rel="stylesheet" href="/css/inline-styles.css">
+    <script>
+        // #region agent log
+        // Fehler-Erfassung für Debugging
+        window.addEventListener('error', function(e) {
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    location: (e.filename || 'unknown') + ':' + (e.lineno || 0),
+                    message: 'JavaScript Error',
+                    data: {
+                        message: e.message,
+                        filename: e.filename,
+                        lineno: e.lineno,
+                        colno: e.colno,
+                        error: e.error ? e.error.toString() : null,
+                        stack: e.error ? e.error.stack : null
+                    },
+                    timestamp: Date.now(),
+                    sessionId: 'debug-session',
+                    runId: 'error-capture',
+                    hypothesisId: 'ERROR'
+                })
+            }).catch(() => {});
+        });
+        // #endregion
+    </script>
 </head>
 <body>
 
