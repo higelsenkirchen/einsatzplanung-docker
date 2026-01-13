@@ -525,7 +525,9 @@
             <input type="hidden" id="eventId">
             <!-- Name oben (volle Breite) -->
             <div style="margin-bottom:12px;">
-                <input type="text" id="eventClient" list="patientList" placeholder="👤 Name" style="width:100%; font-size:0.95rem; font-weight:600; padding:8px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
+                <label for="eventClient" class="sr-only">Kunde</label>
+                <input type="text" id="eventClient" list="patientList" placeholder="👤 Name" aria-describedby="eventClientHelp" aria-required="true" style="width:100%; font-size:0.95rem; font-weight:600; padding:8px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-body);">
+                <span id="eventClientHelp" class="sr-only">Geben Sie den Namen des Kunden für diesen Einsatz ein</span>
             </div>
             <!-- 2-Spalten-Grid -->
             <div class="event-modal-grid">
