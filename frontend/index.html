@@ -4115,16 +4115,12 @@ Weber, Peter;Erle;social</code>
                 row.appendChild(content);
                 
                 // #region agent log
-                // Stelle sicher, dass Tooltip nach innerHTML gesetzt wird und pointer-events korrekt ist
+                // Custom Tooltip-System für Zone-Badge (da native Tooltips nicht funktionieren)
                 if (zoneBadge && zone !== 'Keine Zone') {
                     setTimeout(() => {
                         const badgeEl = row.querySelector('.zone-badge');
                         const badgesContainer = row.querySelector('.event-badges');
                         if (badgeEl) {
-                            // Stelle sicher, dass title gesetzt ist
-                            if (!badgeEl.getAttribute('title')) {
-                                badgeEl.setAttribute('title', zoneTooltipEscaped);
-                            }
                             // Stelle sicher, dass pointer-events aktiviert ist
                             badgeEl.style.pointerEvents = 'auto';
                             badgeEl.style.cursor = 'help';
@@ -4134,42 +4130,71 @@ Weber, Peter;Erle;social</code>
                                 badgesContainer.style.pointerEvents = 'auto';
                             }
                             
-                            // Teste ob Hover funktioniert
-                            badgeEl.addEventListener('mouseenter', () => {
-                                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86', {
-                                    method: 'POST',
-                                    headers: {'Content-Type': 'application/json'},
-                                    body: JSON.stringify({
-                                        location: 'index.html:4114',
-                                        message: 'Hover auf zone-badge erkannt',
-                                        data: {zone, hasTooltip: !!badgeEl.getAttribute('title')},
-                                        timestamp: Date.now(),
-                                        sessionId: 'debug-session',
-                                        runId: 'hover-test',
-                                        hypothesisId: 'C'
-                                    })
-                                }).catch(() => {});
+                            // Custom Tooltip-Element
+                            let zoneTooltipEl = null;
+                            
+                            // Zeige Tooltip beim Hover
+                            badgeEl.addEventListener('mouseenter', (e) => {
+                                if (zoneTooltipEl) return; // Bereits angezeigt
+                                
+                                zoneTooltipEl = document.createElement('div');
+                                zoneTooltipEl.className = 'zone-tooltip-custom';
+                                zoneTooltipEl.style.cssText = `
+                                    position: fixed;
+                                    background: rgba(18, 18, 26, 0.95);
+                                    backdrop-filter: blur(20px);
+                                    -webkit-backdrop-filter: blur(20px);
+                                    border: 1px solid rgba(255, 255, 255, 0.1);
+                                    border-left: 3px solid ${zoneColor};
+                                    border-radius: 8px;
+                                    padding: 10px 14px;
+                                    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+                                    z-index: 10001;
+                                    font-size: 0.85rem;
+                                    color: #f0f0f5;
+                                    white-space: pre-line;
+                                    pointer-events: none;
+                                    max-width: 300px;
+                                    line-height: 1.5;
+                                `;
+                                zoneTooltipEl.textContent = zoneTooltip;
+                                document.body.appendChild(zoneTooltipEl);
+                                
+                                // Positioniere Tooltip
+                                const rect = badgeEl.getBoundingClientRect();
+                                const x = rect.left + rect.width / 2;
+                                const y = rect.top - 10;
+                                zoneTooltipEl.style.left = x + 'px';
+                                zoneTooltipEl.style.top = y + 'px';
+                                zoneTooltipEl.style.transform = 'translate(-50%, -100%)';
+                                
+                                // Stelle sicher, dass Tooltip nicht außerhalb des Viewports ist
+                                requestAnimationFrame(() => {
+                                    if (zoneTooltipEl) {
+                                        const tooltipRect = zoneTooltipEl.getBoundingClientRect();
+                                        if (tooltipRect.left < 10) {
+                                            zoneTooltipEl.style.left = '10px';
+                                            zoneTooltipEl.style.transform = 'translate(0, -100%)';
+                                        }
+                                        if (tooltipRect.right > window.innerWidth - 10) {
+                                            zoneTooltipEl.style.left = (window.innerWidth - 10) + 'px';
+                                            zoneTooltipEl.style.transform = 'translate(-100%, -100%)';
+                                        }
+                                        if (tooltipRect.top < 10) {
+                                            zoneTooltipEl.style.top = (rect.bottom + 10) + 'px';
+                                            zoneTooltipEl.style.transform = 'translate(-50%, 0)';
+                                        }
+                                    }
+                                });
                             });
                             
-                            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86', {
-                                method: 'POST',
-                                headers: {'Content-Type': 'application/json'},
-                                body: JSON.stringify({
-                                    location: 'index.html:4114',
-                                    message: 'Tooltip gesetzt und pointer-events aktiviert',
-                                    data: {
-                                        zone,
-                                        hasTooltip: !!badgeEl.getAttribute('title'),
-                                        pointerEvents: badgeEl.style.pointerEvents,
-                                        badgesContainerPE: badgesContainer ? badgesContainer.style.pointerEvents : 'none',
-                                        title: badgeEl.getAttribute('title')?.substring(0, 50)
-                                    },
-                                    timestamp: Date.now(),
-                                    sessionId: 'debug-session',
-                                    runId: 'tooltip-fix-v3',
-                                    hypothesisId: 'B'
-                                })
-                            }).catch(() => {});
+                            // Verstecke Tooltip beim Verlassen
+                            badgeEl.addEventListener('mouseleave', () => {
+                                if (zoneTooltipEl) {
+                                    zoneTooltipEl.remove();
+                                    zoneTooltipEl = null;
+                                }
+                            });
                         }
                     }, 0);
                 }
