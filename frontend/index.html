@@ -9277,6 +9277,9 @@ Weber, Peter;Erle;social</code>
         // ===== Mitarbeiter bearbeiten (vollständiges Modal) =====
         function openEmployeeEditModal(employeeId) {
             const emp = appData.employees?.find(e => e.id === employeeId);
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:9278',message:'Opening employee edit modal',data:{employeeId,hasEmployee:!!emp,hasExtendedProps:!!emp?.extendedProps,hasAvailability:!!emp?.extendedProps?.availability,availability:emp?.extendedProps?.availability,allEmployees:appData.employees?.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+            // #endregion
             if (!emp) return;
             const modal = document.getElementById('employeeEditModal');
             if (!modal) return;
@@ -9336,6 +9339,9 @@ Weber, Peter;Erle;social</code>
             const container = document.getElementById('employeeAvailabilityContainer');
             if (!container) return;
             
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:9335',message:'Rendering employee availability',data:{employeeId:emp?.id,hasExtendedProps:!!emp?.extendedProps,hasAvailability:!!emp?.extendedProps?.availability,availability:emp?.extendedProps?.availability,extendedProps:emp?.extendedProps},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+            // #endregion
             const dayNames = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
             // Verfügbarkeiten als Objekt gruppiert nach dayIndex: {0: [{start, end}, ...], 1: [...], ...}
             const availabilityByDay = {};
@@ -9347,6 +9353,9 @@ Weber, Peter;Erle;social</code>
                     availabilityByDay[avail.dayIndex].push({ start: avail.start, end: avail.end });
                 });
             }
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:9349',message:'Availability grouped by day',data:{availabilityByDay,dayBlocksCount:Object.keys(availabilityByDay).length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+            // #endregion
             
             container.innerHTML = '';
             
@@ -9537,6 +9546,9 @@ Weber, Peter;Erle;social</code>
                 }
                 
                 emp.extendedProps.availability = availability.length > 0 ? availability : null;
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:9539',message:'Saving availability',data:{employeeId:emp.id,availabilityCount:availability.length,availability,hasExtendedProps:!!emp.extendedProps,extendedPropsAvailability:emp.extendedProps?.availability},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+                // #endregion
             }
             
             queueSave();
