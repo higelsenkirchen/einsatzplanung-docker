@@ -9404,18 +9404,60 @@ Weber, Peter;Erle;social</code>
             blockRow.style.cssText = 'display:grid; grid-template-columns:1fr 1fr auto; gap:8px; align-items:center;';
             
             const startInput = document.createElement('input');
-            startInput.type = 'time';
+            startInput.type = 'text';
             startInput.value = startValue;
             startInput.placeholder = '08:00';
-            startInput.step = 60; // 1 Minute Schritte
+            startInput.pattern = '^([0-1][0-9]|2[0-3]):[0-5][0-9]$';
+            startInput.maxLength = 5;
             startInput.style.cssText = 'padding:6px; border:1px solid var(--border); border-radius:var(--radius-sm);';
+            startInput.oninput = function() {
+                let value = this.value.replace(/[^\d:]/g, '');
+                if (value.length >= 2 && value[2] !== ':') {
+                    value = value.slice(0, 2) + ':' + value.slice(2);
+                }
+                if (value.length > 5) value = value.slice(0, 5);
+                this.value = value;
+            };
+            startInput.onblur = function() {
+                const match = this.value.match(/^(\d{1,2}):?(\d{0,2})$/);
+                if (match) {
+                    let hours = parseInt(match[1]) || 0;
+                    let minutes = parseInt(match[2]) || 0;
+                    if (hours > 23) hours = 23;
+                    if (minutes > 59) minutes = 59;
+                    this.value = String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0');
+                } else if (this.value && !this.value.match(/^\d{2}:\d{2}$/)) {
+                    this.value = '';
+                }
+            };
             
             const endInput = document.createElement('input');
-            endInput.type = 'time';
+            endInput.type = 'text';
             endInput.value = endValue;
             endInput.placeholder = '16:00';
-            endInput.step = 60; // 1 Minute Schritte
+            endInput.pattern = '^([0-1][0-9]|2[0-3]):[0-5][0-9]$';
+            endInput.maxLength = 5;
             endInput.style.cssText = 'padding:6px; border:1px solid var(--border); border-radius:var(--radius-sm);';
+            endInput.oninput = function() {
+                let value = this.value.replace(/[^\d:]/g, '');
+                if (value.length >= 2 && value[2] !== ':') {
+                    value = value.slice(0, 2) + ':' + value.slice(2);
+                }
+                if (value.length > 5) value = value.slice(0, 5);
+                this.value = value;
+            };
+            endInput.onblur = function() {
+                const match = this.value.match(/^(\d{1,2}):?(\d{0,2})$/);
+                if (match) {
+                    let hours = parseInt(match[1]) || 0;
+                    let minutes = parseInt(match[2]) || 0;
+                    if (hours > 23) hours = 23;
+                    if (minutes > 59) minutes = 59;
+                    this.value = String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0');
+                } else if (this.value && !this.value.match(/^\d{2}:\d{2}$/)) {
+                    this.value = '';
+                }
+            };
             
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
