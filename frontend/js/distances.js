@@ -2,33 +2,7 @@
    DISTANCES.JS - Distanz- und Fahrzeitberechnungen
    ============================================== */
 
-// ============================================
-// Distanzmatrix Gelsenkirchen (in km)
-// Basierend auf geografischer Lage der Stadtteile
-// ============================================
-const ZONE_DISTANCES = {
-    // Geografische Koordinaten (relativ, für Distanzberechnung)
-    // Format: [x, y] wobei x=West-Ost, y=Süd-Nord
-    coords: {
-        "Alt-/Neustadt": [4, 3.5], // Mittelwert zwischen Altstadt [5,3] und Neustadt [3,4]
-        "Beckhausen": [3.5, 8],    // Nordwesten, zwischen Buer und Scholven
-        "Bismarck": [4, 5],
-        "Buer": [5, 8],
-        "Bulmke-Hüllen": [6, 4],
-        "Erle": [6, 6],
-        "Feldmark": [4, 4],
-        "Hassel": [3, 8],
-        "Heßler": [3, 3],
-        "Horst": [2, 5],
-        "Resser Mark": [6, 9],
-        "Resse": [4, 9],
-        "Rotthausen": [7, 2],
-        "Schalke": [5, 5],
-        "Scholven": [2, 8],
-        "Ückendorf": [6, 3],
-        "Außerhalb": [5, 5] // Zentrum als Default
-    }
-};
+// ZONE_DISTANCES wird jetzt in config.js definiert
 
 // Haversine-Formel: Berechne echte Distanz zwischen zwei GPS-Koordinaten (in km)
 function calculateHaversineDistance(lat1, lon1, lat2, lon2) {

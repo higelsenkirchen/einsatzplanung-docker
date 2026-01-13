@@ -2,11 +2,11 @@
    ZONES.JS - Zonen-Konfiguration für Gelsenkirchen
    ============================================== */
 
-// Stadtteile von Gelsenkirchen
-const CITY_ZONES = ["Alt-/Neustadt", "Beckhausen", "Bismarck", "Buer", "Bulmke-Hüllen", "Erle", "Feldmark", "Hassel", "Heßler", "Horst", "Resser Mark", "Resse", "Rotthausen", "Schalke", "Scholven", "Ückendorf", "Außerhalb"];
+/* ==============================================
+   ZONES.JS - Zonen-Konfiguration für Gelsenkirchen
+   ============================================== */
 
-// Postleitzahlen für Gelsenkirchen Stadtteile
-const ZONE_POSTAL_CODES = {
+// CITY_ZONES, ZONE_POSTAL_CODES, ZONE_COLORS werden jetzt in config.js definiert
     "Alt-/Neustadt": "45879",  // Altstadt und Neustadt
     "Beckhausen": "45899",
     "Bismarck": "45889",
