@@ -4112,6 +4112,31 @@ Weber, Peter;Erle;social</code>
                     <div class="event-badges">${typeBadges}${zoneBadge}</div>
                 `;
                 row.appendChild(content);
+                
+                // #region agent log
+                // Stelle sicher, dass Tooltip nach innerHTML gesetzt wird
+                if (zoneBadge && zone !== 'Keine Zone') {
+                    setTimeout(() => {
+                        const badgeEl = row.querySelector('.zone-badge');
+                        if (badgeEl && !badgeEl.getAttribute('title')) {
+                            badgeEl.setAttribute('title', zoneTooltipEscaped);
+                            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({
+                                    location: 'index.html:4114',
+                                    message: 'Tooltip nach innerHTML wiederhergestellt',
+                                    data: {zone, hasTooltip: !!badgeEl.getAttribute('title')},
+                                    timestamp: Date.now(),
+                                    sessionId: 'debug-session',
+                                    runId: 'tooltip-fix',
+                                    hypothesisId: 'A'
+                                })
+                            }).catch(() => {});
+                        }
+                    }, 0);
+                }
+                // #endregion
             } else {
                 // Travel event styling with distance color
                 const travelColor = evt.extendedProps?.travelColor || getComputedStyle(document.documentElement).getPropertyValue('--text-muted').trim() || '#64748b';
@@ -4844,11 +4869,14 @@ Weber, Peter;Erle;social</code>
             }
         }
         function clearAllTooltips() {
-            // Remove title attributes from ALL elements to clear native browser tooltips
-            // This prevents tooltips from "hanging" when elements are removed from DOM
+            // Remove title attributes from elements that are about to be removed
+            // BUT preserve tooltips on zone-badge elements (they should remain)
             const allElements = document.querySelectorAll('[title]');
             allElements.forEach(el => {
-                el.removeAttribute('title');
+                // Don't remove title from zone-badge elements - they should keep their tooltips
+                if (!el.closest('.zone-badge') && !el.classList.contains('zone-badge')) {
+                    el.removeAttribute('title');
+                }
             });
             
             // Hide all event rows temporarily to force tooltip removal
