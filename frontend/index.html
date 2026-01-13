@@ -4870,8 +4870,15 @@ Weber, Peter;Erle;social</code>
             }
             const state = undoStack.pop();
             appData = JSON.parse(state);
+            
+            // Aktualisiere UI vollständig
             if (typeof queueSave === 'function') queueSave();
             if (typeof refreshUI === 'function') refreshUI();
+            if (typeof refreshView === 'function') refreshView();
+            
+            // Aktualisiere auch die Ansicht falls vorhanden
+            if (typeof renderPool === 'function') renderPool();
+            
             if (typeof showToast === 'function') showToast('Rückgängig gemacht', 'success');
         }
         
@@ -9741,6 +9748,11 @@ Weber, Peter;Erle;social</code>
         }
         
         async function applyOptimization(dayIndex, assignmentsJson, scope = 'day', tourId = null, optimizedEvents = []) {
+            // Speichere Undo-State VOR der Optimierung, damit alle Änderungen rückgängig gemacht werden können
+            if (typeof saveUndoState === 'function') {
+                saveUndoState();
+            }
+            
             // Konvertiere dayIndex zu Number falls nötig
             if (dayIndex !== null && dayIndex !== undefined) {
                 dayIndex = typeof dayIndex === 'string' ? parseInt(dayIndex, 10) : dayIndex;
