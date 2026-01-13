@@ -3514,34 +3514,45 @@ Weber, Peter;Erle;social</code>
             return '#ef4444';                    // Rot
         }
         
-        // Berechne Fahrzeit-Vorschläge basierend auf Distanz
-        function calculateTravelTimeSuggestions(distanceKm) {
+        // Berechne Fahrzeit-Vorschläge basierend auf Distanz und Transportmittel
+        function calculateTravelTimeSuggestions(distanceKm, transport = 'car') {
             if (!distanceKm || distanceKm <= 0) {
                 return {
                     optimistic: 5,
                     realistic: 10,
                     pessimistic: 15,
-                    distance: 0
+                    distance: 0,
+                    transport: transport
                 };
             }
             
-            // Optimistisch: 30 km/h (wenig Verkehr)
-            const optimisticSpeed = 30;
+            let optimisticSpeed, realisticSpeed, pessimisticSpeed;
+            
+            if (transport === 'public') {
+                // Öffentliche Verkehrsmittel: langsamer wegen Wartezeiten, Umsteigen, etc.
+                optimisticSpeed = 18; // Gute Verbindung, wenig Wartezeit
+                realisticSpeed = 15; // Durchschnitt mit Wartezeiten
+                pessimisticSpeed = 12; // Lange Wartezeiten, Umsteigen
+            } else {
+                // PKW (car) - Standard
+                optimisticSpeed = 30; // Wenig Verkehr
+                realisticSpeed = 25; // Durchschnitt Stadtverkehr
+                pessimisticSpeed = 20; // Viel Verkehr, Stau
+            }
+            
             const optimisticMin = Math.max(3, Math.round((distanceKm / optimisticSpeed) * 60));
-            
-            // Realistisch: 25 km/h (Durchschnitt Stadtverkehr)
-            const realisticSpeed = 25;
             const realisticMin = Math.max(5, Math.round((distanceKm / realisticSpeed) * 60));
-            
-            // Pessimistisch: 20 km/h (viel Verkehr, Stau)
-            const pessimisticSpeed = 20;
             const pessimisticMin = Math.max(8, Math.round((distanceKm / pessimisticSpeed) * 60));
             
             return {
                 optimistic: optimisticMin,
                 realistic: realisticMin,
                 pessimistic: pessimisticMin,
-                distance: distanceKm
+                distance: distanceKm,
+                transport: transport,
+                optimisticSpeed: optimisticSpeed,
+                realisticSpeed: realisticSpeed,
+                pessimisticSpeed: pessimisticSpeed
             };
         }
         
@@ -3558,7 +3569,22 @@ Weber, Peter;Erle;social</code>
                 return;
             }
             
-            const suggestions = calculateTravelTimeSuggestions(distanceKm);
+            // Finde Tour und Mitarbeiter für dieses Travel-Event
+            let transport = 'car'; // Default: PKW
+            let employeeName = '';
+            const tourId = travelEvent.extendedProps?.tour;
+            if (tourId && typeof appData !== 'undefined' && appData.tours) {
+                const tour = appData.tours.find(t => t.id === tourId);
+                if (tour && tour.employeeId && appData.employees) {
+                    const employee = appData.employees.find(e => e.id === tour.employeeId);
+                    if (employee) {
+                        transport = employee.transport || 'car';
+                        employeeName = employee.name || '';
+                    }
+                }
+            }
+            
+            const suggestions = calculateTravelTimeSuggestions(distanceKm, transport);
             const currentTime = parseTimeToMinutes(travelEvent.end) - parseTimeToMinutes(travelEvent.start);
             
             // Bewertung der aktuellen Fahrzeit
@@ -3620,18 +3646,22 @@ Weber, Peter;Erle;social</code>
                 </div>
                 ${zoneInfo}
                 ${distanceInfo}
+                ${employeeName ? `<div style="margin-bottom:10px; padding:8px; background:var(--bg-hover, #252540); border-radius:6px; font-size:0.8rem;">
+                    <span style="color:var(--text-muted, #94a3b8);">👤 Mitarbeiter:in:</span> <strong style="color:var(--primary, #6366f1);">${employeeName}</strong>
+                    <span style="color:var(--text-muted, #94a3b8); margin-left:8px;">(${transport === 'public' ? '🚌 Öffis' : '🚘 PKW'})</span>
+                </div>` : ''}
                 <div style="background:var(--bg-hover, #252540); padding:10px; border-radius:8px; margin-bottom:10px;">
                     <div style="display:flex; flex-direction:column; gap:8px;">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="color:var(--text-muted, #94a3b8);">🏎️ Optimistisch (30 km/h):</span>
+                            <span style="color:var(--text-muted, #94a3b8);">${transport === 'public' ? '🚌' : '🏎️'} Optimistisch (${suggestions.optimisticSpeed} km/h):</span>
                             <span style="font-weight:600; color:#10b981;">${suggestions.optimistic} min</span>
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="color:var(--text-muted, #94a3b8);">🚗 Realistisch (25 km/h):</span>
+                            <span style="color:var(--text-muted, #94a3b8);">${transport === 'public' ? '🚌' : '🚗'} Realistisch (${suggestions.realisticSpeed} km/h):</span>
                             <span style="font-weight:600; color:#3b82f6;">${suggestions.realistic} min</span>
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="color:var(--text-muted, #94a3b8);">🐌 Pessimistisch (20 km/h):</span>
+                            <span style="color:var(--text-muted, #94a3b8);">${transport === 'public' ? '🚌' : '🐌'} Pessimistisch (${suggestions.pessimisticSpeed} km/h):</span>
                             <span style="font-weight:600; color:#f59e0b;">${suggestions.pessimistic} min</span>
                         </div>
                     </div>
