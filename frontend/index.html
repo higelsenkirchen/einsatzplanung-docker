@@ -1098,43 +1098,11 @@ Weber, Peter;Erle;social</code>
 
     <script>
         // Distanzberechnungen wurden nach frontend/js/distances.js ausgelagert
-        
         // COLORS wird jetzt in config.js definiert
+        // DEFAULT_DURATION_MIN, TIMELINE_START_HOUR, TIMELINE_END_HOUR, TIMELINE_HOURS werden jetzt in config.js definiert
+        // UNDO_STACK_MAX_SIZE, TARGET_WORKLOAD_HOURS, TARGET_WORKLOAD_MINUTES, SAVE_DEBOUNCE_MS werden jetzt in config.js definiert
+        // DEFAULT_WAGE_SETTINGS wird jetzt in config.js definiert
         // Debounced-Versionen werden in init.js nach dem Laden aller Scripts erstellt
-        const DEFAULT_DURATION_MIN = 60;
-        const TIMELINE_START_HOUR = 7;  // 7:00
-        const TIMELINE_END_HOUR = 22;   // 22:00
-        const TIMELINE_HOURS = TIMELINE_END_HOUR - TIMELINE_START_HOUR; // 15 hours
-        
-        // Weitere Konstanten
-        const UNDO_STACK_MAX_SIZE = 10;
-        const TARGET_WORKLOAD_HOURS = 8;
-        const TARGET_WORKLOAD_MINUTES = TARGET_WORKLOAD_HOURS * 60;
-        const SAVE_DEBOUNCE_MS = 800;
-        
-        // Default wage settings
-        const DEFAULT_WAGE_SETTINGS = {
-            wageGroups: [
-                { id: 'fachkraft', name: 'Fachkraft', hourlyRate: 18.00 },
-                { id: 'hilfskraft', name: 'Hilfskraft', hourlyRate: 14.00 },
-                { id: 'azubi', name: 'Auszubildende/r', hourlyRate: 10.00 }
-            ],
-            surcharges: {
-                sunday: 25,      // % Sonntagszuschlag
-                holiday: 100,    // % Feiertagszuschlag
-                night: 25        // % Nachtzuschlag (20:00-06:00)
-            },
-            revenueRates: {
-                care: 45.00,     // €/h Pflege
-                house: 35.00,    // €/h Hauswirtschaft
-                social: 40.00   // €/h Betreuung
-            },
-            avgSpeed: 30,        // km/h Durchschnittsgeschwindigkeit
-            kmRate: 0.30,        // €/km PKW
-            publicTransportMonthly: 30.00, // €/Monat Öffis
-            employerFactor: 1.5, // Arbeitgeberfaktor (50% AG-Anteil)
-            targetMargin: 50     // Zielmarge in %
-        };
         
         // ============================================
         // IndexedDB Storage System
