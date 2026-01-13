@@ -9524,12 +9524,12 @@ Weber, Peter;Erle;social</code>
                     // Durchlaufe alle Blöcke für diesen Tag
                     const blockRows = blocksContainer.querySelectorAll('div[style*="grid-template-columns"]');
                     blockRows.forEach(blockRow => {
-                        const inputs = blockRow.querySelectorAll('input[type="time"]');
+                        const inputs = blockRow.querySelectorAll('input[type="text"]');
                         if (inputs.length >= 2) {
                             const start = inputs[0].value.trim();
                             const end = inputs[1].value.trim();
                             
-                            if (start && end) {
+                            if (start && end && start.match(/^\d{2}:\d{2}$/) && end.match(/^\d{2}:\d{2}$/)) {
                                 availability.push({ dayIndex, start, end });
                             }
                         }
