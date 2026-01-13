@@ -3303,8 +3303,16 @@ Weber, Peter;Erle;social</code>
 
         // --- STANDARD LOGIC ---
         function refreshView() {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:3305',message:'refreshView called',data:{currentView},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+            // #endregion
             const container = document.getElementById('weekView');
-            if(!container) return;
+            if(!container) {
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:3307',message:'refreshView: container not found',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+                // #endregion
+                return;
+            }
             
             container.innerHTML = ''; // Clear container
 
@@ -3319,19 +3327,27 @@ Weber, Peter;Erle;social</code>
             }
 
             if(currentView === 'week') {
-                const tourSelect = document.getElementById('tourSelect');
-                const selectedTour = tourSelect ? tourSelect.value : null;
-                // Filter events by tour (no date filtering - static week)
-                const eventsForTour = (appData.events || []).filter(evt => {
-                    if(!evt || evt.dayIndex === undefined) return false;
-                    if(selectedTour && (!evt.extendedProps || evt.extendedProps.tour !== selectedTour)) return false;
-                    return true;
-                });
-                // Auto-calculate travel times (with tour ID for commute calculation)
-                const withTravel = injectTravelTimes(eventsForTour, selectedTour);
+                try {
+                    const tourSelect = document.getElementById('tourSelect');
+                    const selectedTour = tourSelect ? tourSelect.value : null;
+                    // Filter events by tour (no date filtering - static week)
+                    const eventsForTour = (appData.events || []).filter(evt => {
+                        if(!evt || evt.dayIndex === undefined) return false;
+                        if(selectedTour && (!evt.extendedProps || evt.extendedProps.tour !== selectedTour)) return false;
+                        return true;
+                    });
+                    // Auto-calculate travel times (with tour ID for commute calculation)
+                    const withTravel = injectTravelTimes(eventsForTour, selectedTour);
 
-                renderWeekBoard(container, withTravel);
-                calculateStats(withTravel);
+                    renderWeekBoard(container, withTravel);
+                    calculateStats(withTravel);
+                } catch(e) {
+                    // #region agent log
+                    fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:3321',message:'Error in week view',data:{error:e.message,stack:e.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+                    // #endregion
+                    console.error('Error rendering week view:', e);
+                    throw e;
+                }
             } else if(currentView === 'customerWeek') {
                 renderCustomerWeekView(container);
             } else if(currentView === 'overall') {
@@ -3979,6 +3995,9 @@ Weber, Peter;Erle;social</code>
         }
 
         function renderWeekBoard(container, events) {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:3981',message:'renderWeekBoard called',data:{eventsCount:events?.length,containerExists:!!container},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+            // #endregion
             const dayNames = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
             const pxPerMin = getPixelsPerMinute();
             const hourHeight = 60 * pxPerMin;
@@ -4263,6 +4282,9 @@ Weber, Peter;Erle;social</code>
         }
 
         function createWeekEventRow(evt, hasConflict = false, overlapPosition = null) {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:4265',message:'createWeekEventRow entry',data:{evtId:evt?.id,isTravel:evt?.extendedProps?.isTravel,zone:evt?.extendedProps?.zone},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+            // #endregion
             const pxPerMin = getPixelsPerMinute();
             const row = document.createElement('div');
             row.className = 'week-event-row';
@@ -4382,14 +4404,20 @@ Weber, Peter;Erle;social</code>
                 }).join('');
                 
                 // Zone display - kompakt neben Badges
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:4384',message:'Before zone code',data:{zone:evt.extendedProps?.zone,hasZONE_COLORS:typeof ZONE_COLORS !== 'undefined',hasGetZoneAbbrev:typeof getZoneAbbreviation === 'function'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+                // #endregion
                 const zone = evt.extendedProps?.zone || 'Keine Zone';
-                const zoneColor = ZONE_COLORS[zone] || 'var(--primary)';
-                const zoneAbbrev = getZoneAbbreviation(zone);
+                const zoneColor = (typeof ZONE_COLORS !== 'undefined' && ZONE_COLORS[zone]) ? ZONE_COLORS[zone] : 'var(--primary)';
+                const zoneAbbrev = (typeof getZoneAbbreviation === 'function') ? getZoneAbbreviation(zone) : (zone.length > 6 ? zone.substring(0, 6) : zone);
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:4387',message:'After zone code',data:{zone,zoneColor,zoneAbbrev},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+                // #endregion
                 
                 // Prüfe ob Koordinaten vorhanden sind (aus Pool-Item)
                 const poolId = evt.extendedProps?.poolId;
                 let hasCoordinates = false;
-                let zoneTooltip = getZoneWithPostalCode(zone);
+                let zoneTooltip = (typeof getZoneWithPostalCode === 'function') ? getZoneWithPostalCode(zone) : zone;
                 if (poolId) {
                     const poolItem = appData.pool?.find(p => p.id === poolId);
                     if (poolItem) {
@@ -4406,18 +4434,43 @@ Weber, Peter;Erle;social</code>
                     }
                 }
                 
-                // Zone-Badge neben Leistungs-Badges
-                const zoneBadge = zone !== 'Keine Zone' ? `<span class="zone-badge" title="${zoneTooltip}" style="display:inline-flex;align-items:center;gap:3px;font-size:0.6rem;color:var(--text-muted);margin-left:4px;">
-                    <span style="width:5px;height:5px;background:${zoneColor};border-radius:50%;display:inline-block;flex-shrink:0;"></span>
-                    <span>${zoneAbbrev}</span>
-                </span>` : '';
-                
-                content.innerHTML = `
-                    <div class="event-title">${evt.title}${hasCoordinates ? ' <span style="font-size:0.7rem;opacity:0.7;" title="Koordinaten vorhanden">📍</span>' : ''}</div>
-                    <div class="event-time">${evt.start} - ${evt.end}</div>
-                    <div class="event-badges">${typeBadges}${zoneBadge}</div>
-                `;
-                row.appendChild(content);
+                // Zone-Badge neben Leistungs-Badges (HTML-escaped für title-Attribut)
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:4409',message:'Before zoneBadge creation',data:{zoneTooltipLength:zoneTooltip?.length,poolItemExists:!!poolId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+                // #endregion
+                let zoneTooltipEscaped;
+                let zoneBadge;
+                try {
+                    zoneTooltipEscaped = zoneTooltip.replace(/"/g, '&quot;').replace(/\n/g, ' ');
+                    zoneBadge = zone !== 'Keine Zone' ? `<span class="zone-badge" title="${zoneTooltipEscaped}" style="display:inline-flex;align-items:center;gap:3px;font-size:0.6rem;color:var(--text-muted);margin-left:4px;">
+                        <span style="width:5px;height:5px;background:${zoneColor};border-radius:50%;display:inline-block;flex-shrink:0;"></span>
+                        <span>${zoneAbbrev}</span>
+                    </span>` : '';
+                } catch(e) {
+                    // #region agent log
+                    fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:4410',message:'Error creating zoneBadge',data:{error:e.message,zoneTooltip},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+                    // #endregion
+                    zoneBadge = '';
+                }
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:4415',message:'Before content.innerHTML',data:{zoneBadgeLength:zoneBadge?.length,typeBadgesLength:typeBadges?.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+                // #endregion
+                try {
+                    content.innerHTML = `
+                        <div class="event-title">${evt.title}${hasCoordinates ? ' <span style="font-size:0.7rem;opacity:0.7;" title="Koordinaten vorhanden">📍</span>' : ''}</div>
+                        <div class="event-time">${evt.start} - ${evt.end}</div>
+                        <div class="event-badges">${typeBadges}${zoneBadge}</div>
+                    `;
+                    row.appendChild(content);
+                    // #region agent log
+                    fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:4421',message:'createWeekEventRow success',data:{evtId:evt?.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+                    // #endregion
+                } catch(e) {
+                    // #region agent log
+                    fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:4416',message:'Error setting content.innerHTML',data:{error:e.message,stack:e.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+                    // #endregion
+                    throw e;
+                }
             } else {
                 // Travel event styling with distance color
                 const travelColor = evt.extendedProps?.travelColor || '#64748b';
