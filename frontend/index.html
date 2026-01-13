@@ -5356,7 +5356,52 @@ Weber, Peter;Erle;social</code>
                 return;
             }
             
-            // Erstelle Pool-Item
+            // Prüfe ob ein bestehender Eintrag bearbeitet wird
+            const editingId = modal ? modal.dataset.editingId : null;
+            
+            if (editingId) {
+                // Aktualisiere bestehenden Eintrag
+                const existingItem = appData.pool.find(p => p.id === editingId);
+                if (existingItem) {
+                    existingItem.title = name;
+                    existingItem.zone = zone;
+                    existingItem.types = types;
+                    existingItem.address = address || null;
+                    existingItem.postalCode = postalCode || null;
+                    
+                    if (!existingItem.extendedProps) {
+                        existingItem.extendedProps = {};
+                    }
+                    
+                    if (coordinates) {
+                        existingItem.extendedProps.coordinates = coordinates;
+                    } else {
+                        // Entferne Koordinaten wenn keine neuen vorhanden sind
+                        delete existingItem.extendedProps.coordinates;
+                    }
+                    
+                    // Reset form
+                    nameInput.value = '';
+                    if (addressInput) addressInput.value = '';
+                    if (postalCodeInput) postalCodeInput.value = '';
+                    if (zoneSelect) zoneSelect.value = '';
+                    document.querySelectorAll('.pool-cb').forEach(cb => cb.checked = false);
+                    if (modal) {
+                        delete modal.dataset.tempCoordinates;
+                        delete modal.dataset.editingId;
+                    }
+                    const coordinatesDisplay = document.getElementById('poolCoordinatesDisplay');
+                    if (coordinatesDisplay) coordinatesDisplay.style.display = 'none';
+                    
+                    queueSave();
+                    renderPool();
+                    closeModal('poolModal');
+                    showToast('Kunde aktualisiert', 'success');
+                    return;
+                }
+            }
+            
+            // Erstelle neuen Pool-Item
             if (!appData.pool) appData.pool = [];
             
             const poolItem = {
