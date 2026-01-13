@@ -9408,6 +9408,10 @@ Weber, Peter;Erle;social</code>
                 blocksContainer.style.cssText = 'display:flex; flex-direction:column; gap:6px;';
                 blocksContainer.dataset.dayIndex = dayIndex;
                 
+                // WICHTIG: blocksContainer muss zuerst zu dayRow hinzugefügt werden,
+                // damit addAvailabilityBlock es mit querySelector finden kann
+                dayRow.appendChild(blocksContainer);
+                
                 // Füge vorhandene Blöcke hinzu
                 // #region agent log
                 fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:9385',message:'Adding blocks for day',data:{dayIndex,dayBlocksCount:dayBlocks.length,dayBlocks},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'H5'})}).catch(()=>{});
@@ -9420,8 +9424,6 @@ Weber, Peter;Erle;social</code>
                     // Füge einen leeren Block hinzu
                     addAvailabilityBlock(dayIndex, container, dayRow);
                 }
-                
-                dayRow.appendChild(blocksContainer);
                 container.appendChild(dayRow);
             }
         }
