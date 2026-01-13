@@ -11218,6 +11218,12 @@ Weber, Peter;Erle;social</code>
                     return;
                 }
             
+            // Warte auf ausstehende Speichervorgänge, bevor Daten geladen werden
+            if (saveTimeout) {
+                clearTimeout(saveTimeout);
+                await executeSave();
+            }
+            
             try {
                 const response = await apiCall(`/api/data?variant_id=${currentVariantId}`);
                 if(!response.ok) {
