@@ -6666,14 +6666,23 @@ Weber, Peter;Erle;social</code>
                 list.onclick = (e) => handleColumnClick(e, selectedDayIndex, tour.id);
                 
                 // Zeige Verfügbarkeiten des Mitarbeiters an (alle Blöcke für diesen Tag)
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:6668',message:'Checking availability display',data:{hasEmployee:!!employee,employeeId:employee?.id,hasAvailability:!!employee?.extendedProps?.availability,availability:employee?.extendedProps?.availability,selectedDayIndex,tourId:tour.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+                // #endregion
                 if (employee && employee.extendedProps?.availability) {
                     const dayAvailabilities = employee.extendedProps.availability.filter(a => a.dayIndex === selectedDayIndex);
+                    // #region agent log
+                    fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:6670',message:'Filtered day availabilities',data:{dayAvailabilities,selectedDayIndex,allAvailability:employee.extendedProps.availability},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+                    // #endregion
                     dayAvailabilities.forEach(dayAvailability => {
                         if (dayAvailability.start && dayAvailability.end) {
                             const availStart = parseTimeToMinutes(dayAvailability.start);
                             const availEnd = parseTimeToMinutes(dayAvailability.end);
                             const availStartPx = (availStart - TIMELINE_START_HOUR * 60) * pxPerMinCompare;
                             const availHeight = (availEnd - availStart) * pxPerMinCompare;
+                            // #region agent log
+                            fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:6673',message:'Calculating availability position',data:{start:dayAvailability.start,end:dayAvailability.end,availStart,availEnd,availStartPx,availHeight,TIMELINE_START_HOUR,pxPerMinCompare,isValid:availStartPx >= 0 && availHeight > 0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+                            // #endregion
                             
                             if (availStartPx >= 0 && availHeight > 0) {
                                 const availBar = document.createElement('div');
@@ -6692,6 +6701,9 @@ Weber, Peter;Erle;social</code>
                                 `;
                                 availBar.title = `Verfügbarkeit: ${dayAvailability.start} - ${dayAvailability.end}`;
                                 list.appendChild(availBar);
+                                // #region agent log
+                                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:6694',message:'Availability bar created and appended',data:{availStartPx,availHeight,start:dayAvailability.start,end:dayAvailability.end},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+                                // #endregion
                             }
                         }
                     });
@@ -6869,14 +6881,23 @@ Weber, Peter;Erle;social</code>
                     list.onclick = (e) => handleColumnClick(e, dayIndex, tour.id);
                     
                     // Zeige Verfügbarkeiten des Mitarbeiters an (alle Blöcke für diesen Tag)
+                    // #region agent log
+                    fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:6858',message:'Checking availability in overall view',data:{hasEmployee:!!employee,employeeId:employee?.id,hasAvailability:!!employee?.extendedProps?.availability,availability:employee?.extendedProps?.availability,dayIndex,tourId:tour.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+                    // #endregion
                     if (employee && employee.extendedProps?.availability) {
                         const dayAvailabilities = employee.extendedProps.availability.filter(a => a.dayIndex === dayIndex);
+                        // #region agent log
+                        fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:6860',message:'Filtered day availabilities overall',data:{dayAvailabilities,dayIndex,allAvailability:employee.extendedProps.availability},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+                        // #endregion
                         dayAvailabilities.forEach(dayAvailability => {
                             if (dayAvailability.start && dayAvailability.end) {
                                 const availStart = parseTimeToMinutes(dayAvailability.start);
                                 const availEnd = parseTimeToMinutes(dayAvailability.end);
                                 const availStartPx = (availStart - TIMELINE_START_HOUR * 60) * pxPerMinCompare;
                                 const availHeight = (availEnd - availStart) * pxPerMinCompare;
+                                // #region agent log
+                                fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:6863',message:'Calculating availability position overall',data:{start:dayAvailability.start,end:dayAvailability.end,availStart,availEnd,availStartPx,availHeight,TIMELINE_START_HOUR,pxPerMinCompare,isValid:availStartPx >= 0 && availHeight > 0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+                                // #endregion
                                 
                                 if (availStartPx >= 0 && availHeight > 0) {
                                     const availBar = document.createElement('div');
@@ -6895,6 +6916,9 @@ Weber, Peter;Erle;social</code>
                                     `;
                                     availBar.title = `Verfügbarkeit: ${dayAvailability.start} - ${dayAvailability.end}`;
                                     list.appendChild(availBar);
+                                    // #region agent log
+                                    fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'frontend/index.html:6884',message:'Availability bar created overall',data:{availStartPx,availHeight,start:dayAvailability.start,end:dayAvailability.end},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+                                    // #endregion
                                 }
                             }
                         });
