@@ -2710,6 +2710,14 @@
                 </div>
             </div>
             
+            <div class="input-group" style="margin-bottom:16px;">
+                <label class="section-title" style="font-size:0.9rem; margin-bottom:8px;">⏰ Verfügbarkeiten (wann arbeitet der/die Mitarbeiter:in?)</label>
+                <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:12px;">Definieren Sie für jeden Tag die Arbeitszeiten. Diese werden in der Tour-Ansicht angezeigt.</p>
+                <div id="employeeAvailabilityContainer" style="display:flex; flex-direction:column; gap:8px;">
+                    <!-- Verfügbarkeiten werden hier dynamisch eingefügt -->
+                </div>
+            </div>
+            
             <div style="display:flex; gap:10px; justify-content:flex-end;">
                 <button class="btn btn-secondary" onclick="closeModal('employeeEditModal')">❌ Abbrechen</button>
                 <button class="btn btn-primary" onclick="saveEmployeeEditModal()">✅ Speichern</button>
@@ -4617,17 +4625,50 @@ Weber, Peter;Erle;social</code>
             }
             
             const tour = appData.tours.find(t => t.id === selectedTourId);
-            if(tour && tour.employeeId) {
+            if(!tour) {
+                display.style.display = 'none';
+                return;
+            }
+            
+            // Berechne aktuelle Stunden für diese Tour (alle Tage)
+            const allTourEvents = (appData.events || []).filter(e => 
+                e.extendedProps?.tour === tour.id && 
+                !e.extendedProps?.isTravel
+            );
+            let totalHours = 0;
+            allTourEvents.forEach(e => {
+                const duration = getEventDuration(e);
+                totalHours += duration / 60;
+            });
+            
+            // Erstelle Anzeige-Text
+            let displayText = '';
+            
+            // Mitarbeiter-Info
+            if(tour.employeeId) {
                 const employee = appData.employees.find(e => e.id === tour.employeeId);
                 if(employee) {
-                    display.textContent = `👤 ${employee.name}`;
-                    display.style.display = 'inline-block';
-                    return;
+                    displayText += `👤 ${employee.name}`;
                 }
             }
             
-            // Kein Mitarbeiter zugewiesen
-            display.style.display = 'none';
+            // Stunden-Info
+            if(tour.weeklyHoursLimit) {
+                const isOverLimit = totalHours > tour.weeklyHoursLimit;
+                const hoursText = `${totalHours.toFixed(1)}/${tour.weeklyHoursLimit}h`;
+                if(displayText) displayText += ' • ';
+                displayText += `<span style="color:${isOverLimit ? 'var(--danger)' : 'var(--success)'}; font-weight:600;">⏱️ ${hoursText}</span>`;
+            } else if(totalHours > 0) {
+                if(displayText) displayText += ' • ';
+                displayText += `⏱️ ${totalHours.toFixed(1)}h`;
+            }
+            
+            if(displayText) {
+                display.innerHTML = displayText;
+                display.style.display = 'inline-block';
+            } else {
+                display.style.display = 'none';
+            }
         }
         
         function setZoom(level) {
@@ -5540,6 +5581,11 @@ Weber, Peter;Erle;social</code>
                 o2.textContent = t.name || '';
                 ets.appendChild(o2);
             });
+            
+            // Aktualisiere Tour-Info-Anzeige nach refreshUI
+            if (typeof updateTourEmployeeDisplay === 'function') {
+                updateTourEmployeeDisplay();
+            }
             if (typeof updateTourEmployeeDisplay === 'function') updateTourEmployeeDisplay();
             if (typeof renderPool === 'function') renderPool();
             if (typeof refreshView === 'function') refreshView();
@@ -6608,6 +6654,7 @@ Weber, Peter;Erle;social</code>
 
                 const list = document.createElement('div');
                 list.className = 'week-day-body';
+                list.style.position = 'relative'; // Für absolute Positionierung der Verfügbarkeiten
                 const pxPerMinCompare = getPixelsPerMinute();
                 const hourHeightCompare = 60 * pxPerMinCompare;
                 const totalHeightCompare = TIMELINE_HOURS * hourHeightCompare;
@@ -6617,6 +6664,36 @@ Weber, Peter;Erle;social</code>
                 const lineHeightCompare = lineIntervalCompare * pxPerMinCompare;
                 list.style.backgroundSize = '100% ' + lineHeightCompare + 'px';
                 list.onclick = (e) => handleColumnClick(e, selectedDayIndex, tour.id);
+                
+                // Zeige Verfügbarkeiten des Mitarbeiters an
+                if (employee && employee.extendedProps?.availability) {
+                    const dayAvailability = employee.extendedProps.availability.find(a => a.dayIndex === selectedDayIndex);
+                    if (dayAvailability && dayAvailability.start && dayAvailability.end) {
+                        const availStart = parseTimeToMinutes(dayAvailability.start);
+                        const availEnd = parseTimeToMinutes(dayAvailability.end);
+                        const availStartPx = (availStart - TIMELINE_START_HOUR * 60) * pxPerMinCompare;
+                        const availHeight = (availEnd - availStart) * pxPerMinCompare;
+                        
+                        if (availStartPx >= 0 && availHeight > 0) {
+                            const availBar = document.createElement('div');
+                            availBar.className = 'availability-bar';
+                            availBar.style.cssText = `
+                                position: absolute;
+                                left: 0;
+                                right: 0;
+                                top: ${availStartPx}px;
+                                height: ${availHeight}px;
+                                background: rgba(34, 197, 94, 0.1);
+                                border: 1px dashed rgba(34, 197, 94, 0.4);
+                                border-left: 3px solid rgba(34, 197, 94, 0.6);
+                                pointer-events: none;
+                                z-index: 1;
+                            `;
+                            availBar.title = `Verfügbarkeit: ${dayAvailability.start} - ${dayAvailability.end}`;
+                            list.appendChild(availBar);
+                        }
+                    }
+                }
                 
                 // Find overlapping events for side-by-side display
                 const overlappingPositions = findOverlappingEvents(tourEvents);
@@ -6788,6 +6865,36 @@ Weber, Peter;Erle;social</code>
                     const lineHeightCompare = lineIntervalCompare * pxPerMinCompare;
                     list.style.backgroundSize = '100% ' + lineHeightCompare + 'px';
                     list.onclick = (e) => handleColumnClick(e, dayIndex, tour.id);
+                    
+                    // Zeige Verfügbarkeiten des Mitarbeiters an
+                    if (employee && employee.extendedProps?.availability) {
+                        const dayAvailability = employee.extendedProps.availability.find(a => a.dayIndex === dayIndex);
+                        if (dayAvailability && dayAvailability.start && dayAvailability.end) {
+                            const availStart = parseTimeToMinutes(dayAvailability.start);
+                            const availEnd = parseTimeToMinutes(dayAvailability.end);
+                            const availStartPx = (availStart - TIMELINE_START_HOUR * 60) * pxPerMinCompare;
+                            const availHeight = (availEnd - availStart) * pxPerMinCompare;
+                            
+                            if (availStartPx >= 0 && availHeight > 0) {
+                                const availBar = document.createElement('div');
+                                availBar.className = 'availability-bar';
+                                availBar.style.cssText = `
+                                    position: absolute;
+                                    left: 0;
+                                    right: 0;
+                                    top: ${availStartPx}px;
+                                    height: ${availHeight}px;
+                                    background: rgba(34, 197, 94, 0.1);
+                                    border: 1px dashed rgba(34, 197, 94, 0.4);
+                                    border-left: 3px solid rgba(34, 197, 94, 0.6);
+                                    pointer-events: none;
+                                    z-index: 1;
+                                `;
+                                availBar.title = `Verfügbarkeit: ${dayAvailability.start} - ${dayAvailability.end}`;
+                                list.appendChild(availBar);
+                            }
+                        }
+                    }
                     
                     // Find biweekly pairs for side-by-side display
                     const biweeklyPairs = findBiweeklyPairs(tourEvents);
@@ -9176,7 +9283,62 @@ Weber, Peter;Erle;social</code>
                 if (coordsText) coordsText.textContent = '';
             }
             
+            // Verfügbarkeiten rendern
+            renderEmployeeAvailability(emp);
+            
             openModal('employeeEditModal');
+        }
+        
+        function renderEmployeeAvailability(emp) {
+            const container = document.getElementById('employeeAvailabilityContainer');
+            if (!container) return;
+            
+            const dayNames = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
+            const availability = emp.extendedProps?.availability || [];
+            
+            container.innerHTML = '';
+            
+            for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+                const dayAvail = availability.find(a => a.dayIndex === dayIndex);
+                const row = document.createElement('div');
+                row.style.cssText = 'display:grid; grid-template-columns:100px 1fr 1fr auto; gap:8px; align-items:center; padding:8px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-sm);';
+                
+                const dayLabel = document.createElement('label');
+                dayLabel.style.cssText = 'font-size:0.85rem; font-weight:500;';
+                dayLabel.textContent = dayNames[dayIndex];
+                
+                const startInput = document.createElement('input');
+                startInput.type = 'time';
+                startInput.value = dayAvail?.start || '';
+                startInput.placeholder = '08:00';
+                startInput.style.cssText = 'padding:6px; border:1px solid var(--border); border-radius:var(--radius-sm);';
+                startInput.dataset.dayIndex = dayIndex;
+                startInput.dataset.type = 'start';
+                
+                const endInput = document.createElement('input');
+                endInput.type = 'time';
+                endInput.value = dayAvail?.end || '';
+                endInput.placeholder = '16:00';
+                endInput.style.cssText = 'padding:6px; border:1px solid var(--border); border-radius:var(--radius-sm);';
+                endInput.dataset.dayIndex = dayIndex;
+                endInput.dataset.type = 'end';
+                
+                const clearBtn = document.createElement('button');
+                clearBtn.type = 'button';
+                clearBtn.textContent = '✕';
+                clearBtn.className = 'btn btn-secondary';
+                clearBtn.style.cssText = 'width:32px; height:32px; padding:0; font-size:0.9rem;';
+                clearBtn.onclick = () => {
+                    startInput.value = '';
+                    endInput.value = '';
+                };
+                
+                row.appendChild(dayLabel);
+                row.appendChild(startInput);
+                row.appendChild(endInput);
+                row.appendChild(clearBtn);
+                container.appendChild(row);
+            }
         }
         
         function saveEmployeeEditModal() {
@@ -9213,6 +9375,38 @@ Weber, Peter;Erle;social</code>
                     emp.extendedProps = emp.extendedProps || {};
                     emp.extendedProps.coordinates = JSON.parse(tmp);
                 } catch (_) {}
+            }
+            
+            // Speichere Verfügbarkeiten
+            const container = document.getElementById('employeeAvailabilityContainer');
+            if (container) {
+                emp.extendedProps = emp.extendedProps || {};
+                const availability = [];
+                const inputs = container.querySelectorAll('input[type="time"]');
+                const dayIndices = new Set();
+                
+                inputs.forEach(input => {
+                    const dayIndex = parseInt(input.dataset.dayIndex);
+                    const type = input.dataset.type;
+                    const value = input.value;
+                    
+                    if (value) {
+                        dayIndices.add(dayIndex);
+                    }
+                });
+                
+                dayIndices.forEach(dayIndex => {
+                    const startInput = container.querySelector(`input[data-day-index="${dayIndex}"][data-type="start"]`);
+                    const endInput = container.querySelector(`input[data-day-index="${dayIndex}"][data-type="end"]`);
+                    const start = startInput?.value || '';
+                    const end = endInput?.value || '';
+                    
+                    if (start && end) {
+                        availability.push({ dayIndex, start, end });
+                    }
+                });
+                
+                emp.extendedProps.availability = availability.length > 0 ? availability : null;
             }
             
             queueSave();
