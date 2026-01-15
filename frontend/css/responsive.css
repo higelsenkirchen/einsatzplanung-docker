@@ -167,6 +167,15 @@
 @media (max-width: 1200px) {
     .sidebar { width: 270px; }
     .main-content { padding: 16px; }
+    
+    /* Responsive: Weniger Content in Event-Rows bei mittleren Breiten */
+    .week-event-row .event-badges .zone-badge {
+        display: none; /* Verstecke Zone-Badge bei mittleren Breiten */
+    }
+    
+    .week-event-row .event-title {
+        font-size: 0.75rem;
+    }
 }
 
 @media (max-width: 1024px) {
@@ -200,6 +209,19 @@
         margin-top: 16px;
         width: 100%;
         grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    
+    /* Responsive: Weniger Content in Event-Rows bei Tablet-Breiten */
+    .week-event-row .event-badges {
+        display: none; /* Verstecke alle Badges bei Tablet-Breiten */
+    }
+    
+    .week-event-row .event-title {
+        font-size: 0.7rem;
+    }
+    
+    .week-event-row .event-time {
+        font-size: 0.65rem;
     }
 }
 
@@ -304,6 +326,15 @@
         min-height: 50px;
         padding: 10px;
         font-size: 0.9rem;
+    }
+    
+    /* Responsive: Weniger Content in Event-Rows bei kleinen Breiten */
+    .week-event-row .event-badges {
+        display: none; /* Verstecke Badges bei sehr kleinen Breiten */
+    }
+    
+    .week-event-row .event-time {
+        font-size: 0.65rem;
     }
     
     /* Modals vollbild auf Mobile */

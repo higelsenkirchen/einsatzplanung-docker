@@ -42,6 +42,8 @@
     display: flex;
     align-items: flex-start;
     padding-top: 2px;
+    overflow: hidden; /* Verhindere Überlaufen in Header-Bereich */
+    white-space: nowrap;
 }
 
 .time-label::after {
@@ -85,6 +87,9 @@
     position: sticky;
     top: 0;
     z-index: 10;
+    min-width: 0; /* Wichtig: erlaube Shrinking */
+    overflow: hidden; /* Verhindere Überlaufen */
+    box-sizing: border-box;
 }
 
 .week-day-body {

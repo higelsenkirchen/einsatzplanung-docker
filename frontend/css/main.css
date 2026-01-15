@@ -192,6 +192,19 @@ h2.brand {
     min-width: 0; /* Wichtig: erlaube Shrinking */
 }
 
+/* Gesamtansicht: Top-Bar muss außerhalb des scrollbaren Containers bleiben */
+.main-content[data-view="overall"] .top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+    max-width: 100%;
+    left: 0;
+    right: 0;
+    margin-left: 0;
+    margin-right: 0;
+}
+
 /* Top Bar */
 .top-bar { 
     display: flex; 

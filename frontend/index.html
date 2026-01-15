@@ -1776,6 +1776,12 @@ Weber, Peter;Erle;social</code>
         
         function switchView(view) {
         currentView = view;
+        
+        // Setze data-view Attribut für CSS-Selektoren
+        const mainContent = document.querySelector('.main-content');
+        if(mainContent) {
+            mainContent.setAttribute('data-view', view);
+        }
             
             // #region agent log - Top-Menü Debug
             const topBar = document.querySelector('.top-bar');
@@ -3500,8 +3506,8 @@ Weber, Peter;Erle;social</code>
                 : appData.tours;
             const filteredDays = overallDayFilter.length;
             const totalColumns = filteredDays * filteredTours.length;
-            // Mindestbreite für Spalten, damit horizontales Scrollen funktioniert
-            const minColumnWidth = 200; // Mindestbreite pro Spalte in px
+            // Mindestbreite für Spalten erhöht, damit Header-Content nicht abgeschnitten wird
+            const minColumnWidth = 250; // Erhöht von 200px auf 250px für bessere Header-Darstellung
             container.style.gridTemplateColumns = `50px repeat(${totalColumns}, minmax(${minColumnWidth}px, 1fr))`;
             container.style.padding = '';
             container.style.width = 'max-content'; // max-content für horizontales Scrollen
@@ -3536,6 +3542,10 @@ Weber, Peter;Erle;social</code>
                     topBar.style.left = '0'; // Stelle sicher, dass top-bar links ausgerichtet ist
                     topBar.style.right = '0'; // Stelle sicher, dass top-bar rechts ausgerichtet ist
                     topBar.style.zIndex = '1000'; // Erhöhe z-index, damit top-bar über allem liegt
+                    // WICHTIG: top-bar muss außerhalb des scrollbaren Containers sein
+                    // Stelle sicher, dass top-bar nicht mit dem Container scrollt
+                    topBar.style.marginLeft = '0';
+                    topBar.style.marginRight = '0';
                 }
                 // #region agent log - Top-Menü Gesamtansicht Debug
                 setTimeout(() => {
@@ -3630,16 +3640,16 @@ Weber, Peter;Erle;social</code>
                     const employeeName = employee ? employee.name : '';
                     
                     header.innerHTML = `
-                        <div style="flex:1;">
-                            <div class="week-day-name" style="font-size:0.75rem;">${dayNames[dayIndex]}</div>
-                            <div class="week-day-name" style="font-size:0.7rem; font-weight:600; margin-top:2px;">${tour.name}</div>
-                            ${employeeName ? `<div style="font-size:0.6rem;color:var(--primary);font-weight:600;">👤 ${employeeName}</div>` : ''}
+                        <div style="flex:1; min-width:0; overflow:hidden;">
+                            <div class="week-day-name" style="font-size:0.75rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${dayNames[dayIndex]}</div>
+                            <div class="week-day-name" style="font-size:0.7rem; font-weight:600; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${tour.name}</div>
+                            ${employeeName ? `<div style="font-size:0.6rem;color:var(--primary);font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">👤 ${employeeName}</div>` : ''}
                             <div class="workload-bar" style="margin-top:4px;">
                                 <div class="workload-bar-fill level-${workloadLevel}" style="width:${Math.min(100, workloadPercent)}%"></div>
                             </div>
-                            <div class="workload-text" style="font-size:0.65rem; margin-top:2px;">${Math.floor(totalMin/60)}h ${totalMin%60}m / 8h (${workloadPercent}%)</div>
+                            <div class="workload-text" style="font-size:0.65rem; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${Math.floor(totalMin/60)}h ${totalMin%60}m / 8h (${workloadPercent}%)</div>
                         </div>
-                        <div style="display:flex; gap:8px; align-items:center;">
+                        <div style="display:flex; gap:8px; align-items:center; flex-shrink:0;">
                              <span class="week-day-count">${realCount}</span>
                         </div>
                     `;
