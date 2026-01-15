@@ -3523,7 +3523,8 @@ Weber, Peter;Erle;social</code>
             // Stelle sicher, dass main-content NICHT scrollt (nur der Container selbst)
             const mainContent = document.querySelector('.main-content');
             if(mainContent && currentView === 'overall') {
-                mainContent.style.overflowX = 'visible'; // Wichtig: nicht 'auto'
+                // KRITISCH: overflowX muss 'visible' sein, damit top-bar nicht mit scrollt
+                mainContent.style.overflowX = 'visible';
                 mainContent.style.overflowY = 'auto';
                 // Stelle sicher, dass .top-bar sticky bleibt und nicht mit dem Container scrollt
                 const topBar = document.querySelector('.top-bar');
@@ -3534,6 +3535,7 @@ Weber, Peter;Erle;social</code>
                     topBar.style.maxWidth = '100%'; // Verhindere Überlaufen
                     topBar.style.left = '0'; // Stelle sicher, dass top-bar links ausgerichtet ist
                     topBar.style.right = '0'; // Stelle sicher, dass top-bar rechts ausgerichtet ist
+                    topBar.style.zIndex = '1000'; // Erhöhe z-index, damit top-bar über allem liegt
                 }
                 // #region agent log - Top-Menü Gesamtansicht Debug
                 setTimeout(() => {
@@ -3543,7 +3545,7 @@ Weber, Peter;Erle;social</code>
                         const containerRect = container.getBoundingClientRect();
                         const topBarComputed = window.getComputedStyle(topBar);
                         const mainContentComputed = window.getComputedStyle(mainContent);
-                        fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:3534',message:'renderOverallView - Top-Menü Gesamtansicht Debug',data:{windowWidth:window.innerWidth,windowHeight:window.innerHeight,topBarWidth:topBarRect.width,topBarLeft:topBarRect.left,topBarRight:topBarRect.right,topBarPosition:topBarComputed.position,topBarLeftStyle:topBarComputed.left,topBarRightStyle:topBarComputed.right,mainContentWidth:mainContentRect.width,mainContentLeft:mainContentRect.left,mainContentRight:mainContentRect.right,mainContentOverflowX:mainContentComputed.overflowX,containerWidth:containerRect.width,containerLeft:containerRect.left,containerRight:containerRect.right},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+                        fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:3534',message:'renderOverallView - Top-Menü Gesamtansicht Debug',data:{windowWidth:window.innerWidth,windowHeight:window.innerHeight,topBarWidth:topBarRect.width,topBarLeft:topBarRect.left,topBarRight:topBarRect.right,topBarPosition:topBarComputed.position,topBarLeftStyle:topBarComputed.left,topBarRightStyle:topBarComputed.right,mainContentWidth:mainContentRect.width,mainContentLeft:mainContentRect.left,mainContentRight:mainContentRect.right,mainContentOverflowX:mainContentComputed.overflowX,mainContentOverflowXStyle:mainContent.style.overflowX,containerWidth:containerRect.width,containerLeft:containerRect.left,containerRight:containerRect.right},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
                     }
                 }, 200);
                 // #endregion

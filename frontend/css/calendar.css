@@ -129,6 +129,8 @@
     transition: box-shadow 0.2s, transform 0.1s;
     max-width: calc(100% - 4px); /* Verhindere Überlaufen: 100% minus left+right (2px+2px) */
     box-sizing: border-box;
+    min-width: 0; /* Wichtig: erlaube Shrinking unter Parent-Breite */
+    width: calc(100% - 4px); /* Explizite Breite: 100% minus left+right */
 }
 
 .week-event-row:hover {
@@ -160,6 +162,11 @@
 .week-event-row .event-time {
     font-size: 0.7em;
     color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .week-event-row .event-badges {
