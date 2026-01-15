@@ -1849,6 +1849,16 @@ Weber, Peter;Erle;social</code>
             const mainContent = document.querySelector('.main-content');
             const container = document.getElementById('weekView');
             
+            // #region agent log
+            if(mainContent && container && view === 'week') {
+                const mainContentRect = mainContent.getBoundingClientRect();
+                const containerRect = container.getBoundingClientRect();
+                const computedMainContent = window.getComputedStyle(mainContent);
+                const computedContainer = window.getComputedStyle(container);
+                fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:1848',message:'switchView week layout debug',data:{windowInnerWidth:window.innerWidth,windowInnerHeight:window.innerHeight,mainContentWidth:mainContentRect.width,mainContentLeft:mainContentRect.left,mainContentMaxWidth:computedMainContent.maxWidth,mainContentWidthStyle:mainContent.style.width,containerWidth:containerRect.width,containerLeft:containerRect.left,containerMaxWidth:computedContainer.maxWidth,containerWidthStyle:container.style.width,containerDisplay:computedContainer.display,containerGridTemplateColumns:computedContainer.gridTemplateColumns},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+            }
+            // #endregion
+            
             if(mainContent) {
                 if(view === 'overall') {
                     // In Gesamtansicht: main-content soll NICHT scrollen, nur der Container
@@ -1875,6 +1885,18 @@ Weber, Peter;Erle;social</code>
                     parent.style.minWidth = '';
                 }
             }
+            
+            // #region agent log
+            if(mainContent && container && view === 'week') {
+                setTimeout(() => {
+                    const mainContentRect = mainContent.getBoundingClientRect();
+                    const containerRect = container.getBoundingClientRect();
+                    const computedMainContent = window.getComputedStyle(mainContent);
+                    const computedContainer = window.getComputedStyle(container);
+                    fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:1877',message:'switchView week layout debug AFTER reset',data:{mainContentWidth:mainContentRect.width,mainContentLeft:mainContentRect.left,mainContentMaxWidth:computedMainContent.maxWidth,mainContentWidthStyle:mainContent.style.width,containerWidth:containerRect.width,containerLeft:containerRect.left,containerMaxWidth:computedContainer.maxWidth,containerWidthStyle:container.style.width,containerDisplay:computedContainer.display,containerGridTemplateColumns:computedContainer.gridTemplateColumns},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+                }, 100);
+            }
+            // #endregion
         }
         function undo() {
             if(undoStack.length === 0) {
@@ -3680,6 +3702,15 @@ Weber, Peter;Erle;social</code>
             const tourSelect = document.getElementById('tourSelect');
             const selectedTour = tourSelect ? tourSelect.value : null;
             
+            // #region agent log
+            const containerRectBefore = container.getBoundingClientRect();
+            const computedContainerBefore = window.getComputedStyle(container);
+            const parentBefore = container.parentElement;
+            const parentRectBefore = parentBefore ? parentBefore.getBoundingClientRect() : null;
+            const computedParentBefore = parentBefore ? window.getComputedStyle(parentBefore) : null;
+            fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:3674',message:'renderWeekBoard BEFORE reset',data:{containerWidth:containerRectBefore.width,containerLeft:containerRectBefore.left,containerMaxWidth:computedContainerBefore.maxWidth,containerWidthStyle:container.style.width,containerDisplay:computedContainerBefore.display,parentWidth:parentRectBefore?.width,parentLeft:parentRectBefore?.left,parentMaxWidth:computedParentBefore?.maxWidth,parentWidthStyle:parentBefore?.style.width,windowInnerWidth:window.innerWidth},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+            // #endregion
+            
             // Reset container styles from dashboard/overall view
             container.style.display = 'grid';
             container.style.gridTemplateColumns = '50px repeat(7, 1fr)';
@@ -3696,6 +3727,15 @@ Weber, Peter;Erle;social</code>
                 parent.style.overflowX = '';
                 parent.style.minWidth = '';
             }
+            
+            // #region agent log
+            const containerRectAfter = container.getBoundingClientRect();
+            const computedContainerAfter = window.getComputedStyle(container);
+            const parentRectAfter = parent ? parent.getBoundingClientRect() : null;
+            const computedParentAfter = parent ? window.getComputedStyle(parent) : null;
+            fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:3693',message:'renderWeekBoard AFTER reset',data:{containerWidth:containerRectAfter.width,containerLeft:containerRectAfter.left,containerMaxWidth:computedContainerAfter.maxWidth,containerWidthStyle:container.style.width,containerDisplay:computedContainerAfter.display,containerGridTemplateColumns:computedContainerAfter.gridTemplateColumns,parentWidth:parentRectAfter?.width,parentLeft:parentRectAfter?.left,parentMaxWidth:computedParentAfter?.maxWidth,parentWidthStyle:parent?.style.width},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+            // #endregion
+            
             container.innerHTML = '';
 
             // Get all real events for conflict checking
@@ -3712,6 +3752,17 @@ Weber, Peter;Erle;social</code>
                 timeCol.appendChild(l);
             }
             container.appendChild(timeCol);
+
+            // #region agent log
+            setTimeout(() => {
+                const containerRectFinal = container.getBoundingClientRect();
+                const computedContainerFinal = window.getComputedStyle(container);
+                const parentFinal = container.parentElement;
+                const parentRectFinal = parentFinal ? parentFinal.getBoundingClientRect() : null;
+                const computedParentFinal = parentFinal ? window.getComputedStyle(parentFinal) : null;
+                fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:3714',message:'renderWeekBoard AFTER render',data:{containerWidth:containerRectFinal.width,containerLeft:containerRectFinal.left,containerMaxWidth:computedContainerFinal.maxWidth,containerWidthStyle:container.style.width,containerDisplay:computedContainerFinal.display,containerGridTemplateColumns:computedContainerFinal.gridTemplateColumns,parentWidth:parentRectFinal?.width,parentLeft:parentRectFinal?.left,parentMaxWidth:computedParentFinal?.maxWidth,parentWidthStyle:parentFinal?.style.width,windowInnerWidth:window.innerWidth},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+            }, 200);
+            // #endregion
 
             // Day Columns
             for(let dayIndex = 0; dayIndex < 7; dayIndex++) {
@@ -9815,4 +9866,5 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
     <script src="/js/app.js" defer></script>
     <script src="/js/init.js" defer></script>
 </body>
+</html>
 </html>
