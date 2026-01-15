@@ -8,7 +8,7 @@
 
 .week-board {
     display: grid;
-    grid-template-columns: 50px repeat(7, 1fr);
+    grid-template-columns: 50px repeat(7, minmax(0, 1fr)); /* minmax(0, 1fr) verhindert Überlaufen bei kleinen Breiten */
     gap: 8px;
     overflow-y: auto;
     flex: 1;

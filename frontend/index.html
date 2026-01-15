@@ -3517,7 +3517,7 @@ Weber, Peter;Erle;social</code>
                 parent.style.overflowX = 'visible'; // Wichtig: nicht 'auto', damit top-bar nicht mitwandert
                 parent.style.overflowY = 'auto';
                 parent.style.minWidth = '0'; // Wichtig für flex children
-                parent.style.position = 'relative';
+                // NICHT position: relative setzen, da dies position: sticky des .top-bar beeinflusst
             }
             
             // Stelle sicher, dass main-content NICHT scrollt (nur der Container selbst)
@@ -3525,6 +3525,12 @@ Weber, Peter;Erle;social</code>
             if(mainContent && currentView === 'overall') {
                 mainContent.style.overflowX = 'visible'; // Wichtig: nicht 'auto'
                 mainContent.style.overflowY = 'auto';
+                // Stelle sicher, dass .top-bar sticky bleibt
+                const topBar = document.querySelector('.top-bar');
+                if(topBar) {
+                    topBar.style.position = 'sticky'; // Explizit sticky setzen für Gesamtansicht
+                    topBar.style.top = '0';
+                }
             }
             container.innerHTML = '';
 
