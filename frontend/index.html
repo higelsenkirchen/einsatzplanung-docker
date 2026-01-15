@@ -5294,6 +5294,16 @@ Weber, Peter;Erle;social</code>
                                 const coordinates = poolItem.extendedProps?.coordinates || poolItem.extended_props?.coordinates;
                                 if (coordinates) newEvent.extendedProps.coordinates = coordinates;
                             }
+                        } else if (m.dataset.coordinates) {
+                            // Koordinaten aus Matching übernehmen (falls vorhanden aber kein poolId)
+                            try {
+                                const coordinates = JSON.parse(m.dataset.coordinates);
+                                if (coordinates && coordinates.lat && coordinates.lng) {
+                                    newEvent.extendedProps.coordinates = coordinates;
+                                }
+                            } catch (e) {
+                                console.warn('Fehler beim Parsen der Koordinaten:', e);
+                            }
                         }
                         
                         saveUndoState(); // Save state before changes
@@ -8012,6 +8022,149 @@ Weber, Peter;Erle;social</code>
             
             openModal('eventModal');
             document.getElementById('eventClient').focus();
+            
+            // Event-Listener für automatisches Matching beim Ändern des Namens
+            const eventClientInput = document.getElementById('eventClient');
+            if (eventClientInput) {
+                // Entferne alte Listener falls vorhanden
+                const newInput = eventClientInput.cloneNode(true);
+                eventClientInput.parentNode.replaceChild(newInput, eventClientInput);
+                
+                // Füge neuen Listener hinzu
+                newInput.addEventListener('input', handleEventClientNameChange);
+                newInput.addEventListener('change', handleEventClientNameChange);
+            }
+        }
+        
+        // Funktion für automatisches Matching von Zone und Koordinaten
+        function handleEventClientNameChange() {
+            const nameInput = document.getElementById('eventClient');
+            const modal = document.getElementById('eventModal');
+            if (!nameInput || !modal) return;
+            
+            const enteredName = nameInput.value.trim();
+            if (!enteredName) return;
+            
+            // Überschreibe nur wenn noch kein fromPoolId gesetzt ist (neuer Einsatz)
+            if (modal.dataset.fromPoolId) return;
+            
+            // Suche zuerst im Pool nach identischem Namen
+            const poolMatch = appData.pool?.find(p => p.title && p.title.trim() === enteredName);
+            
+            if (poolMatch) {
+                // Match im Pool gefunden - übernehme Zone und Koordinaten
+                if (poolMatch.zone) {
+                    const zoneSelect = document.getElementById('eventZone');
+                    if (zoneSelect) {
+                        zoneSelect.value = poolMatch.zone;
+                    }
+                }
+                
+                // Setze poolId für späteres Speichern
+                modal.dataset.fromPoolId = poolMatch.id;
+                
+                // Speichere Koordinaten im Dataset für späteres Speichern
+                const coordinates = poolMatch.extendedProps?.coordinates || poolMatch.extended_props?.coordinates;
+                if (coordinates) {
+                    modal.dataset.coordinates = JSON.stringify(coordinates);
+                }
+                
+                // Aktualisiere Adress-Anzeige
+                updateEventLocationDisplay(poolMatch);
+                return;
+            }
+            
+            // Falls nicht im Pool gefunden, suche in bestehenden Events
+            const eventMatch = appData.events?.find(e => 
+                e.title && 
+                e.title.trim() === enteredName && 
+                !e.extendedProps?.isTravel
+            );
+            
+            if (eventMatch) {
+                // Match in Events gefunden - übernehme Zone und Koordinaten
+                if (eventMatch.extendedProps?.zone) {
+                    const zoneSelect = document.getElementById('eventZone');
+                    if (zoneSelect) {
+                        zoneSelect.value = eventMatch.extendedProps.zone;
+                    }
+                }
+                
+                // Übernehme poolId falls vorhanden
+                if (eventMatch.extendedProps?.poolId) {
+                    modal.dataset.fromPoolId = eventMatch.extendedProps.poolId;
+                    
+                    // Versuche Pool-Item zu finden für vollständige Daten
+                    const poolItem = appData.pool?.find(p => p.id === eventMatch.extendedProps.poolId);
+                    if (poolItem) {
+                        updateEventLocationDisplay(poolItem);
+                        return;
+                    }
+                }
+                
+                // Falls keine poolId, verwende Koordinaten direkt aus Event
+                const coordinates = eventMatch.extendedProps?.coordinates;
+                if (coordinates) {
+                    modal.dataset.coordinates = JSON.stringify(coordinates);
+                    
+                    // Aktualisiere Adress-Anzeige mit Event-Daten
+                    const locationDisplay = document.getElementById('eventLocationDisplay');
+                    const addressText = document.getElementById('eventAddressText');
+                    const coordinatesText = document.getElementById('eventCoordinatesText');
+                    
+                    if (locationDisplay && addressText && coordinatesText) {
+                        let hasAddress = false;
+                        let hasCoordinates = false;
+                        
+                        if (eventMatch.extendedProps?.address || eventMatch.extendedProps?.postalCode) {
+                            let addressParts = [];
+                            if (eventMatch.extendedProps.address) addressParts.push(eventMatch.extendedProps.address);
+                            if (eventMatch.extendedProps.postalCode) addressParts.push(eventMatch.extendedProps.postalCode);
+                            addressText.innerHTML = `<strong>📍 Adresse:</strong> ${addressParts.join(', ')}`;
+                            hasAddress = true;
+                        }
+                        
+                        if (coordinates.lat && coordinates.lng) {
+                            coordinatesText.textContent = `Koordinaten: ${coordinates.lat.toFixed(6)}°N, ${coordinates.lng.toFixed(6)}°E`;
+                            hasCoordinates = true;
+                        }
+                        
+                        locationDisplay.style.display = (hasAddress || hasCoordinates) ? 'block' : 'none';
+                    }
+                }
+            }
+        }
+        
+        // Hilfsfunktion zum Aktualisieren der Location-Anzeige
+        function updateEventLocationDisplay(poolItem) {
+            const locationDisplay = document.getElementById('eventLocationDisplay');
+            const addressText = document.getElementById('eventAddressText');
+            const coordinatesText = document.getElementById('eventCoordinatesText');
+            
+            if (!locationDisplay || !addressText || !coordinatesText) return;
+            
+            let hasAddress = false;
+            let hasCoordinates = false;
+            
+            if (poolItem.address || poolItem.postalCode) {
+                let addressParts = [];
+                if (poolItem.address) addressParts.push(poolItem.address);
+                if (poolItem.postalCode) addressParts.push(poolItem.postalCode);
+                addressText.innerHTML = `<strong>📍 Adresse:</strong> ${addressParts.join(', ')}`;
+                hasAddress = true;
+            } else {
+                addressText.textContent = '';
+            }
+            
+            const coordinates = poolItem.extendedProps?.coordinates || poolItem.extended_props?.coordinates;
+            if (coordinates && coordinates.lat && coordinates.lng) {
+                coordinatesText.textContent = `Koordinaten: ${coordinates.lat.toFixed(6)}°N, ${coordinates.lng.toFixed(6)}°E`;
+                hasCoordinates = true;
+            } else {
+                coordinatesText.textContent = '';
+            }
+            
+            locationDisplay.style.display = (hasAddress || hasCoordinates) ? 'block' : 'none';
         }
         
         function updateEventDuration() {
