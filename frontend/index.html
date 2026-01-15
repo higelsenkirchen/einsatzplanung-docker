@@ -1777,6 +1777,15 @@ Weber, Peter;Erle;social</code>
         function switchView(view) {
         currentView = view;
             
+            // #region agent log - Top-Menü Debug
+            const topBar = document.querySelector('.top-bar');
+            if (topBar) {
+                const topBarRect = topBar.getBoundingClientRect();
+                const topBarComputed = window.getComputedStyle(topBar);
+                fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:1777',message:'switchView - Top-Menü Debug BEFORE',data:{view,topBarDisplay:topBarComputed.display,topBarVisibility:topBarComputed.visibility,topBarOpacity:topBarComputed.opacity,topBarZIndex:topBarComputed.zIndex,topBarPosition:topBarComputed.position,topBarTop:topBarComputed.top,topBarLeft:topBarComputed.left,topBarWidth:topBarRect.width,topBarHeight:topBarRect.height,topBarTopPos:topBarRect.top,topBarLeftPos:topBarRect.left,windowWidth:window.innerWidth,windowHeight:window.innerHeight},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+            }
+            // #endregion
+            
             // Remove active from all navigation items
             document.querySelectorAll('.nav-dropdown-item').forEach(item => item.classList.remove('active'));
             document.querySelectorAll('.nav-group-btn').forEach(btn => {
@@ -1875,6 +1884,16 @@ Weber, Peter;Erle;social</code>
                     parent.style.minWidth = '';
                 }
             }
+            
+            // #region agent log - Top-Menü Debug AFTER
+            setTimeout(() => {
+                if (topBar) {
+                    const topBarRectAfter = topBar.getBoundingClientRect();
+                    const topBarComputedAfter = window.getComputedStyle(topBar);
+                    fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:1878',message:'switchView - Top-Menü Debug AFTER',data:{view,topBarDisplay:topBarComputedAfter.display,topBarVisibility:topBarComputedAfter.visibility,topBarOpacity:topBarComputedAfter.opacity,topBarZIndex:topBarComputedAfter.zIndex,topBarPosition:topBarComputedAfter.position,topBarTop:topBarComputedAfter.top,topBarLeft:topBarComputedAfter.left,topBarWidth:topBarRectAfter.width,topBarHeight:topBarRectAfter.height,topBarTopPos:topBarRectAfter.top,topBarLeftPos:topBarRectAfter.left,windowWidth:window.innerWidth,windowHeight:window.innerHeight,mainContentOverflowX:mainContent?.style.overflowX,mainContentOverflowY:mainContent?.style.overflowY},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+                }
+            }, 200);
+            // #endregion
         }
         function undo() {
             if(undoStack.length === 0) {
@@ -4221,6 +4240,7 @@ Weber, Peter;Erle;social</code>
             setTimeout(() => {
                 const parentCard = row.closest('.week-day-card');
                 const dayBody = row.closest('.week-day-body');
+                const weekBoard = row.closest('.week-board');
                 if (parentCard && dayBody) {
                     const parentRect = parentCard.getBoundingClientRect();
                     const dayBodyRect = dayBody.getBoundingClientRect();
@@ -4228,7 +4248,9 @@ Weber, Peter;Erle;social</code>
                     const computedRow = window.getComputedStyle(row);
                     const computedParent = window.getComputedStyle(parentCard);
                     const computedDayBody = window.getComputedStyle(dayBody);
-                    fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:4220',message:'Event-Row Breiten-Debug AFTER append',data:{eventId:evt.id,eventTitle:evt.title?.substring(0,30),parentCardWidth:parentRect.width,parentCardLeft:parentRect.left,parentCardRight:parentRect.right,dayBodyWidth:dayBodyRect.width,dayBodyLeft:dayBodyRect.left,dayBodyRight:dayBodyRect.right,rowWidth:rowRect.width,rowLeft:rowRect.left,rowRight:rowRect.right,rowOverflowCard:rowRect.right > parentRect.right,rowOverflowBody:rowRect.right > dayBodyRect.right,rowComputedWidth:computedRow.width,rowComputedLeft:computedRow.left,rowComputedRight:computedRow.right,rowComputedBoxSizing:computedRow.boxSizing,rowPaddingLeft:computedRow.paddingLeft,rowPaddingRight:computedRow.paddingRight,rowBorderLeft:computedRow.borderLeftWidth,rowBorderRight:computedRow.borderRightWidth,parentComputedWidth:computedParent.width,parentComputedBoxSizing:computedParent.boxSizing,dayBodyComputedWidth:computedDayBody.width,dayBodyComputedBoxSizing:computedDayBody.boxSizing},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+                    const weekBoardRect = weekBoard ? weekBoard.getBoundingClientRect() : null;
+                    const computedWeekBoard = weekBoard ? window.getComputedStyle(weekBoard) : null;
+                    fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:4220',message:'Event-Row Breiten-Debug AFTER append',data:{eventId:evt.id,eventTitle:evt.title?.substring(0,30),windowWidth:window.innerWidth,windowHeight:window.innerHeight,parentCardWidth:parentRect.width,parentCardLeft:parentRect.left,parentCardRight:parentRect.right,dayBodyWidth:dayBodyRect.width,dayBodyLeft:dayBodyRect.left,dayBodyRight:dayBodyRect.right,rowWidth:rowRect.width,rowLeft:rowRect.left,rowRight:rowRect.right,rowOverflowCard:rowRect.right > parentRect.right,rowOverflowBody:rowRect.right > dayBodyRect.right,rowComputedWidth:computedRow.width,rowComputedLeft:computedRow.left,rowComputedRight:computedRow.right,rowComputedBoxSizing:computedRow.boxSizing,rowPaddingLeft:computedRow.paddingLeft,rowPaddingRight:computedRow.paddingRight,rowBorderLeft:computedRow.borderLeftWidth,rowBorderRight:computedRow.borderRightWidth,parentComputedWidth:computedParent.width,parentComputedBoxSizing:computedParent.boxSizing,dayBodyComputedWidth:computedDayBody.width,dayBodyComputedBoxSizing:computedDayBody.boxSizing,weekBoardWidth:weekBoardRect?.width,weekBoardGridTemplateColumns:computedWeekBoard?.gridTemplateColumns},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
                 }
             }, 100);
             // #endregion
@@ -5138,6 +5160,20 @@ Weber, Peter;Erle;social</code>
         }, true); // Use capture phase to catch all scroll events
         
         window.addEventListener('resize', () => {
+            // #region agent log - Browserfensterbreite Debug
+            const weekBoard = document.querySelector('.week-board');
+            const firstDayCard = document.querySelector('.week-day-card');
+            const firstEventRow = document.querySelector('.week-event-row');
+            if (weekBoard && firstDayCard) {
+                const weekBoardRect = weekBoard.getBoundingClientRect();
+                const firstDayCardRect = firstDayCard.getBoundingClientRect();
+                const firstEventRowRect = firstEventRow ? firstEventRow.getBoundingClientRect() : null;
+                const computedWeekBoard = window.getComputedStyle(weekBoard);
+                const computedFirstDayCard = window.getComputedStyle(firstDayCard);
+                const computedFirstEventRow = firstEventRow ? window.getComputedStyle(firstEventRow) : null;
+                fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:5159',message:'Window Resize - Browserfensterbreite Debug',data:{windowWidth:window.innerWidth,windowHeight:window.innerHeight,weekBoardWidth:weekBoardRect.width,weekBoardGridTemplateColumns:computedWeekBoard.gridTemplateColumns,firstDayCardWidth:firstDayCardRect.width,firstDayCardComputedWidth:computedFirstDayCard.width,firstEventRowWidth:firstEventRowRect?.width,firstEventRowComputedWidth:computedFirstEventRow?.width,firstEventRowOverflow:firstEventRowRect && firstDayCardRect ? firstEventRowRect.right > firstDayCardRect.right : false},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+            }
+            // #endregion
             const tooltips = document.querySelectorAll('.event-tooltip-custom');
             tooltips.forEach(t => t.remove());
         });
