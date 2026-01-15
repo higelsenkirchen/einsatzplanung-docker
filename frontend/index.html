@@ -3523,6 +3523,13 @@ Weber, Peter;Erle;social</code>
                 wrapper.style.maxWidth = '100%';
                 wrapper.style.boxSizing = 'border-box';
                 wrapper.style.position = 'relative';
+                // KRITISCH: Stelle sicher, dass Wrapper links ausgerichtet ist
+                wrapper.style.marginLeft = '0';
+                wrapper.style.marginRight = '0';
+                wrapper.style.paddingLeft = '0';
+                wrapper.style.paddingRight = '0';
+                wrapper.style.left = '0';
+                wrapper.style.right = 'auto';
             }
             
             // Reset container styles from dashboard

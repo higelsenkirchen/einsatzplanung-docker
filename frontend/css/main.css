@@ -221,6 +221,13 @@ h2.brand {
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+    padding-right: 0;
+    position: relative;
+    left: 0;
+    right: auto;
 }
 
 /* Top Bar */
