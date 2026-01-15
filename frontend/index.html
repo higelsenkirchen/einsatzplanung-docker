@@ -1849,16 +1849,6 @@ Weber, Peter;Erle;social</code>
             const mainContent = document.querySelector('.main-content');
             const container = document.getElementById('weekView');
             
-            // #region agent log
-            if(mainContent && container && view === 'week') {
-                const mainContentRect = mainContent.getBoundingClientRect();
-                const containerRect = container.getBoundingClientRect();
-                const computedMainContent = window.getComputedStyle(mainContent);
-                const computedContainer = window.getComputedStyle(container);
-                fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:1848',message:'switchView week layout debug',data:{windowInnerWidth:window.innerWidth,windowInnerHeight:window.innerHeight,mainContentWidth:mainContentRect.width,mainContentLeft:mainContentRect.left,mainContentMaxWidth:computedMainContent.maxWidth,mainContentWidthStyle:mainContent.style.width,containerWidth:containerRect.width,containerLeft:containerRect.left,containerMaxWidth:computedContainer.maxWidth,containerWidthStyle:container.style.width,containerDisplay:computedContainer.display,containerGridTemplateColumns:computedContainer.gridTemplateColumns},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-            }
-            // #endregion
-            
             if(mainContent) {
                 if(view === 'overall') {
                     // In Gesamtansicht: main-content soll NICHT scrollen, nur der Container
@@ -1885,18 +1875,6 @@ Weber, Peter;Erle;social</code>
                     parent.style.minWidth = '';
                 }
             }
-            
-            // #region agent log
-            if(mainContent && container && view === 'week') {
-                setTimeout(() => {
-                    const mainContentRect = mainContent.getBoundingClientRect();
-                    const containerRect = container.getBoundingClientRect();
-                    const computedMainContent = window.getComputedStyle(mainContent);
-                    const computedContainer = window.getComputedStyle(container);
-                    fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:1877',message:'switchView week layout debug AFTER reset',data:{mainContentWidth:mainContentRect.width,mainContentLeft:mainContentRect.left,mainContentMaxWidth:computedMainContent.maxWidth,mainContentWidthStyle:mainContent.style.width,containerWidth:containerRect.width,containerLeft:containerRect.left,containerMaxWidth:computedContainer.maxWidth,containerWidthStyle:container.style.width,containerDisplay:computedContainer.display,containerGridTemplateColumns:computedContainer.gridTemplateColumns},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-                }, 100);
-            }
-            // #endregion
         }
         function undo() {
             if(undoStack.length === 0) {
@@ -3018,9 +2996,12 @@ Weber, Peter;Erle;social</code>
 
         // --- STANDARD LOGIC ---
         function refreshView() {
+            // Entferne alle Tooltips bevor View aktualisiert wird
+            clearAllTooltips();
+            
             const container = document.getElementById('weekView');
             if(!container) return;
-            
+
             container.innerHTML = ''; // Clear container
 
             if(currentView === 'dashboard') {
@@ -3702,15 +3683,6 @@ Weber, Peter;Erle;social</code>
             const tourSelect = document.getElementById('tourSelect');
             const selectedTour = tourSelect ? tourSelect.value : null;
             
-            // #region agent log
-            const containerRectBefore = container.getBoundingClientRect();
-            const computedContainerBefore = window.getComputedStyle(container);
-            const parentBefore = container.parentElement;
-            const parentRectBefore = parentBefore ? parentBefore.getBoundingClientRect() : null;
-            const computedParentBefore = parentBefore ? window.getComputedStyle(parentBefore) : null;
-            fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:3674',message:'renderWeekBoard BEFORE reset',data:{containerWidth:containerRectBefore.width,containerLeft:containerRectBefore.left,containerMaxWidth:computedContainerBefore.maxWidth,containerWidthStyle:container.style.width,containerDisplay:computedContainerBefore.display,parentWidth:parentRectBefore?.width,parentLeft:parentRectBefore?.left,parentMaxWidth:computedParentBefore?.maxWidth,parentWidthStyle:parentBefore?.style.width,windowInnerWidth:window.innerWidth},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-            // #endregion
-            
             // Reset container styles from dashboard/overall view
             container.style.display = 'grid';
             container.style.gridTemplateColumns = '50px repeat(7, minmax(0, 1fr))'; // Use minmax to prevent overflow
@@ -3736,14 +3708,6 @@ Weber, Peter;Erle;social</code>
                 parent.style.flexDirection = 'column';
             }
             
-            // #region agent log
-            const containerRectAfter = container.getBoundingClientRect();
-            const computedContainerAfter = window.getComputedStyle(container);
-            const parentRectAfter = parent ? parent.getBoundingClientRect() : null;
-            const computedParentAfter = parent ? window.getComputedStyle(parent) : null;
-            fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:3693',message:'renderWeekBoard AFTER reset',data:{containerWidth:containerRectAfter.width,containerLeft:containerRectAfter.left,containerMaxWidth:computedContainerAfter.maxWidth,containerWidthStyle:container.style.width,containerDisplay:computedContainerAfter.display,containerGridTemplateColumns:computedContainerAfter.gridTemplateColumns,parentWidth:parentRectAfter?.width,parentLeft:parentRectAfter?.left,parentMaxWidth:computedParentAfter?.maxWidth,parentWidthStyle:parent?.style.width},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-            // #endregion
-            
             container.innerHTML = '';
 
             // Get all real events for conflict checking
@@ -3760,17 +3724,6 @@ Weber, Peter;Erle;social</code>
                 timeCol.appendChild(l);
             }
             container.appendChild(timeCol);
-
-            // #region agent log
-            setTimeout(() => {
-                const containerRectFinal = container.getBoundingClientRect();
-                const computedContainerFinal = window.getComputedStyle(container);
-                const parentFinal = container.parentElement;
-                const parentRectFinal = parentFinal ? parentFinal.getBoundingClientRect() : null;
-                const computedParentFinal = parentFinal ? window.getComputedStyle(parentFinal) : null;
-                fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:3714',message:'renderWeekBoard AFTER render',data:{containerWidth:containerRectFinal.width,containerLeft:containerRectFinal.left,containerMaxWidth:computedContainerFinal.maxWidth,containerWidthStyle:container.style.width,containerDisplay:computedContainerFinal.display,containerGridTemplateColumns:computedContainerFinal.gridTemplateColumns,parentWidth:parentRectFinal?.width,parentLeft:parentRectFinal?.left,parentMaxWidth:computedParentFinal?.maxWidth,parentWidthStyle:parentFinal?.style.width,windowInnerWidth:window.innerWidth},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-            }, 200);
-            // #endregion
 
             // Day Columns
             for(let dayIndex = 0; dayIndex < 7; dayIndex++) {
@@ -4282,17 +4235,21 @@ Weber, Peter;Erle;social</code>
                         }
                     }
                     
-                    // Custom Tooltip-Element
+                    // Custom Tooltip-Element - use data attribute to track tooltip
                     let eventTooltipEl = null;
                     
                     // Zeige Tooltip beim Hover über die gesamte Kachel
                     row.addEventListener('mouseenter', (e) => {
                         // Verhindere Tooltip während Drag & Drop
                         if (row.getAttribute('data-dragging') === 'true') return;
-                        if (eventTooltipEl) return; // Bereits angezeigt
+                        
+                        // Entferne alle bestehenden Tooltips zuerst (Sicherheit)
+                        const existingTooltips = document.querySelectorAll('.event-tooltip-custom');
+                        existingTooltips.forEach(t => t.remove());
                         
                         eventTooltipEl = document.createElement('div');
                         eventTooltipEl.className = 'event-tooltip-custom';
+                        eventTooltipEl.setAttribute('data-row-id', row.getAttribute('data-event-id') || '');
                         eventTooltipEl.style.cssText = `
                             position: fixed;
                             background: rgba(18, 18, 26, 0.95);
@@ -4324,7 +4281,7 @@ Weber, Peter;Erle;social</code>
                         
                         // Stelle sicher, dass Tooltip nicht außerhalb des Viewports ist
                         requestAnimationFrame(() => {
-                            if (eventTooltipEl) {
+                            if (eventTooltipEl && document.body.contains(eventTooltipEl)) {
                                 const tooltipRect = eventTooltipEl.getBoundingClientRect();
                                 if (tooltipRect.left < 10) {
                                     eventTooltipEl.style.left = '10px';
@@ -4349,6 +4306,21 @@ Weber, Peter;Erle;social</code>
                             eventTooltipEl = null;
                         }
                     });
+                    
+                    // Sicherheitsnetz: Entferne Tooltip wenn Row entfernt wird
+                    const observer = new MutationObserver(() => {
+                        if (!document.body.contains(row)) {
+                            const tooltips = document.querySelectorAll('.event-tooltip-custom');
+                            tooltips.forEach(t => {
+                                const rowId = t.getAttribute('data-row-id');
+                                if (!rowId || rowId === row.getAttribute('data-event-id') || !rowId) {
+                                    t.remove();
+                                }
+                            });
+                            observer.disconnect();
+                        }
+                    });
+                    observer.observe(document.body, { childList: true, subtree: true });
                 }
             } else {
                 // Travel event styling with distance color
@@ -5093,6 +5065,12 @@ Weber, Peter;Erle;social</code>
             }
         }
         function clearAllTooltips() {
+            // Remove all custom event tooltips from DOM
+            const customTooltips = document.querySelectorAll('.event-tooltip-custom');
+            customTooltips.forEach(tooltip => {
+                tooltip.remove();
+            });
+            
             // Remove title attributes from elements that are about to be removed
             // BUT preserve tooltips on zone-badge elements (they should remain)
             const allElements = document.querySelectorAll('[title]');
@@ -5117,6 +5095,25 @@ Weber, Peter;Erle;social</code>
                 void document.body.offsetHeight;
             }
         }
+        
+        // Globaler Event-Listener: Entferne Tooltips bei Click, Scroll oder Viewport-Wechsel
+        document.addEventListener('click', (e) => {
+            // Entferne Tooltips nur wenn nicht auf Tooltip selbst geklickt wird
+            if (!e.target.closest('.event-tooltip-custom')) {
+                const tooltips = document.querySelectorAll('.event-tooltip-custom');
+                tooltips.forEach(t => t.remove());
+            }
+        });
+        
+        document.addEventListener('scroll', () => {
+            const tooltips = document.querySelectorAll('.event-tooltip-custom');
+            tooltips.forEach(t => t.remove());
+        }, true); // Use capture phase to catch all scroll events
+        
+        window.addEventListener('resize', () => {
+            const tooltips = document.querySelectorAll('.event-tooltip-custom');
+            tooltips.forEach(t => t.remove());
+        });
         
         function moveBackToPool() {
             if(currentEvent) {
