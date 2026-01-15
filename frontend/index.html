@@ -1891,6 +1891,10 @@ Weber, Peter;Erle;social</code>
                 if(wrapper) {
                     wrapper.style.overflowX = '';
                     wrapper.style.overflowY = '';
+                    wrapper.style.width = '';
+                    wrapper.style.maxWidth = '';
+                    wrapper.style.boxSizing = '';
+                    wrapper.style.position = '';
                 }
                 // Reset main-content
                 if(mainContent) {
@@ -3510,13 +3514,15 @@ Weber, Peter;Erle;social</code>
             // NEUER ANSATZ: Wrapper-Container für scrollbaren Bereich
             const wrapper = document.getElementById('weekViewWrapper');
             if(wrapper && currentView === 'overall') {
-                // Wrapper soll scrollen, nicht main-content
+                // Wrapper soll die volle Breite haben und scrollen
                 wrapper.style.overflowX = 'auto';
                 wrapper.style.overflowY = 'auto';
                 wrapper.style.flex = '1';
                 wrapper.style.minHeight = '0';
                 wrapper.style.width = '100%';
                 wrapper.style.maxWidth = '100%';
+                wrapper.style.boxSizing = 'border-box';
+                wrapper.style.position = 'relative';
             }
             
             // Reset container styles from dashboard
@@ -3531,12 +3537,14 @@ Weber, Peter;Erle;social</code>
             const minColumnWidth = 250; // Erhöht von 200px auf 250px für bessere Header-Darstellung
             container.style.gridTemplateColumns = `50px repeat(${totalColumns}, minmax(${minColumnWidth}px, 1fr))`;
             container.style.padding = '';
+            // WICHTIG: Container hat max-content, aber Wrapper scrollt
             container.style.width = 'max-content'; // max-content für horizontales Scrollen
             container.style.maxWidth = 'none'; // Keine max-width Begrenzung
             container.style.minWidth = `${50 + (totalColumns * minColumnWidth)}px`; // Mindestbreite für Scrollen
             container.style.height = 'calc(100vh - 250px)'; // Höhe anpassen, damit Platz für top-bar bleibt
-            container.style.overflowY = 'auto';
-            container.style.overflowX = 'auto';
+            // Container selbst scrollt NICHT - Wrapper scrollt
+            container.style.overflowY = 'visible';
+            container.style.overflowX = 'visible';
             
             // NEUER ANSATZ: main-content soll NIEMALS scrollen in Gesamtansicht
             const mainContentOverall = document.querySelector('.main-content');
