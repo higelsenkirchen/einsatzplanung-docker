@@ -68,6 +68,8 @@
     min-width: 0; /* Allow grid to control width */
     position: relative;
     width: 100%;
+    overflow: hidden; /* Verhindere Überlaufen der Event-Rows */
+    box-sizing: border-box;
 }
 
 .week-day-header {
@@ -98,7 +100,10 @@
         );
     flex-grow: 1;
     overflow: hidden;
+    overflow-x: hidden; /* Verhindere horizontales Überlaufen */
     cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .week-day-empty { display: none; }
@@ -122,6 +127,8 @@
     font-size: 0.8rem;
     z-index: 5;
     transition: box-shadow 0.2s, transform 0.1s;
+    max-width: calc(100% - 4px); /* Verhindere Überlaufen: 100% minus left+right (2px+2px) */
+    box-sizing: border-box;
 }
 
 .week-event-row:hover {
