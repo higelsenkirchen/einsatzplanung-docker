@@ -3713,23 +3713,27 @@ Weber, Peter;Erle;social</code>
             
             // Reset container styles from dashboard/overall view
             container.style.display = 'grid';
-            container.style.gridTemplateColumns = '50px repeat(7, 1fr)';
+            container.style.gridTemplateColumns = '50px repeat(7, minmax(0, 1fr))'; // Use minmax to prevent overflow
             container.style.padding = '';
             container.style.overflowY = '';
             container.style.overflowX = ''; // Reset from overall view
             container.style.height = '';
             container.style.width = '100%'; // Ensure full width
-            container.style.minWidth = '';
+            container.style.minWidth = '0'; // Critical: allow grid to shrink below content size
             container.style.maxWidth = '100%'; // Ensure max width
             container.style.boxSizing = 'border-box';
-            // Reset parent container styles
+            container.style.marginLeft = '0'; // Ensure no left margin
+            container.style.marginRight = '0'; // Ensure no right margin
+            // Reset parent container styles - ensure parent uses full width
             const parent = container.parentElement;
             if(parent) {
                 parent.style.overflowX = '';
                 parent.style.minWidth = '';
-                parent.style.width = '';
-                parent.style.maxWidth = '';
+                parent.style.width = '100%';
+                parent.style.maxWidth = '100%';
                 parent.style.boxSizing = 'border-box';
+                parent.style.display = 'flex';
+                parent.style.flexDirection = 'column';
             }
             
             // #region agent log

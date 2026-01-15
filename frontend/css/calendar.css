@@ -65,8 +65,9 @@
     display: flex;
     flex-direction: column;
     box-shadow: var(--shadow-sm);
-    min-width: 140px;
+    min-width: 0; /* Allow grid to control width */
     position: relative;
+    width: 100%;
 }
 
 .week-day-header {
