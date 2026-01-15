@@ -3718,14 +3718,18 @@ Weber, Peter;Erle;social</code>
             container.style.overflowY = '';
             container.style.overflowX = ''; // Reset from overall view
             container.style.height = '';
-            container.style.width = ''; // Reset from overall view
-            container.style.minWidth = ''; // Reset from overall view
-            container.style.maxWidth = ''; // Reset from overall view
+            container.style.width = '100%'; // Ensure full width
+            container.style.minWidth = '';
+            container.style.maxWidth = '100%'; // Ensure max width
+            container.style.boxSizing = 'border-box';
             // Reset parent container styles
             const parent = container.parentElement;
             if(parent) {
                 parent.style.overflowX = '';
                 parent.style.minWidth = '';
+                parent.style.width = '';
+                parent.style.maxWidth = '';
+                parent.style.boxSizing = 'border-box';
             }
             
             // #region agent log
