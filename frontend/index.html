@@ -3525,12 +3525,28 @@ Weber, Peter;Erle;social</code>
             if(mainContent && currentView === 'overall') {
                 mainContent.style.overflowX = 'visible'; // Wichtig: nicht 'auto'
                 mainContent.style.overflowY = 'auto';
-                // Stelle sicher, dass .top-bar sticky bleibt
+                // Stelle sicher, dass .top-bar sticky bleibt und nicht mit dem Container scrollt
                 const topBar = document.querySelector('.top-bar');
                 if(topBar) {
                     topBar.style.position = 'sticky'; // Explizit sticky setzen für Gesamtansicht
                     topBar.style.top = '0';
+                    topBar.style.width = '100%'; // Stelle sicher, dass top-bar volle Breite hat
+                    topBar.style.maxWidth = '100%'; // Verhindere Überlaufen
+                    topBar.style.left = '0'; // Stelle sicher, dass top-bar links ausgerichtet ist
+                    topBar.style.right = '0'; // Stelle sicher, dass top-bar rechts ausgerichtet ist
                 }
+                // #region agent log - Top-Menü Gesamtansicht Debug
+                setTimeout(() => {
+                    if (topBar && mainContent) {
+                        const topBarRect = topBar.getBoundingClientRect();
+                        const mainContentRect = mainContent.getBoundingClientRect();
+                        const containerRect = container.getBoundingClientRect();
+                        const topBarComputed = window.getComputedStyle(topBar);
+                        const mainContentComputed = window.getComputedStyle(mainContent);
+                        fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:3534',message:'renderOverallView - Top-Menü Gesamtansicht Debug',data:{windowWidth:window.innerWidth,windowHeight:window.innerHeight,topBarWidth:topBarRect.width,topBarLeft:topBarRect.left,topBarRight:topBarRect.right,topBarPosition:topBarComputed.position,topBarLeftStyle:topBarComputed.left,topBarRightStyle:topBarComputed.right,mainContentWidth:mainContentRect.width,mainContentLeft:mainContentRect.left,mainContentRight:mainContentRect.right,mainContentOverflowX:mainContentComputed.overflowX,containerWidth:containerRect.width,containerLeft:containerRect.left,containerRight:containerRect.right},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+                    }
+                }, 200);
+                // #endregion
             }
             container.innerHTML = '';
 
@@ -4236,9 +4252,9 @@ Weber, Peter;Erle;social</code>
                 </span>` : '';
                 
                 content.innerHTML = `
-                    <div class="event-title">${evt.title}${hasCoordinates ? ' <span style="font-size:0.7rem;opacity:0.7;" title="Koordinaten vorhanden">📍</span>' : ''}</div>
-                    <div class="event-time">${evt.start} - ${evt.end}</div>
-                    <div class="event-badges" style="pointer-events:auto;">${typeBadges}${zoneBadge}</div>
+                    <div class="event-title" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;">${evt.title}${hasCoordinates ? ' <span style="font-size:0.7rem;opacity:0.7;" title="Koordinaten vorhanden">📍</span>' : ''}</div>
+                    <div class="event-time" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;">${evt.start} - ${evt.end}</div>
+                    <div class="event-badges" style="pointer-events:auto;overflow:hidden;max-width:100%;flex-wrap:wrap;">${typeBadges}${zoneBadge}</div>
                 `;
             row.appendChild(content);
             
