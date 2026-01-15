@@ -30,7 +30,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     initTheme();
     populateZones();
     populatePoolZoneFilter();
-    renderZoneLegend();
+    if (typeof renderZoneLegend === 'function') {
+        renderZoneLegend();
+    }
     
     
     // Mobile Menu Button
