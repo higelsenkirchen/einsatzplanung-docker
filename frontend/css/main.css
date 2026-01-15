@@ -192,6 +192,12 @@ h2.brand {
     min-width: 0; /* Wichtig: erlaube Shrinking */
 }
 
+/* NEUER ANSATZ: Gesamtansicht - main-content scrollt NICHT, nur Wrapper */
+.main-content[data-view="overall"] {
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+}
+
 /* Gesamtansicht: Top-Bar muss außerhalb des scrollbaren Containers bleiben */
 .main-content[data-view="overall"] .top-bar {
     position: sticky;
@@ -203,6 +209,18 @@ h2.brand {
     right: 0;
     margin-left: 0;
     margin-right: 0;
+}
+
+/* Wrapper für scrollbaren Container in Gesamtansicht */
+#weekViewWrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 /* Top Bar */

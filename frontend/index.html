@@ -314,7 +314,10 @@
             </div>
         </div>
 
-        <section id="weekView" class="week-board" aria-label="Wochenansicht"></section>
+        <!-- Wrapper für scrollbaren Container in Gesamtansicht -->
+        <div id="weekViewWrapper" style="flex:1; display:flex; flex-direction:column; min-height:0; overflow:hidden;">
+            <section id="weekView" class="week-board" aria-label="Wochenansicht"></section>
+        </div>
 
         <div class="hud-stats">
             <div class="hud-label">Einsätze</div><div class="hud-value" id="hudCount">0</div>
@@ -1883,11 +1886,17 @@ Weber, Peter;Erle;social</code>
                 container.style.maxWidth = '';
                 container.style.overflowX = '';
                 container.style.overflowY = '';
-                // Stelle sicher, dass Parent-Container auch zurückgesetzt wird
-                const parent = container.parentElement;
-                if(parent) {
-                    parent.style.overflowX = '';
-                    parent.style.minWidth = '';
+                // Reset Wrapper
+                const wrapper = document.getElementById('weekViewWrapper');
+                if(wrapper) {
+                    wrapper.style.overflowX = '';
+                    wrapper.style.overflowY = '';
+                }
+                // Reset main-content
+                if(mainContent) {
+                    mainContent.style.overflowX = '';
+                    mainContent.style.overflowY = '';
+                    mainContent.style.position = '';
                 }
             }
             
@@ -3498,6 +3507,18 @@ Weber, Peter;Erle;social</code>
         function renderOverallView(container, events) {
             const dayNames = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
             
+            // NEUER ANSATZ: Wrapper-Container für scrollbaren Bereich
+            const wrapper = document.getElementById('weekViewWrapper');
+            if(wrapper && currentView === 'overall') {
+                // Wrapper soll scrollen, nicht main-content
+                wrapper.style.overflowX = 'auto';
+                wrapper.style.overflowY = 'auto';
+                wrapper.style.flex = '1';
+                wrapper.style.minHeight = '0';
+                wrapper.style.width = '100%';
+                wrapper.style.maxWidth = '100%';
+            }
+            
             // Reset container styles from dashboard
             container.style.display = 'grid';
             // Zeit-Spalte + (gefilterte Tage × gefilterte Touren) Spalten
@@ -3517,49 +3538,43 @@ Weber, Peter;Erle;social</code>
             container.style.overflowY = 'auto';
             container.style.overflowX = 'auto';
             
-            // Parent Container (main-content) soll NICHT scrollen, damit top-bar sichtbar bleibt
-            const parent = container.parentElement;
-            if(parent) {
-                parent.style.overflowX = 'visible'; // Wichtig: nicht 'auto', damit top-bar nicht mitwandert
-                parent.style.overflowY = 'auto';
-                parent.style.minWidth = '0'; // Wichtig für flex children
-                // NICHT position: relative setzen, da dies position: sticky des .top-bar beeinflusst
-            }
-            
-            // Stelle sicher, dass main-content NICHT scrollt (nur der Container selbst)
+            // NEUER ANSATZ: main-content soll NIEMALS scrollen in Gesamtansicht
             const mainContentOverall = document.querySelector('.main-content');
             if(mainContentOverall && currentView === 'overall') {
-                // KRITISCH: overflowX muss 'visible' sein, damit top-bar nicht mit scrollt
-                mainContentOverall.style.overflowX = 'visible';
-                mainContentOverall.style.overflowY = 'auto';
-                // Stelle sicher, dass .top-bar sticky bleibt und nicht mit dem Container scrollt
-                const topBar = document.querySelector('.top-bar');
-                if(topBar) {
-                    topBar.style.position = 'sticky'; // Explizit sticky setzen für Gesamtansicht
-                    topBar.style.top = '0';
-                    topBar.style.width = '100%'; // Stelle sicher, dass top-bar volle Breite hat
-                    topBar.style.maxWidth = '100%'; // Verhindere Überlaufen
-                    topBar.style.left = '0'; // Stelle sicher, dass top-bar links ausgerichtet ist
-                    topBar.style.right = '0'; // Stelle sicher, dass top-bar rechts ausgerichtet ist
-                    topBar.style.zIndex = '1000'; // Erhöhe z-index, damit top-bar über allem liegt
-                    // WICHTIG: top-bar muss außerhalb des scrollbaren Containers sein
-                    // Stelle sicher, dass top-bar nicht mit dem Container scrollt
-                    topBar.style.marginLeft = '0';
-                    topBar.style.marginRight = '0';
-                }
-                // #region agent log - Top-Menü Gesamtansicht Debug
-                setTimeout(() => {
-                    if (topBar && mainContentOverall) {
-                        const topBarRect = topBar.getBoundingClientRect();
-                        const mainContentRect = mainContentOverall.getBoundingClientRect();
-                        const containerRect = container.getBoundingClientRect();
-                        const topBarComputed = window.getComputedStyle(topBar);
-                        const mainContentComputed = window.getComputedStyle(mainContentOverall);
-                        fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:3534',message:'renderOverallView - Top-Menü Gesamtansicht Debug',data:{windowWidth:window.innerWidth,windowHeight:window.innerHeight,topBarWidth:topBarRect.width,topBarLeft:topBarRect.left,topBarRight:topBarRect.right,topBarPosition:topBarComputed.position,topBarLeftStyle:topBarComputed.left,topBarRightStyle:topBarComputed.right,mainContentWidth:mainContentRect.width,mainContentLeft:mainContentRect.left,mainContentRight:mainContentRect.right,mainContentOverflowX:mainContentComputed.overflowX,mainContentOverflowXStyle:mainContentOverall.style.overflowX,containerWidth:containerRect.width,containerLeft:containerRect.left,containerRight:containerRect.right},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-                    }
-                }, 200);
-                // #endregion
+                // KRITISCH: overflowX muss 'hidden' sein, damit top-bar nicht mit scrollt
+                mainContentOverall.style.overflowX = 'hidden';
+                mainContentOverall.style.overflowY = 'hidden';
+                mainContentOverall.style.position = 'relative';
             }
+            
+            // Stelle sicher, dass .top-bar sticky bleibt und nicht mit dem Container scrollt
+            const topBar = document.querySelector('.top-bar');
+            if(topBar && currentView === 'overall') {
+                topBar.style.position = 'sticky';
+                topBar.style.top = '0';
+                topBar.style.width = '100%';
+                topBar.style.maxWidth = '100%';
+                topBar.style.left = '0';
+                topBar.style.right = '0';
+                topBar.style.zIndex = '1000';
+                topBar.style.marginLeft = '0';
+                topBar.style.marginRight = '0';
+            }
+            
+            // #region agent log - Top-Menü Gesamtansicht Debug
+            setTimeout(() => {
+                if (topBar && mainContentOverall && wrapper) {
+                    const topBarRect = topBar.getBoundingClientRect();
+                    const mainContentRect = mainContentOverall.getBoundingClientRect();
+                    const containerRect = container.getBoundingClientRect();
+                    const wrapperRect = wrapper.getBoundingClientRect();
+                    const topBarComputed = window.getComputedStyle(topBar);
+                    const mainContentComputed = window.getComputedStyle(mainContentOverall);
+                    const wrapperComputed = window.getComputedStyle(wrapper);
+                    fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:3534',message:'renderOverallView - Top-Menü Gesamtansicht Debug NEUER ANSATZ',data:{windowWidth:window.innerWidth,windowHeight:window.innerHeight,topBarWidth:topBarRect.width,topBarLeft:topBarRect.left,topBarRight:topBarRect.right,topBarPosition:topBarComputed.position,mainContentWidth:mainContentRect.width,mainContentLeft:mainContentRect.left,mainContentRight:mainContentRect.right,mainContentOverflowX:mainContentComputed.overflowX,mainContentOverflowXStyle:mainContentOverall.style.overflowX,wrapperWidth:wrapperRect.width,wrapperLeft:wrapperRect.left,wrapperRight:wrapperRect.right,wrapperOverflowX:wrapperComputed.overflowX,wrapperOverflowXStyle:wrapper.style.overflowX,containerWidth:containerRect.width,containerLeft:containerRect.left,containerRight:containerRect.right},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+                }
+            }, 200);
+            // #endregion
             container.innerHTML = '';
 
             // Time Column
@@ -4263,10 +4278,23 @@ Weber, Peter;Erle;social</code>
                     <span>${zoneAbbrev}</span>
                 </span>` : '';
                 
+                // NEUER ANSATZ: JavaScript-basierte dynamische Content-Anpassung basierend auf verfügbarer Breite
+                const parentCard = row.closest('.week-day-card');
+                let availableWidth = 200; // Fallback
+                if(parentCard) {
+                    const cardRect = parentCard.getBoundingClientRect();
+                    availableWidth = cardRect.width - 16; // Minus padding/border
+                }
+                
+                // Entscheide basierend auf verfügbarer Breite, was angezeigt wird
+                const showBadges = availableWidth > 180;
+                const showZoneBadge = availableWidth > 220;
+                const showCoordinatesIcon = availableWidth > 200;
+                
                 content.innerHTML = `
-                    <div class="event-title" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;">${evt.title}${hasCoordinates ? ' <span style="font-size:0.7rem;opacity:0.7;" title="Koordinaten vorhanden">📍</span>' : ''}</div>
+                    <div class="event-title" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;">${evt.title}${hasCoordinates && showCoordinatesIcon ? ' <span style="font-size:0.7rem;opacity:0.7;" title="Koordinaten vorhanden">📍</span>' : ''}</div>
                     <div class="event-time" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;">${evt.start} - ${evt.end}</div>
-                    <div class="event-badges" style="pointer-events:auto;overflow:hidden;max-width:100%;flex-wrap:wrap;">${typeBadges}${zoneBadge}</div>
+                    ${showBadges ? `<div class="event-badges" style="pointer-events:auto;overflow:hidden;max-width:100%;flex-wrap:wrap;">${typeBadges}${showZoneBadge ? zoneBadge : ''}</div>` : ''}
                 `;
             row.appendChild(content);
             
