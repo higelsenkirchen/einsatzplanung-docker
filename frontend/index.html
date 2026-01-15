@@ -4082,6 +4082,17 @@ Weber, Peter;Erle;social</code>
             row.style.height = heightValue + 'px';
             
             // #region agent log
+            const parentCard = row.closest('.week-day-card');
+            if (parentCard) {
+                const parentRect = parentCard.getBoundingClientRect();
+                const computedParent = window.getComputedStyle(parentCard);
+                const rowRect = row.getBoundingClientRect();
+                const computedRow = window.getComputedStyle(row);
+                fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:4082',message:'Event-Row Breiten-Debug BEFORE append',data:{eventId:evt.id,eventTitle:evt.title,parentWidth:parentRect.width,parentLeft:parentRect.left,parentComputedWidth:computedParent.width,parentBoxSizing:computedParent.boxSizing,rowWidth:rowRect.width,rowLeft:rowRect.left,rowComputedWidth:computedRow.width,rowComputedLeft:computedRow.left,rowComputedRight:computedRow.right,rowBoxSizing:computedRow.boxSizing,rowPaddingLeft:computedRow.paddingLeft,rowPaddingRight:computedRow.paddingRight,rowBorderLeft:computedRow.borderLeftWidth,rowBorderRight:computedRow.borderRightWidth},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+            }
+            // #endregion
+            
+            // #region agent log
             if(evt.extendedProps?.isCommute && evt.extendedProps?.commuteType === 'start') {
                 fetch('http://127.0.0.1:7242/ingest/f1c269df-a93b-40b7-9510-757883530d86', {
                     method: 'POST',
@@ -4204,9 +4215,25 @@ Weber, Peter;Erle;social</code>
                     <div class="event-time">${evt.start} - ${evt.end}</div>
                     <div class="event-badges" style="pointer-events:auto;">${typeBadges}${zoneBadge}</div>
                 `;
-                row.appendChild(content);
-                
-                // Custom Tooltip-System für gesamte Einsatzkachel mit allen Details
+            row.appendChild(content);
+            
+            // #region agent log
+            setTimeout(() => {
+                const parentCard = row.closest('.week-day-card');
+                const dayBody = row.closest('.week-day-body');
+                if (parentCard && dayBody) {
+                    const parentRect = parentCard.getBoundingClientRect();
+                    const dayBodyRect = dayBody.getBoundingClientRect();
+                    const rowRect = row.getBoundingClientRect();
+                    const computedRow = window.getComputedStyle(row);
+                    const computedParent = window.getComputedStyle(parentCard);
+                    const computedDayBody = window.getComputedStyle(dayBody);
+                    fetch('http://127.0.0.1:7242/ingest/39f95131-f2a6-4b27-ae0e-cfdee82dae99',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'index.html:4220',message:'Event-Row Breiten-Debug AFTER append',data:{eventId:evt.id,eventTitle:evt.title?.substring(0,30),parentCardWidth:parentRect.width,parentCardLeft:parentRect.left,parentCardRight:parentRect.right,dayBodyWidth:dayBodyRect.width,dayBodyLeft:dayBodyRect.left,dayBodyRight:dayBodyRect.right,rowWidth:rowRect.width,rowLeft:rowRect.left,rowRight:rowRect.right,rowOverflowCard:rowRect.right > parentRect.right,rowOverflowBody:rowRect.right > dayBodyRect.right,rowComputedWidth:computedRow.width,rowComputedLeft:computedRow.left,rowComputedRight:computedRow.right,rowComputedBoxSizing:computedRow.boxSizing,rowPaddingLeft:computedRow.paddingLeft,rowPaddingRight:computedRow.paddingRight,rowBorderLeft:computedRow.borderLeftWidth,rowBorderRight:computedRow.borderRightWidth,parentComputedWidth:computedParent.width,parentComputedBoxSizing:computedParent.boxSizing,dayBodyComputedWidth:computedDayBody.width,dayBodyComputedBoxSizing:computedDayBody.boxSizing},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+                }
+            }, 100);
+            // #endregion
+            
+            // Custom Tooltip-System für gesamte Einsatzkachel mit allen Details
                 if (!evt.extendedProps?.isTravel) {
                     // Sammle alle Einsatzdetails für Tooltip
                     const types = evt.extendedProps?.types || [];
